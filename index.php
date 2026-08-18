@@ -1,5 +1,7 @@
 <?php
-session_start();
+// Include the language management system
+require_once 'includes/lang.php';
+
 // If user is already logged in, redirect them
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] === 'lender') {
@@ -11,11 +13,11 @@ if (isset($_SESSION['user_id'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agriculture Equipment Rental System</title>
+    <title><?= __('title'); ?></title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
@@ -102,6 +104,36 @@ if (isset($_SESSION['user_id'])) {
             color: #555;
             letter-spacing: 0.5px;
             margin-top: 3px;
+        }
+
+        /* Top-Right Language Dropdown */
+        .lang-select-box {
+            position: absolute;
+            top: 25px;
+            right: 30px;
+            z-index: 10;
+            background: #ffffff;
+            padding: 8px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lang-select-box i {
+            color: var(--brand-green);
+            font-size: 1.1rem;
+        }
+
+        .lang-select-box select {
+            border: none;
+            outline: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--brand-green);
+            background: transparent;
+            cursor: pointer;
         }
 
         /* Main Headline Area */
@@ -275,21 +307,31 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
 
+        <!-- LANGUAGE SELECTOR DROPDOWN TOP RIGHT -->
+        <div class="lang-select-box">
+            <i class="fa-solid fa-globe"></i>
+            <select onchange="location = this.value;">
+                <option value="?lang=en" <?= ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
+                <option value="?lang=kn" <?= ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ</option>
+                <option value="?lang=hi" <?= ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी</option>
+            </select>
+        </div>
+
         <!-- HERO CONTENT -->
         <div class="hero-content">
-            <h1 class="hero-heading">Smart Solutions<br>for Modern Farming</h1>
+            <h1 class="hero-heading"><?= __('hero_title'); ?></h1>
             <p class="hero-subtitle">
-                Rent quality agricultural equipment easily<br>and grow your productivity.
+                <?= __('hero_sub'); ?>
             </p>
 
             <div class="btn-action-group">
                 <!-- Links to login.php -->
                 <a href="login.php" class="btn-login-custom">
-                    <i class="fa-solid fa-user-plus"></i> Login
+                    <i class="fa-solid fa-right-to-bracket"></i> <?= __('login'); ?>
                 </a>
                 <!-- Links to register.php -->
                 <a href="register.php" class="btn-register-custom">
-                    <i class="fa-solid fa-user-plus"></i> Register
+                    <i class="fa-solid fa-user-plus"></i> <?= __('register'); ?>
                 </a>
             </div>
         </div>
@@ -310,8 +352,8 @@ if (isset($_SESSION['user_id'])) {
                                 <i class="fa-solid fa-shield-halved"></i>
                             </div>
                             <div>
-                                <div class="feature-title">Trusted & Secure</div>
-                                <p class="feature-desc">Your data is safe with us</p>
+                                <div class="feature-title"><?= __('trusted'); ?></div>
+                                <p class="feature-desc"><?= __('trusted_desc'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -323,8 +365,8 @@ if (isset($_SESSION['user_id'])) {
                                 <i class="fa-solid fa-gear"></i>
                             </div>
                             <div>
-                                <div class="feature-title">Quality Equipment</div>
-                                <p class="feature-desc">Well-maintained and reliable</p>
+                                <div class="feature-title"><?= __('quality'); ?></div>
+                                <p class="feature-desc"><?= __('quality_desc'); ?></p>
                             </div>
                         </div>
                     </div>
@@ -336,8 +378,8 @@ if (isset($_SESSION['user_id'])) {
                                 <i class="fa-solid fa-location-dot"></i>
                             </div>
                             <div>
-                                <div class="feature-title">Near You</div>
-                                <p class="feature-desc">Find equipment nearby</p>
+                                <div class="feature-title"><?= __('near'); ?></div>
+                                <p class="feature-desc"><?= __('near_desc'); ?></p>
                             </div>
                         </div>
                     </div>

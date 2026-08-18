@@ -1,5 +1,7 @@
 <?php
-session_start();
+// Include session and language translation system
+require_once 'includes/lang.php';
+
 if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
@@ -32,11 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $current_lang; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Agriculture Equipment Rental System</title>
+    <title><?= __('login'); ?> - <?= __('title'); ?></title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
@@ -99,6 +101,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             padding: 6px 16px;
             font-size: 0.9rem;
+            background: #fff;
+            color: #333;
+            cursor: pointer;
         }
 
         /* --- Welcome & Tractor Image Styling --- */
@@ -290,7 +295,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- NAVBAR HEADER -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 border-bottom">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-3" href="#">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
                 <div class="brand-logo-icon">
                     <i class="fa-solid fa-tractor"></i>
                 </div>
@@ -307,22 +312,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center me-4">
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fa-solid fa-house me-1"></i> Home</a>
+                        <a class="nav-link" href="index.php"><i class="fa-solid fa-house me-1"></i> <?= __('home'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">How It Works</a>
+                        <a class="nav-link" href="how-it-works.php"><i class="fa-solid fa-info-circle me-1"></i> <?= __('how_it_works'); ?></a>
                     </li>
                 </ul>
 
-                <div class="dropdown">
-                    <button class="btn lang-dropdown dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-globe text-secondary"></i> English
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#">English</a></li>
-                        <li><a class="dropdown-item" href="#">ಕನ್ನಡ (Kannada)</a></li>
-                        <li><a class="dropdown-item" href="#">हिंदी (Hindi)</a></li>
-                    </ul>
+                <!-- DYNAMIC LANGUAGE DROPDOWN -->
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-globe text-secondary"></i>
+                    <select class="lang-dropdown fw-bold text-success" onchange="location = this.value;">
+                        <option value="?lang=en" <?= ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
+                        <option value="?lang=kn" <?= ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ (Kannada)</option>
+                        <option value="?lang=hi" <?= ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी (Hindi)</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -334,8 +338,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             <!-- LEFT COLUMN: Image & Text -->
             <div class="col-lg-6">
-                <h1 class="welcome-title mb-2">Welcome Back!</h1>
-                <p class="welcome-sub mb-3">Login to your account and start renting the best agricultural equipment near you.</p>
+                <h1 class="welcome-title mb-2"><?= __('welcome_back'); ?></h1>
+                <p class="welcome-sub mb-3"><?= __('login_sub'); ?></p>
 
                 <!-- Tractor Image -->
                 <div class="tractor-hero-card">
@@ -349,8 +353,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="feature-icon-box">
                                 <i class="fa-solid fa-shield-halved"></i>
                             </div>
-                            <span class="feature-title">Secure & Safe</span>
-                            <span class="feature-sub">Your data is safe<br>with us.</span>
+                            <span class="feature-title"><?= __('trusted'); ?></span>
+                            <span class="feature-sub"><?= __('trusted_desc'); ?></span>
                         </div>
                     </div>
                     <div class="col-4 border-start border-end">
@@ -358,8 +362,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="feature-icon-box">
                                 <i class="fa-solid fa-clock-rotate-left"></i>
                             </div>
-                            <span class="feature-title">24x7 Access</span>
-                            <span class="feature-sub">Access your account<br>anytime, anywhere.</span>
+                            <span class="feature-title"><?= __('quality'); ?></span>
+                            <span class="feature-sub"><?= __('quality_desc'); ?></span>
                         </div>
                     </div>
                     <div class="col-4">
@@ -367,8 +371,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="feature-icon-box">
                                 <i class="fa-solid fa-location-dot"></i>
                             </div>
-                            <span class="feature-title">Near You</span>
-                            <span class="feature-sub">Find equipment<br>available nearby.</span>
+                            <span class="feature-title"><?= __('near'); ?></span>
+                            <span class="feature-sub"><?= __('near_desc'); ?></span>
                         </div>
                     </div>
                 </div>
@@ -382,7 +386,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fa-regular fa-user"></i>
                     </div>
 
-                    <h3 class="text-center login-heading">Login</h3>
+                    <h3 class="text-center login-heading"><?= __('login'); ?></h3>
 
                     <?php if($error != ""): ?>
                         <div class="alert alert-danger py-2 text-center small"><?php echo $error; ?></div>
@@ -391,19 +395,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <form method="POST" action="">
                         <!-- Email / Phone -->
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-secondary">Email / Phone Number</label>
+                            <label class="form-label small fw-semibold text-secondary"><?= __('email_or_phone'); ?></label>
                             <div class="input-icon-wrapper">
                                 <i class="fa-regular fa-user input-icon-left"></i>
-                                <input type="text" name="login_input" class="form-control" placeholder="Enter your email or mobile number" required>
+                                <input type="text" name="login_input" class="form-control" placeholder="<?= __('enter_email_phone'); ?>" required>
                             </div>
                         </div>
 
                         <!-- Password -->
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-secondary">Password</label>
+                            <label class="form-label small fw-semibold text-secondary"><?= __('password'); ?></label>
                             <div class="input-icon-wrapper">
                                 <i class="fa-solid fa-lock input-icon-left"></i>
-                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Enter your password" required>
+                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="<?= __('enter_password'); ?>" required>
                                 <i class="fa-regular fa-eye input-icon-right" id="togglePassword"></i>
                             </div>
                         </div>
@@ -412,14 +416,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="d-flex justify-content-between align-items-center mb-4 small">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="rememberMe">
-                                <label class="form-check-label text-secondary" for="rememberMe">Remember Me</label>
+                                <label class="form-check-label text-secondary" for="rememberMe"><?= __('remember_me'); ?></label>
                             </div>
-                            <a href="#" class="text-success text-decoration-none fw-semibold">Forgot Password?</a>
+                            <a href="#" class="text-success text-decoration-none fw-semibold"><?= __('forgot_password'); ?></a>
                         </div>
 
                         <!-- Login Button -->
                         <button type="submit" class="btn btn-brand-green w-100 mb-3">
-                            Login <span class="arrow-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                            <?= __('login'); ?> <span class="arrow-icon"><i class="fa-solid fa-arrow-right"></i></span>
                         </button>
                     </form>
 
@@ -432,14 +436,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- Register Link -->
                     <a href="register.php" class="btn-outline-register mb-4">
-                        <i class="fa-solid fa-user-plus me-2 text-success"></i> Don't have an account? <strong class="text-success">Register</strong>
+                        <i class="fa-solid fa-user-plus me-2 text-success"></i> <?= __('dont_have_account'); ?> <strong class="text-success"><?= __('register'); ?></strong>
                     </a>
 
                     <!-- Terms Box -->
                     <div class="terms-box d-flex align-items-center gap-3">
                         <i class="fa-solid fa-shield-check text-success fa-lg"></i>
                         <div>
-                            By logging in, you agree to our <a href="#" class="text-success text-decoration-none fw-semibold">Terms & Conditions</a> and <a href="#" class="text-success text-decoration-none fw-semibold">Privacy Policy</a>.
+                            <?= __('terms_notice'); ?>
                         </div>
                     </div>
 
@@ -452,19 +456,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- FOOTER -->
     <footer>
         <div class="container pt-3">
-            <!-- Light Horizontal Line Above Categories -->
             <hr class="my-4 text-muted opacity-25">
 
             <div class="row g-4 justify-content-center">
                 <div class="col-md-8 text-center">
-                    <h6 class="fw-bold mb-3 text-success">POPULAR CATEGORIES</h6>
+                    <h6 class="fw-bold mb-3 text-success"><?= __('popular_categories'); ?></h6>
                     <div class="d-flex flex-wrap justify-content-center gap-4 small text-secondary">
-                        <span><i class="fa-solid fa-tractor me-1 text-success"></i> Tractor</span>
-                        <span><i class="fa-solid fa-wheat-awn me-1 text-success"></i> Harvesting</span>
-                        <span><i class="fa-solid fa-droplet me-1 text-success"></i> Irrigation</span>
-                        <span><i class="fa-solid fa-gears me-1 text-success"></i> Tillage</span>
-                        <span><i class="fa-solid fa-seedling me-1 text-success"></i> Seeding</span>
-                        <span><i class="fa-solid fa-spray-can me-1 text-success"></i> Spraying</span>
+                        <span><i class="fa-solid fa-tractor me-1 text-success"></i> <?= __('tractor'); ?></span>
+                        <span><i class="fa-solid fa-wheat-awn me-1 text-success"></i> <?= __('harvesting'); ?></span>
+                        <span><i class="fa-solid fa-droplet me-1 text-success"></i> <?= __('irrigation'); ?></span>
+                        <span><i class="fa-solid fa-gears me-1 text-success"></i> <?= __('tillage'); ?></span>
+                        <span><i class="fa-solid fa-seedling me-1 text-success"></i> <?= __('seeding'); ?></span>
+                        <span><i class="fa-solid fa-spray-can me-1 text-success"></i> <?= __('spraying'); ?></span>
                     </div>
                 </div>
             </div>
@@ -472,7 +475,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="footer-bottom">
             <div class="container">
-                © 2026 Agriculture Equipment Rental System. All rights reserved.
+                © 2026 <?= __('title'); ?>. <?= __('all_rights_reserved'); ?>
             </div>
         </div>
     </footer>
