@@ -2,7 +2,11 @@
 // Include the language management system
 require_once 'includes/lang.php';
 
-// If user is already logged in, redirect them
+// Start the session before any output is sent.
+session_start();
+
+/*
+// Commented out so logged-in users can stay on index.php:
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] === 'lender') {
         header("Location: lender_dashboard.php");
@@ -11,6 +15,7 @@ if (isset($_SESSION['user_id'])) {
     }
     exit();
 }
+*/
 ?>
 <!DOCTYPE html>
 <html lang="<?= $current_lang; ?>">

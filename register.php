@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
@@ -18,9 +19,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $security_question = mysqli_real_escape_string($conn, $_POST['security_question']);
     $security_answer   = mysqli_real_escape_string($conn, $_POST['security_answer']);
 
-    if ($password !== $confirm_password) {
+    // Check Terms & Conditions
+    if (!isset($_POST['terms'])) {
+        $error = "Please agree to the Terms and Conditions and Privacy Policy.";
+    }
+
+    // Check if passwords match
+    elseif ($password !== $confirm_password) {
         $error = "Passwords do not match!";
     } else {
+
         // Check if email or phone already exists
         $check_sql = "SELECT * FROM users WHERE email='$email' OR phone='$phone'";
         $check_res = mysqli_query($conn, $check_sql);
@@ -28,11 +36,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($check_res && mysqli_num_rows($check_res) > 0) {
             $error = "An account with this Email or Phone number already exists!";
         } else {
+
+            // Securely hash the password before saving
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
             // Insert into database
-            $insert_sql = "INSERT INTO users (full_name, email, phone, address, role, password, security_question, security_answer) 
-                           VALUES ('$full_name', '$email', '$phone', '$address', '$user_type', '$password', '$security_question', '$security_answer')";
+            $insert_sql = "INSERT INTO users 
+                           (full_name, email, phone, address, role, password, security_question, security_answer) 
+                           VALUES 
+                           ('$full_name', '$email', '$phone', '$address', '$user_type', '$hashed_password', '$security_question', '$security_answer')";
             
             if (mysqli_query($conn, $insert_sql)) {
+
                 // Get newly created user ID
                 $user_id = mysqli_insert_id($conn);
 
@@ -43,14 +58,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['role']      = $user_type;
 
                 // Select dashboard based on user_type selection
-                $target_page = ($user_type === 'lender') ? 'lender_dashboard.php' : 'renter_dashboard.php';
+                $target_page = ($user_type === 'lender') 
+                    ? 'lender_dashboard.php' 
+                    : 'renter_dashboard.php';
 
                 $success = "Registration successful! Redirecting to your dashboard...";
+
                 echo "<script>
                         setTimeout(function(){ 
                             window.location.href = '$target_page'; 
                         }, 1500);
                       </script>";
+
             } else {
                 $error = "Database Error: " . mysqli_error($conn);
             }
@@ -65,8 +84,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - AgriRent</title>
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
@@ -336,235 +357,496 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
 
     <!-- NAVBAR HEADER -->
     <nav class="navbar navbar-expand-lg">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
-            <div class="brand-logo-icon">
-                <!-- Icon here -->
-            </div>
-            <div>
-                <div class="brand-text-main">AgriRent</div>
-                <div class="brand-text-sub">Agriculture Equipment Rental System</div>
-            </div>
-        </a>
+        <div class="container">
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
 
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav align-items-center me-3">
-                <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Browse Equipment</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Categories</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
-            </ul>
+                <div class="brand-logo-icon">
+                    <!-- Icon here -->
+                </div>
 
-            <a href="login.php" class="btn-outline-login">
-                <i class="fa-regular fa-user"></i> Login
+                <div>
+                    <div class="brand-text-main">AgriRent</div>
+                    <div class="brand-text-sub">
+                        Agriculture Equipment Rental System
+                    </div>
+                </div>
+
             </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+
+                <ul class="navbar-nav align-items-center me-3">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Browse Equipment</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Categories</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">How It Works</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About Us</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact Us</a>
+                    </li>
+
+                </ul>
+
+                <a href="login.php" class="btn-outline-login">
+                    <i class="fa-regular fa-user"></i> Login
+                </a>
+
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+
     <!-- MAIN REGISTRATION CARD CONTAINER -->
     <div class="container">
+
         <div class="register-outer-card">
+
             <div class="row g-0">
-                
+
                 <!-- LEFT PANEL: Hero Banner with Image -->
                 <div class="col-lg-5 d-none d-lg-block">
+
                     <div class="left-banner-panel">
+
                         <div>
-                            <h2 class="banner-heading">Create Your Account<br>and Get Started!</h2>
+
+                            <h2 class="banner-heading">
+                                Create Your Account<br>
+                                and Get Started!
+                            </h2>
+
                             <div class="banner-line"></div>
+
                             <p class="banner-subtext">
                                 Join AgriRent today and access a wide range of agricultural equipment for your farming needs.
                             </p>
+
                         </div>
 
                         <!-- Tractor Image Container -->
                         <div class="banner-image-wrapper">
-                            <img src="images/tractor.jpg" alt="AgriRent Tractor">
+
+                            <img src="images/tractor.jpg"
+                                 alt="AgriRent Tractor">
+
                         </div>
+
                     </div>
+
                 </div>
 
                 <!-- RIGHT PANEL: Registration Form -->
                 <div class="col-lg-7">
+
                     <div class="right-form-panel">
-                        
+
                         <div class="form-header-title">
-                            <i class="fa-solid fa-user-plus"></i> Register
+                            <i class="fa-solid fa-user-plus"></i>
+                            Register
                         </div>
-                        <p class="form-header-sub">Fill in the details to create your account</p>
+
+                        <p class="form-header-sub">
+                            Fill in the details to create your account
+                        </p>
 
                         <?php if($error != ""): ?>
-                            <div class="alert alert-danger py-2 text-center small"><?php echo $error; ?></div>
+
+                            <div class="alert alert-danger py-2 text-center small">
+                                <?php echo $error; ?>
+                            </div>
+
                         <?php endif; ?>
 
                         <?php if($success != ""): ?>
-                            <div class="alert alert-success py-2 text-center small"><?php echo $success; ?></div>
+
+                            <div class="alert alert-success py-2 text-center small">
+                                <?php echo $success; ?>
+                            </div>
+
                         <?php endif; ?>
 
                         <form method="POST" action="">
+
                             <div class="row g-3">
-                                
+
                                 <!-- Full Name -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Full Name</label>
+
+                                    <label class="form-label">
+                                        Full Name
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-regular fa-user input-icon-left"></i>
-                                        <input type="text" name="full_name" class="form-control" placeholder="Enter your full name" required>
+
+                                        <input type="text"
+                                               name="full_name"
+                                               class="form-control"
+                                               placeholder="Enter your full name"
+                                               required>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Email Address -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Email Address</label>
+
+                                    <label class="form-label">
+                                        Email Address
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-regular fa-envelope input-icon-left"></i>
-                                        <input type="email" name="email" class="form-control" placeholder="Enter your email address" required>
+
+                                        <input type="email"
+                                               name="email"
+                                               class="form-control"
+                                               placeholder="Enter your email address"
+                                               required>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Phone Number -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Phone Number</label>
+
+                                    <label class="form-label">
+                                        Phone Number
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-solid fa-phone input-icon-left"></i>
-                                        <input type="text" name="phone" class="form-control" placeholder="Enter your phone number" required>
+
+                                        <input type="text"
+                                               name="phone"
+                                               class="form-control"
+                                               placeholder="Enter your phone number"
+                                               required>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Address -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Address</label>
+
+                                    <label class="form-label">
+                                        Address
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-solid fa-location-dot input-icon-left"></i>
-                                        <input type="text" name="address" class="form-control" placeholder="Enter your full address" required>
+
+                                        <input type="text"
+                                               name="address"
+                                               class="form-control"
+                                               placeholder="Enter your full address"
+                                               required>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Select User Type -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Select User Type</label>
+
+                                    <label class="form-label">
+                                        Select User Type
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-solid fa-users input-icon-left"></i>
-                                        <select name="user_type" class="form-select" required>
-                                            <option value="" selected disabled>-- Select User Type --</option>
-                                            <option value="renter">Farmer / Renter</option>
-                                            <option value="lender">Equipment Owner / Lender</option>
+
+                                        <select name="user_type"
+                                                class="form-select"
+                                                required>
+
+                                            <option value=""
+                                                    selected
+                                                    disabled>
+                                                -- Select User Type --
+                                            </option>
+
+                                            <option value="renter">
+                                                Farmer / Renter
+                                            </option>
+
+                                            <option value="lender">
+                                                Equipment Owner / Lender
+                                            </option>
+
                                         </select>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Password -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Password</label>
+
+                                    <label class="form-label">
+                                        Password
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-solid fa-lock input-icon-left"></i>
-                                        <input type="password" name="password" id="passInput" class="form-control" placeholder="Enter your password" required>
-                                        <i class="fa-regular fa-eye-slash input-icon-right" id="togglePass"></i>
+
+                                        <input type="password"
+                                               name="password"
+                                               id="passInput"
+                                               class="form-control"
+                                               placeholder="Enter your password"
+                                               required>
+
+                                        <i class="fa-regular fa-eye-slash input-icon-right"
+                                           id="togglePass"></i>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Confirm Password -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Confirm Password</label>
+
+                                    <label class="form-label">
+                                        Confirm Password
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-solid fa-lock input-icon-left"></i>
-                                        <input type="password" name="confirm_password" id="confirmPassInput" class="form-control" placeholder="Confirm your password" required>
-                                        <i class="fa-regular fa-eye-slash input-icon-right" id="toggleConfirmPass"></i>
+
+                                        <input type="password"
+                                               name="confirm_password"
+                                               id="confirmPassInput"
+                                               class="form-control"
+                                               placeholder="Confirm your password"
+                                               required>
+
+                                        <i class="fa-regular fa-eye-slash input-icon-right"
+                                           id="toggleConfirmPass"></i>
+
                                     </div>
+
                                 </div>
 
                             </div>
 
                             <!-- SECURITY QUESTION DIVIDER -->
                             <div class="security-divider">
-                                <span><i class="fa-solid fa-shield-halved"></i> Security Question</span>
+
+                                <span>
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                    Security Question
+                                </span>
+
                             </div>
 
                             <div class="row g-3 mb-3">
+
                                 <!-- Security Question Dropdown -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Security Question</label>
+
+                                    <label class="form-label">
+                                        Security Question
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-regular fa-circle-question input-icon-left"></i>
-                                        <select name="security_question" class="form-select" required>
-                                            <option value="" selected disabled>-- Select a Security Question --</option>
-                                            <option value="first_pet">What was the name of your first pet?</option>
-                                            <option value="birth_city">In what city were you born?</option>
-                                            <option value="mother_maiden">What is your mother's maiden name?</option>
-                                            <option value="first_school">What was the name of your first school?</option>
+
+                                        <select name="security_question"
+                                                class="form-select"
+                                                required>
+
+                                            <option value=""
+                                                    selected
+                                                    disabled>
+                                                -- Select a Security Question --
+                                            </option>
+
+                                            <option value="first_pet">
+                                                What was the name of your first pet?
+                                            </option>
+
+                                            <option value="birth_city">
+                                                In what city were you born?
+                                            </option>
+
+                                            <option value="mother_maiden">
+                                                What is your mother's maiden name?
+                                            </option>
+
+                                            <option value="first_school">
+                                                What was the name of your first school?
+                                            </option>
+
                                         </select>
+
                                     </div>
+
                                 </div>
 
                                 <!-- Security Answer -->
                                 <div class="col-md-6">
-                                    <label class="form-label">Security Answer</label>
+
+                                    <label class="form-label">
+                                        Security Answer
+                                    </label>
+
                                     <div class="input-group-custom">
+
                                         <i class="fa-solid fa-lock input-icon-left"></i>
-                                        <input type="text" name="security_answer" class="form-control" placeholder="Enter your answer" required>
+
+                                        <input type="text"
+                                               name="security_answer"
+                                               class="form-control"
+                                               placeholder="Enter your answer"
+                                               required>
+
                                     </div>
+
                                 </div>
+
                             </div>
 
                             <!-- Terms & Conditions Checkbox -->
                             <div class="form-check mb-4 mt-2">
-                                <input class="form-check-input" type="checkbox" id="termsCheck" required>
-                                <label class="form-check-label small text-secondary" for="termsCheck">
-                                    I agree to the <a href="#" class="text-success fw-semibold text-decoration-none">Terms & Conditions</a> and <a href="#" class="text-success fw-semibold text-decoration-none">Privacy Policy</a>
+
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="terms"
+                                       id="termsCheck"
+                                       required>
+
+                                <label class="form-check-label small text-secondary"
+                                       for="termsCheck">
+
+                                    I agree to the
+                                    <a href="#"
+                                       class="text-success fw-semibold text-decoration-none">
+                                        Terms & Conditions
+                                    </a>
+                                    and
+                                    <a href="#"
+                                       class="text-success fw-semibold text-decoration-none">
+                                        Privacy Policy
+                                    </a>
+
                                 </label>
+
                             </div>
 
                             <!-- Submit Register Button -->
-                            <button type="submit" class="btn-register-submit">
-                                <i class="fa-solid fa-user-plus"></i> Register
+                            <button type="submit"
+                                    class="btn-register-submit">
+
+                                <i class="fa-solid fa-user-plus"></i>
+                                Register
+
                             </button>
 
                             <!-- Footer Login Link -->
                             <div class="login-link-footer">
-                                Already have an account? <a href="login.php">Login here</a>
+
+                                Already have an account?
+                                <a href="login.php">
+                                    Login here
+                                </a>
+
                             </div>
 
                         </form>
 
                     </div>
+
                 </div>
 
             </div>
+
         </div>
+
     </div>
 
     <!-- Bootstrap 5 JS & Toggle Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
+
         // Password Visibility Toggle
         const togglePass = document.querySelector('#togglePass');
         const passInput = document.querySelector('#passInput');
+
         togglePass.addEventListener('click', function () {
-            const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+
+            const type = passInput.getAttribute('type') === 'password'
+                ? 'text'
+                : 'password';
+
             passInput.setAttribute('type', type);
+
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
+
         });
+
 
         // Confirm Password Visibility Toggle
         const toggleConfirmPass = document.querySelector('#toggleConfirmPass');
         const confirmPassInput = document.querySelector('#confirmPassInput');
+
         toggleConfirmPass.addEventListener('click', function () {
-            const type = confirmPassInput.getAttribute('type') === 'password' ? 'text' : 'password';
+
+            const type = confirmPassInput.getAttribute('type') === 'password'
+                ? 'text'
+                : 'password';
+
             confirmPassInput.setAttribute('type', type);
+
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
+
         });
+
     </script>
+
 </body>
 </html>

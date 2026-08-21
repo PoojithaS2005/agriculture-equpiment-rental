@@ -1,7 +1,21 @@
 <?php
-// Include session and language translation system
+session_start();
+
+// 1. Redirect if user is already logged in
+if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'renter') {
+        header("Location: renter_dashboard.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'lender') {
+        header("Location: lender_dashboard.php");
+        exit();
+    }
+}
+
+// Include language translation system
 require_once 'includes/lang.php';
 
+// Include database connection
 if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
@@ -9,26 +23,49 @@ if (file_exists('includes/config.php')) {
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login_input = mysqli_real_escape_string($conn, $_POST['login_input']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    $sql = "SELECT * FROM users WHERE (email='$login_input' OR phone='$login_input') AND password='$password'";
+    $login_input = mysqli_real_escape_string($conn, trim($_POST['login_input']));
+    $password = trim($_POST['password']);
+
+    // Find user by email OR phone
+    $sql = "SELECT * FROM users 
+            WHERE email='$login_input' OR phone='$login_input'
+            LIMIT 1";
+
     $result = mysqli_query($conn, $sql);
 
     if ($result && mysqli_num_rows($result) == 1) {
-        $user = mysqli_fetch_assoc($result);
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['full_name'] = $user['full_name'];
-        $_SESSION['role'] = $user['role'];
 
-        if ($user['role'] == 'renter') {
-            header("Location: renter_dashboard.php");
+        $user = mysqli_fetch_assoc($result);
+
+        // Check password
+        if (password_verify($password, $user['password'])) {
+
+            // 2. Prevent Session Fixation attacks
+            session_regenerate_id(true);
+
+            // Create login session
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['full_name'] = $user['full_name'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['role'] = $user['role'];
+
+            // Redirect according to role
+            if ($user['role'] === 'renter') {
+                header("Location: renter_dashboard.php");
+                exit();
+            } 
+            elseif ($user['role'] === 'lender') {
+                header("Location: lender_dashboard.php");
+                exit();
+            }
+
         } else {
-            header("Location: lender_dashboard.php");
+            $error = "Incorrect password!";
         }
-        exit();
+
     } else {
-        $error = "Invalid Email/Phone or Password!";
+        $error = "Email or Phone number not found!";
     }
 }
 ?>
@@ -418,7 +455,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <input class="form-check-input" type="checkbox" id="rememberMe">
                                 <label class="form-check-label text-secondary" for="rememberMe"><?= __('remember_me'); ?></label>
                             </div>
-                            <a href="#" class="text-success text-decoration-none fw-semibold"><?= __('forgot_password'); ?></a>
+                            <a href="forgot_password.php" class="text-success text-decoration-none fw-semibold"><?= __('forgot_password'); ?></a>
                         </div>
 
                         <!-- Login Button -->
