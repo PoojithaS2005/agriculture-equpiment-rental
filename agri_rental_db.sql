@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 17, 2026 at 04:27 PM
+-- Generation Time: Aug 22, 2026 at 03:52 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,7 +41,7 @@ CREATE TABLE `bookings` (
   `id_proof_doc` varchar(255) NOT NULL,
   `status` enum('Pending','Accepted','Rejected','Delivered','Returned','Overdue') DEFAULT 'Pending',
   `late_charge` decimal(10,2) DEFAULT 0.00,
-  `requested_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -53,6 +53,8 @@ CREATE TABLE `bookings` (
 CREATE TABLE `categories` (
   `category_id` int(11) NOT NULL,
   `category_name` varchar(50) NOT NULL,
+  `description` text DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
   `icon_class` varchar(50) DEFAULT 'fa-tractor'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -64,6 +66,7 @@ CREATE TABLE `categories` (
 
 CREATE TABLE `equipment` (
   `equipment_id` int(11) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
   `lender_id` int(11) NOT NULL,
   `title` varchar(150) NOT NULL,
   `category` varchar(50) NOT NULL,
@@ -84,8 +87,55 @@ CREATE TABLE `equipment` (
   `status` enum('Available','Rented Out','Under Maintenance','Inactive') DEFAULT 'Available',
   `rating` decimal(2,1) DEFAULT 4.5,
   `rating_count` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_featured` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `equipment`
+--
+
+INSERT INTO `equipment` (`equipment_id`, `category_id`, `lender_id`, `title`, `category`, `brand_model`, `power_hp`, `drive_type`, `model_year`, `fuel_type`, `working_width`, `equipment_condition`, `price_per_day`, `min_booking_days`, `service_location`, `distance_km`, `description`, `image`, `badge`, `status`, `rating`, `rating_count`, `created_at`, `is_featured`) VALUES
+(1, 1, 7, 'tractor', 'Tractor', 'vg gr', 23, '4WD', 2026, 'Diesel', '', '', 443.00, 1, 'Bengaluru Rural, Tumakuru', 25.0, 'gbb', '1787390934_5282.png', '', 'Available', 0.0, 0, '2026-08-22 09:28:54', 1),
+(2, 1, 7, 'rere', 'Tractor', 're fr', 6, '4WD', 2026, 'Diesel', '', 'Good', 3.00, 144, 'Bengaluru Rural', 25.0, 'sdf', '', '', 'Available', 0.0, 0, '2026-08-22 09:53:34', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `items`
+--
+
+CREATE TABLE `items` (
+  `item_id` int(11) NOT NULL,
+  `lender_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `brand` varchar(100) DEFAULT NULL,
+  `model` varchar(100) DEFAULT NULL,
+  `year_of_purchase` int(11) DEFAULT NULL,
+  `item_condition` varchar(50) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `price_per_day` decimal(10,2) NOT NULL,
+  `security_deposit` decimal(10,2) DEFAULT 0.00,
+  `min_rental_days` int(11) DEFAULT 1,
+  `max_rental_days` int(11) DEFAULT NULL,
+  `status` enum('Available','Not Available') DEFAULT 'Available',
+  `service_areas` text DEFAULT NULL,
+  `fuel_type` varchar(50) DEFAULT NULL,
+  `power_hp` int(11) DEFAULT NULL,
+  `working_hours` int(11) DEFAULT NULL,
+  `is_recommended` tinyint(1) DEFAULT 0,
+  `image` varchar(255) DEFAULT 'default.png',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `items`
+--
+
+INSERT INTO `items` (`item_id`, `lender_id`, `title`, `category`, `brand`, `model`, `year_of_purchase`, `item_condition`, `description`, `price_per_day`, `security_deposit`, `min_rental_days`, `max_rental_days`, `status`, `service_areas`, `fuel_type`, `power_hp`, `working_hours`, `is_recommended`, `image`, `created_at`) VALUES
+(1, 7, 'tractor', 'Tractor', 'vg', 'gr', 2026, 'Excellent', 'gbb', 443.00, 44.00, 1, 8, 'Available', 'Bengaluru Rural, Tumakuru', 'Diesel', 23, 3, 1, '1787390934_5282.png', '2026-08-22 09:28:54'),
+(2, 7, 'rere', 'Tractor', 're', 'fr', 2026, 'Good', 'sdf', 3.00, 45.00, 144, 51, 'Available', 'Bengaluru Rural', 'Diesel', 6, 6, 1, '', '2026-08-22 09:53:34');
 
 -- --------------------------------------------------------
 
@@ -132,17 +182,22 @@ CREATE TABLE `users` (
   `security_answer` varchar(255) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `profile_pic` varchar(255) DEFAULT 'default_avatar.png',
-  `status` enum('online','offline') DEFAULT 'online',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `reset_otp` varchar(6) DEFAULT NULL,
+  `otp_expires_at` datetime DEFAULT NULL,
+  `otp_code` varchar(6) DEFAULT NULL,
+  `otp_expiry` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `full_name`, `email`, `phone`, `password`, `role`, `security_question`, `security_answer`, `address`, `profile_pic`, `status`, `created_at`) VALUES
-(1, 'poojitha S', 'poojithap098@gmail.com', '9876543219', '272005', 'renter', 'first_pet', 'bobby', 'hassan', 'default_avatar.png', 'online', '2026-08-17 08:53:11'),
-(2, 'thanu', 'thanushreec489@gmail.com', '9481469688', '8071', 'renter', 'birth_city', 'mandya', 'kurubarahalli', 'default_avatar.png', 'online', '2026-08-17 09:02:09');
+INSERT INTO `users` (`user_id`, `full_name`, `email`, `phone`, `password`, `role`, `security_question`, `security_answer`, `address`, `profile_pic`, `reset_otp`, `otp_expires_at`, `otp_code`, `otp_expiry`) VALUES
+(3, 'sowmya', 'sowmya2006@gmail.com', '1234567890', '$2y$10$PGavgC5cXvwP6pDrbRW.U.hxBiNmhHdfjjbfRv.z16L4Hs69WmneO', 'renter', 'first_pet', 'pinky', 'banglore', 'default_avatar.png', NULL, NULL, NULL, NULL),
+(4, 'sowmya r', 'sowmyar2006@gmail.com', '1234567891', '$2y$10$jTM5b6Ag4R./IxHAMOnarOfVYc4w7BEvTlMu1Y91lEXRgWNX3nL9K', 'renter', 'first_pet', 'pinkyz', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL),
+(5, 'pragathi', 'pragathikt29@gmail.com', '9845442268', '$2y$10$zibi4oNs8WechG/OzlMmu.DZzv88c4yMmw3DwoLoo8YdK8fVEDrHa', 'renter', 'birth_city', 'arsikere', 'hassan karnataka', 'default_avatar.png', NULL, NULL, NULL, NULL),
+(6, 'Tejomurthy', 'pragathikt2@gmail.com', '123456789', '$2y$10$KnT2yCXV.txkoTz.wQpyVeOqVj4PxHK4gRgfGwjYjM.bC3evG9zOy', 'lender', 'first_school', 'kodhialli school', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL),
+(7, 'Tejomurthy', 'pragathikt4@gmail.com', '7975865577', '$2y$10$atpaFVFLYvVlHz.Vuv4MY.XxRqJntVb6T/ZWlI7qmMzYQMnwP4kz.', 'lender', 'first_school', 'government school', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -168,6 +223,13 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `equipment`
   ADD PRIMARY KEY (`equipment_id`),
+  ADD KEY `lender_id` (`lender_id`);
+
+--
+-- Indexes for table `items`
+--
+ALTER TABLE `items`
+  ADD PRIMARY KEY (`item_id`),
   ADD KEY `lender_id` (`lender_id`);
 
 --
@@ -212,7 +274,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `equipment`
 --
 ALTER TABLE `equipment`
-  MODIFY `equipment_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `equipment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `items`
+--
+ALTER TABLE `items`
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -230,7 +298,7 @@ ALTER TABLE `saved_items`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -248,6 +316,12 @@ ALTER TABLE `bookings`
 --
 ALTER TABLE `equipment`
   ADD CONSTRAINT `equipment_ibfk_1` FOREIGN KEY (`lender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `items`
+--
+ALTER TABLE `items`
+  ADD CONSTRAINT `items_ibfk_1` FOREIGN KEY (`lender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `notifications`
