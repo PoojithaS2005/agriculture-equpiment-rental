@@ -429,13 +429,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="alert alert-danger py-2 text-center small"><?php echo $error; ?></div>
                     <?php endif; ?>
 
-                    <form method="POST" action="">
+                    <form method="POST" action="" autocomplete="off">
+                        
+                        <!-- Hidden inputs trick Chrome away from real inputs -->
+                        <input type="text" style="display:none" name="fake_username_autofill"/>
+                        <input type="password" style="display:none" name="fake_password_autofill"/>
+
                         <!-- Email / Phone -->
                         <div class="mb-3">
                             <label class="form-label small fw-semibold text-secondary"><?= __('email_or_phone'); ?></label>
                             <div class="input-icon-wrapper">
                                 <i class="fa-regular fa-user input-icon-left"></i>
-                                <input type="text" name="login_input" class="form-control" placeholder="<?= __('enter_email_phone'); ?>" required>
+                                <input type="text" name="login_input" class="form-control" placeholder="<?= __('enter_email_phone'); ?>" autocomplete="off" required>
                             </div>
                         </div>
 
@@ -444,7 +449,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <label class="form-label small fw-semibold text-secondary"><?= __('password'); ?></label>
                             <div class="input-icon-wrapper">
                                 <i class="fa-solid fa-lock input-icon-left"></i>
-                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="<?= __('enter_password'); ?>" required>
+                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="<?= __('enter_password'); ?>" autocomplete="new-password" required>
                                 <i class="fa-regular fa-eye input-icon-right" id="togglePassword"></i>
                             </div>
                         </div>

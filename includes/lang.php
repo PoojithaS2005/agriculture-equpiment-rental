@@ -155,6 +155,119 @@ $translations = [
         'err_pwd_mismatch' => 'Passwords do not match.',
         'err_pwd_length' => 'Password must be at least 6 characters long.',
         'err_update_failed' => 'Failed to update password. Please try again.',
+        // Lender dashboard
+        'title'             => 'Agriculture Equipment Rental System',
+          'lender_dashboard' => 'LENDER DASHBOARD',
+        'dashboard' => 'Dashboard',
+        'add_equipment' => 'Add Equipment',
+        'my_equipment' => 'My Equipment',
+        'rental_requests' => 'Rental Requests',
+        'active_rentals' => 'Active Rentals',
+        'rental_history' => 'Rental History',
+        'total_earnings' => 'Total Earnings',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+        'search_placeholder' => 'Search anything...',
+        
+        // Banner & Stat Cards
+        'welcome' => 'Welcome',
+        'banner_subtitle' => 'Manage your equipment, rentals, and grow your business.',
+        'total_equipment' => 'Total Equipment',
+        'view_details' => 'View Details →',
+        'view_all' => 'View All →',
+        
+        // Table Headers
+        'renter' => 'Renter',
+        'equipment' => 'Equipment',
+        'from_to' => 'From - To',
+        'amount' => 'Amount',
+        'action' => 'Action',
+        'accept' => 'Accept',
+        'reject' => 'Reject',
+        'in_use' => 'In Use',
+
+        // Empty States
+        'no_pending_requests' => 'No pending rental requests found.',
+        'no_active_rentals' => 'No active equipment rentals.',
+
+        //add_items page translations
+          // Sidebar
+        'dashboard' => 'Dashboard',
+        'my_equipment' => 'My Equipment',
+        'add_equipment' => 'Add Equipment',
+        'rental_requests' => 'Rental Requests',
+        'my_bookings' => 'My Bookings',
+        'active_rentals' => 'Active Rentals',
+        'total_earnings' => 'Total Earnings',
+        'service_areas' => 'Service Areas',
+        'reviews' => 'Reviews',
+        'profile_settings' => 'Profile Settings',
+        'logout' => 'Logout',
+        'lender' => 'Lender',
+
+        // Header & Page Titles
+        'page_title' => 'Add New Equipment',
+        'home' => 'Home',
+        'back_dashboard' => 'Back to Dashboard',
+        'header_badge' => 'ADD EQUIPMENT',
+        'header_subtitle' => 'Fill in details to register machinery for rent',
+
+        // Section 1: Equipment Details
+        'sec_details' => '1. Equipment Details',
+        'eq_name' => 'Equipment Name',
+        'eq_name_ph' => 'Enter equipment name',
+        'category' => 'Category',
+        'select_category' => '-- Select Category --',
+        'brand' => 'Brand',
+        'brand_ph' => 'Enter brand name',
+        'model' => 'Model',
+        'model_ph' => 'Enter model',
+        'year_purchase' => 'Year of Purchase',
+        'condition' => 'Condition',
+        'select_condition' => '-- Select Condition --',
+        'description' => 'Description',
+        'description_ph' => 'Enter equipment description, features and specifications...',
+
+        // Section 2: Pricing & Availability
+        'sec_pricing' => '2. Pricing & Availability',
+        'price_per_day' => 'Price Per Day (₹)',
+        'price_per_day_ph' => 'Enter price per day',
+        'security_deposit' => 'Security Deposit (₹)',
+        'security_deposit_ph' => 'Enter security deposit (optional)',
+        'min_rental' => 'Min. Rental Days',
+        'max_rental' => 'Max. Rental Days',
+        'max_rental_ph' => 'Enter maximum days (optional)',
+        'avail_status' => 'Available Status',
+        'available' => 'Available',
+        'not_available' => 'Not Available',
+
+        // Section 3: Equipment Images
+        'sec_images' => '3. Equipment Images',
+        'drag_drop' => 'Drag & drop images here',
+        'or' => 'or',
+        'choose_files' => 'Choose Files',
+        'image_specs' => 'JPG, PNG or WEBP (Max. 5MB)',
+
+        // Section 4: Service Areas
+        'sec_service_areas' => '4. Service Areas',
+        'select_service_areas' => 'Select Service Areas',
+        'add_custom_area' => '+ Add Custom Area',
+        'prompt_custom_area' => 'Enter custom area name:',
+
+        // Section 5: Additional Information
+        'sec_additional' => '5. Additional Information',
+        'fuel_type' => 'Fuel Type',
+        'select_fuel' => '-- Select Fuel Type --',
+        'power_hp' => 'Power (HP)',
+        'power_hp_ph' => 'Enter power in HP',
+        'working_hours' => 'Working Hours',
+        'working_hours_ph' => 'Enter working hours',
+        'mark_recommended' => 'Mark as Recommended Equipment',
+        'recommended_desc' => 'This will show your equipment on homepage as recommended.',
+
+        // Buttons
+        'reset' => 'Reset',
+        'save_equipment' => 'Save Equipment'
         
 
     ],
@@ -299,7 +412,118 @@ $translations = [
         'err_wrong_answer' => 'ಸುರಕ್ಷತಾ ಪ್ರಶ್ನೆಗೆ ತಪ್ಪು ಉತ್ತರ.',
         'err_pwd_mismatch' => 'ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ.',
         'err_pwd_length' => 'ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
-        'err_update_failed' => 'ಪಾಸ್‌ವರ್ಡ್ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.'
+        'err_update_failed' => 'ಪಾಸ್‌ವರ್ಡ್ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+        // lender dashboard
+           'title' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+          'lender_dashboard' => 'ಉಪಕರಣ ಮಾಲೀಕರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'add_equipment' => 'ಉಪಕರಣ ಸೇರಿಸಿ',
+        'my_equipment' => 'ನನ್ನ ಉಪಕರಣಗಳು',
+        'rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
+        'active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
+        'rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+        'total_earnings' => 'ಒಟ್ಟು ಗಳಿಕೆ',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಲಾಗ್‌ಔಟ್',
+        'search_placeholder' => 'ಹುಡುಕಿ...',
+        
+        'welcome' => 'ಸ್ವಾಗತ',
+        'banner_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣಗಳು, ಬಾಡಿಗೆಗಳು ಮತ್ತು ವ್ಯವಹಾರವನ್ನು ನಿರ್ವಹಿಸಿ.',
+        'total_equipment' => 'ಒಟ್ಟು ಉಪಕರಣಗಳು',
+        'view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ →',
+        'view_all' => 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ →',
+        
+        'renter' => 'ಬಾಡಿಗೆದಾರ',
+        'equipment' => 'ಉಪಕರಣ',
+        'from_to' => 'ದಿನಾಂಕದಿಂದ - ದಿನಾಂಕದವರೆಗೆ',
+        'amount' => 'ಮೊತ್ತ',
+        'action' => 'ಕ್ರಿಯೆ',
+        'accept' => 'ಸಮ್ಮತಿಸಿ',
+        'reject' => 'ನಿರಾಕರಿಸಿ',
+        'in_use' => 'ಬಳಕೆಯಲ್ಲಿದೆ',
+
+        'no_pending_requests' => 'ಯಾವುದೇ ಬಾಕಿ ಇರುವ ಬಾಡಿಗೆ ವಿನಂತಿಗಳಿಲ್ಲ.',
+        'no_active_rentals' => 'ಯಾವುದೇ ಸಕ್ರಿಯ ಉಪಕರಣ ಬಾಡಿಗೆಗಳಿಲ್ಲ.',
+        'Reviews' => 'ವಿಮರ್ಶೆಗಳು',
+
+        // add.items page transaltions
+        // Sidebar
+        'dashboard' => 'ಮುಖಪುಟ (Dashboard)',
+        'my_equipment' => 'ನನ್ನ ಉಪಕರಣಗಳು',
+        'add_equipment' => 'ಉಪಕರಣವನ್ನು ಸೇರಿಸಿ',
+        'rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
+        'total_earnings' => 'ಒಟ್ಟು ಗಳಿಕೆ',
+        'service_areas' => 'ಸೇವಾ ಪ್ರದೇಶಗಳು',
+        'reviews' => 'ವಿಮರ್ಶೆಗಳು',
+        'profile_settings' => 'ಪ್ರೊಫೈಲ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
+        'logout' => 'ಹೊರನಡೆ',
+        'lender' => 'ಉಪಕರಣ ಮಾಲೀಕ',
+
+        // Header & Page Titles
+        'page_title' => 'ಹೊಸ ಉಪಕರಣವನ್ನು ಸೇರಿಸಿ',
+        'home' => 'ಮುಖಪುಟ',
+        'back_dashboard' => 'ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ',
+        'header_badge' => 'ಉಪಕರಣ ಸೇರಿಸಿ',
+        'header_subtitle' => 'ಬಾಡಿಗೆಗೆ ಯಂತ್ರೋಪಕರಣಗಳನ್ನು ನೋಂದಾಯಿಸಲು ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ',
+
+        // Section 1: Equipment Details
+        'sec_details' => '1. ಉಪಕರಣದ ವಿವರಗಳು',
+        'eq_name' => 'ಉಪಕರಣದ ಹೆಸರು',
+        'eq_name_ph' => 'ಉಪಕರಣದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
+        'category' => 'ವರ್ಗ',
+        'select_category' => '-- ವರ್ಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ --',
+        'brand' => 'ಬ್ರ್ಯಾಂಡ್',
+        'brand_ph' => 'ಬ್ರ್ಯಾಂಡ್ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
+        'model' => 'ಮಾದರಿ',
+        'model_ph' => 'ಮಾದರಿಯನ್ನು ನಮೂದಿಸಿ',
+        'year_purchase' => 'ಖরিদಿಸಿದ ವರ್ಷ',
+        'condition' => 'ಸ್ಥಿತಿ',
+        'select_condition' => '-- ಸ್ಥಿತಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ --',
+        'description' => 'ವಿವರಣೆ',
+        'description_ph' => 'ಉಪಕರಣದ ವಿವರಣೆ, ವೈಶಿಷ್ಟ್ಯಗಳು ಮತ್ತು ವಿಶೇಷತೆಗಳನ್ನು ನಮೂದಿಸಿ...',
+
+        // Section 2: Pricing & Availability
+        'sec_pricing' => '2. ಬೆಲೆ ಮತ್ತು ಲಭ್ಯತೆ',
+        'price_per_day' => 'ದಿನದ ಬೆಲೆ (₹)',
+        'price_per_day_ph' => 'ಪ್ರತಿ ದಿನದ ಬೆಲೆಯನ್ನು ನಮೂದಿಸಿ',
+        'security_deposit' => 'ಭದ್ರತಾ ಠೇವಣಿ (₹)',
+        'security_deposit_ph' => 'ಭದ್ರತಾ ಠೇವಣಿ ನಮೂದಿಸಿ (ಐಚ್ಛಿಕ)',
+        'min_rental' => 'ಕನಿಷ್ಠ ಬಾಡಿಗೆ ದಿನಗಳು',
+        'max_rental' => 'ಗರಿಷ್ಠ ಬಾಡಿಗೆ ದಿನಗಳು',
+        'max_rental_ph' => 'ಗರಿಷ್ಠ ದಿನಗಳನ್ನು ನಮೂದಿಸಿ (ಐಚ್ಛಿಕ)',
+        'avail_status' => 'ಲಭ್ಯತೆಯ ಸ್ಥಿತಿ',
+        'available' => 'ಲಭ್ಯವಿದೆ',
+        'not_available' => 'ಲಭ್ಯವಿಲ್ಲ',
+
+        // Section 3: Equipment Images
+        'sec_images' => '3. ಉಪಕರಣದ ಚಿತ್ರಗಳು',
+        'drag_drop' => 'ಚಿತ್ರಗಳನ್ನು ಇಲ್ಲಿ ಎಳೆದು ಹಾಕಿ',
+        'or' => 'ಅಥವಾ',
+        'choose_files' => 'ಫೈಲ್‌ಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        'image_specs' => 'JPG, PNG ಅಥವಾ WEBP (ಗರಿಷ್ಠ 5MB)',
+
+        // Section 4: Service Areas
+        'sec_service_areas' => '4. ಸೇವಾ ಪ್ರದೇಶಗಳು',
+        'select_service_areas' => 'ಸೇವಾ ಪ್ರದೇಶಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        'add_custom_area' => '+ ಕಸ್ಟಮ್ ಪ್ರದೇಶವನ್ನು ಸೇರಿಸಿ',
+        'prompt_custom_area' => 'ಕಸ್ಟಮ್ ಪ್ರದೇಶದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ:',
+
+        // Section 5: Additional Information
+        'sec_additional' => '5. ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ',
+        'fuel_type' => 'ಇಂಧನ ಪ್ರಕಾರ',
+        'select_fuel' => '-- ಇಂಧನ ಪ್ರಕಾರವನ್ನು ಆಯ್ಕೆಮಾಡಿ --',
+        'power_hp' => 'ಶಕ್ತಿ (HP)',
+        'power_hp_ph' => 'HP ನಲ್ಲಿ ಶಕ್ತಿಯನ್ನು ನಮೂದಿಸಿ',
+        'working_hours' => 'ಕೆಲಸದ ಗಂಟೆಗಳು',
+        'working_hours_ph' => 'ಕೆಲಸದ ಗಂಟೆಗಳನ್ನು ನಮೂದಿಸಿ',
+        'mark_recommended' => 'ಶಿಫಾರಸು ಮಾಡಿದ ಉಪಕರಣವಾಗಿ ಗುರುತಿಸಿ',
+        'recommended_desc' => 'ಇದು ನಿಮ್ಮ ಉಪಕರಣವನ್ನು ಮುಖಪುಟದಲ್ಲಿ ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ ಎಂದು ತೋರಿಸುತ್ತದೆ.',
+
+        // Buttons
+        'reset' => 'ಮರುಹೊಂದಿಸಿ',
+        'save_equipment' => 'ಉಪಕರಣವನ್ನು ಉಳಿಸಿ'
 
         
     ],
@@ -441,7 +665,127 @@ $translations = [
         'err_wrong_answer' => 'सुरक्षा प्रश्न का उत्तर गलत है।',
         'err_pwd_mismatch' => 'पासवर्ड मेल नहीं खाते।',
         'err_pwd_length' => 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।',
-        'err_update_failed' => 'पासवर्ड अपडेट करने में विफल। कृपया पुनः प्रयास करें।'
+        'err_update_failed' => 'पासवर्ड अपडेट करने में विफल। कृपया पुनः प्रयास करें।',
+         'dashboard' => 'डैशबोर्ड',
+        'add_equipment' => 'उपकरण जोड़ें',
+        'my_equipment' => 'मेरे उपकरण',
+        'rental_requests' => 'किराए के अनुरोध',
+        'active_rentals' => 'सक्रिय किराए',
+        'total_equipment' => 'कुल उपकरण',
+        'total_earnings' => 'कुल कमाई',
+        'logout' => 'लॉगआउट',
+        'welcome' => 'वापसी पर स्वागत है',
+        // lender dashboard
+          'title' => 'कृषि उपकरण किराया प्रणाली',
+         'lender_dashboard' => 'लेंडर डैशबोर्ड',
+        'dashboard' => 'डैशबोर्ड',
+        'add_equipment' => 'उपकरण जोड़ें',
+        'my_equipment' => 'मेरे उपकरण',
+        'rental_requests' => 'किराए के अनुरोध',
+        'active_rentals' => 'सक्रिय किराए',
+        'rental_history' => 'किराया इतिहास',
+        'total_earnings' => 'कुल कमाई',
+        'my_profile' => 'मेरी प्रोफाइल',
+        'logout' => 'लॉगआउट',
+        'search_placeholder' => 'कुछ भी खोजें...',
+        
+        'welcome' => 'स्वागत है',
+        'banner_subtitle' => 'अपने उपकरणों, किराए और व्यवसाय को प्रबंधित करें।',
+        'total_equipment' => 'कुल उपकरण',
+        'view_details' => 'विवरण देखें →',
+        'view_all' => 'सभी देखें →',
+        
+        'renter' => 'किराएदार',
+        'equipment' => 'उपकरण',
+        'from_to' => 'कब से - कब तक',
+        'amount' => 'राशि',
+        'action' => 'कार्रवाई',
+        'accept' => 'स्वीकार करें',
+        'reject' => 'अस्वीकार करें',
+        'in_use' => 'उपयोग में',
+
+        'no_pending_requests' => 'कोई लंबित अनुरोध नहीं मिला।',
+        'no_active_rentals' => 'कोई सक्रिय उपकरण किराया नहीं है।',
+        'Reviews' => 'समीक्षाएँ',
+          // add_items transaalations'
+          // Sidebar
+        'dashboard' => 'डैशबोर्ड',
+        'my_equipment' => 'मेरे उपकरण',
+        'add_equipment' => 'उपकरण जोड़ें',
+        'rental_requests' => 'किराये के अनुरोध',
+        'my_bookings' => 'मेरी बुकिंग',
+        'active_rentals' => 'सक्रिय किराये',
+        'total_earnings' => 'कुल कमाई',
+        'service_areas' => 'सेवा क्षेत्र',
+        'reviews' => 'समीक्षाएँ',
+        'profile_settings' => 'प्रोफ़ाइल सेटिंग्स',
+        'logout' => 'लॉग आउट',
+        'lender' => 'ऋणदाता',
+
+        // Header & Page Titles
+        'page_title' => 'नया उपकरण जोड़ें',
+        'home' => 'होम',
+        'back_dashboard' => 'डैशबोर्ड पर वापस जाएं',
+        'header_badge' => 'उपकरण जोड़ें',
+        'header_subtitle' => 'किराए पर मशीनरी रजिस्टर करने के लिए विवरण भरें',
+
+        // Section 1: Equipment Details
+        'sec_details' => '1. उपकरण विवरण',
+        'eq_name' => 'उपकरण का नाम',
+        'eq_name_ph' => 'उपकरण का नाम दर्ज करें',
+        'category' => 'श्रेणी',
+        'select_category' => '-- श्रेणी चुनें --',
+        'brand' => 'ब्रांड',
+        'brand_ph' => 'ब्रांड का नाम दर्ज करें',
+        'model' => 'मॉडल',
+        'model_ph' => 'मॉडल दर्ज करें',
+        'year_purchase' => 'खरीद का वर्ष',
+        'condition' => 'स्थिति',
+        'select_condition' => '-- स्थिति चुनें --',
+        'description' => 'विवरण',
+        'description_ph' => 'उपकरण का विवरण, विशेषताएँ और विनिर्देश दर्ज करें...',
+
+        // Section 2: Pricing & Availability
+        'sec_pricing' => '2. मूल्य निर्धारण और उपलब्धता',
+        'price_per_day' => 'प्रति दिन मूल्य (₹)',
+        'price_per_day_ph' => 'प्रति दिन मूल्य दर्ज करें',
+        'security_deposit' => 'सुरक्षा जमा (₹)',
+        'security_deposit_ph' => 'सुरक्षा जमा दर्ज करें (वैकल्पिक)',
+        'min_rental' => 'न्यूनतम किराये के दिन',
+        'max_rental' => 'अधिकतम किराये के दिन',
+        'max_rental_ph' => 'अधिकतम दिन दर्ज करें (वैकल्पिक)',
+        'avail_status' => 'उपलब्धता की स्थिति',
+        'available' => 'उपलब्ध',
+        'not_available' => 'उपलब्ध नहीं',
+
+        // Section 3: Equipment Images
+        'sec_images' => '3. उपकरण छवियां',
+        'drag_drop' => 'यहाँ छवियाँ खींच कर डालें',
+        'or' => 'या',
+        'choose_files' => 'फ़ाइलें चुनें',
+        'image_specs' => 'JPG, PNG या WEBP (अधिकतम 5MB)',
+
+        // Section 4: Service Areas
+        'sec_service_areas' => '4. सेवा क्षेत्र',
+        'select_service_areas' => 'सेवा क्षेत्र चुनें',
+        'add_custom_area' => '+ कस्टम क्षेत्र जोड़ें',
+        'prompt_custom_area' => 'कस्टम क्षेत्र का नाम दर्ज करें:',
+
+        // Section 5: Additional Information
+        'sec_additional' => '5. अतिरिक्त जानकारी',
+        'fuel_type' => 'ईंधन का प्रकार',
+        'select_fuel' => '-- ईंधन का प्रकार चुनें --',
+        'power_hp' => 'पावर (HP)',
+        'power_hp_ph' => 'HP में पावर दर्ज करें',
+        'working_hours' => 'काम करने के घंटे',
+        'working_hours_ph' => 'काम करने के घंटे दर्ज करें',
+        'mark_recommended' => 'अनुशंसित उपकरण के रूप में चिह्नित करें',
+        'recommended_desc' => 'यह आपके उपकरण को होमपेज पर अनुशंसित के रूप में दिखाएगा।',
+
+        // Buttons
+        'reset' => 'रीसेट करें',
+        'save_equipment' => 'उपकरण सहेजें'
+
     ]
 ];
 

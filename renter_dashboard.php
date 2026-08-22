@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'includes/lang.php';
 
 if (file_exists('includes/config.php')) {
@@ -47,8 +48,8 @@ $spent_res = mysqli_query($conn, $spent_sql);
 $spent_val = mysqli_fetch_assoc($spent_res)['total'];
 $total_spent = ($spent_val) ? number_format($spent_val, 0) : '0';
 
-// 4. Fetch Categories & Equipment
-$cat_query = "SELECT c.category_name, c.icon_class, COUNT(e.equipment_id) AS eq_count 
+// 4. Fetch Categories & Equipment (UPDATED: Added category_id)
+$cat_query = "SELECT c.category_id, c.category_name, c.icon_class, COUNT(e.equipment_id) AS eq_count 
               FROM categories c 
               LEFT JOIN equipment e ON c.category_id = e.category_id 
               GROUP BY c.category_id LIMIT 6";
@@ -182,6 +183,14 @@ $recent_res = mysqli_query($conn, $recent_query);
             font-size: 0.85rem;
             cursor: pointer;
         }
+
+        .cat-box {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .cat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
     </style>
 </head>
 <body>
@@ -251,7 +260,7 @@ $recent_res = mysqli_query($conn, $recent_query);
         <!-- TOP GREEN HIGHLIGHT BADGE -->
         <div class="text-center mb-3">
             <span class="badge bg-success text-white px-4 py-2 rounded-pill fs-6 fw-bold shadow-sm" style="background-color: #2d6a4f !important; letter-spacing: 1px;">
-                <?= strtoupper(__('dashboard')); ?> DASHBOARD
+                <?= strtoupper(__('renter_dashboard')); ?>
             </span>
         </div>
 
@@ -418,7 +427,7 @@ $recent_res = mysqli_query($conn, $recent_query);
             </div>
         </div>
 
-        <!-- POPULAR CATEGORIES -->
+        <!-- POPULAR CATEGORIES (UPDATED: Links to category_items.php using category_id) -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="fw-bold mb-0"><?= __('popular_categories'); ?></h6>
             <a href="categories.php" class="text-success small text-decoration-none fw-semibold"><?= __('view_all'); ?> →</a>
@@ -427,11 +436,13 @@ $recent_res = mysqli_query($conn, $recent_query);
             <?php if ($cat_res && mysqli_num_rows($cat_res) > 0): ?>
                 <?php while ($cat = mysqli_fetch_assoc($cat_res)): ?>
                     <div class="col-md-2 col-4">
-                        <div class="bg-white border rounded p-3 text-center h-100">
-                            <i class="<?= $cat['icon_class'] ?: 'fa-solid fa-gears'; ?> text-success fa-xl mb-2"></i>
-                            <div class="fw-bold small"><?= htmlspecialchars($cat['category_name']); ?></div>
-                            <span class="text-muted" style="font-size: 0.7rem;">(<?= $cat['eq_count']; ?>)</span>
-                        </div>
+                        <a href="category_items.php?category_id=<?= (int)$cat['category_id']; ?>" class="text-decoration-none text-dark d-block h-100">
+                            <div class="bg-white border rounded p-3 text-center h-100 cat-box">
+                                <i class="<?= $cat['icon_class'] ?: 'fa-solid fa-gears'; ?> text-success fa-xl mb-2"></i>
+                                <div class="fw-bold small"><?= htmlspecialchars($cat['category_name']); ?></div>
+                                <span class="text-muted" style="font-size: 0.7rem;">(<?= $cat['eq_count']; ?>)</span>
+                            </div>
+                        </a>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>

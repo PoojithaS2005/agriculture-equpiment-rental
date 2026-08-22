@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'includes/lang.php';
 
 if (file_exists('includes/config.php')) {
@@ -10,8 +11,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Handle Add Category Logic
-if (isset($_POST['add_category'])) {
+// Handle Add Category Logic (Only available if logged in user is NOT a renter)
+if (isset($_POST['add_category']) && isset($_SESSION['role']) && $_SESSION['role'] !== 'renter') {
     $category_name = mysqli_real_escape_string($conn, $_POST['category_name']);
     $description   = mysqli_real_escape_string($conn, $_POST['description']);
     $icon_class    = mysqli_real_escape_string($conn, $_POST['icon_class']);
@@ -29,7 +30,6 @@ if (isset($_POST['add_category'])) {
     exit();
 }
 
-// Fetch categories and count linked equipment
 // Fetch categories and count linked equipment using category_id
 $cat_query = "SELECT c.*, 
               (SELECT COUNT(*) FROM equipment e WHERE e.category_id = c.category_id) AS eq_count 
@@ -200,9 +200,8 @@ $cat_res = mysqli_query($conn, $cat_query);
                 </a>
             </li>
             <li class="nav-item">
-                <a href="search_equipment.php?category_id=<?= $cat['category_id']; ?>" class="text-success fw-bold text-decoration-none small d-flex align-items-center gap-1">
-                    <?= __('view_equipment'); ?> <i class="fa-solid fa-arrow-right"></i>
-                </a>
+                <a href="search_equipment.php" class="nav-link">
+                    <i class="fa-solid fa-magnifying-glass"></i> <?= __('search_equipment'); ?>
                 </a>
             </li>
             <li class="nav-item">
@@ -264,9 +263,12 @@ $cat_res = mysqli_query($conn, $cat_query);
                     </select>
                 </div>
 
-                <button class="btn btn-sm btn-success fw-semibold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                    <i class="fa-solid fa-plus me-1"></i> <?= __('add_category'); ?>
-                </button>
+                <!-- ADD CATEGORY BUTTON (Hidden for Renters) -->
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'renter'): ?>
+                    <button class="btn btn-sm btn-success fw-semibold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <i class="fa-solid fa-plus me-1"></i> <?= __('add_category'); ?>
+                    </button>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -296,7 +298,7 @@ $cat_res = mysqli_query($conn, $cat_query);
             </div>
         </div>
 
-        <!-- CATEGORIES GRID -->
+        <!-- CATEGORIES GRID (UPDATED: View equipment via category_id) -->
         <div class="row g-4 mb-4">
             <?php if ($cat_res && mysqli_num_rows($cat_res) > 0): ?>
                 <?php 
@@ -328,7 +330,7 @@ $cat_res = mysqli_query($conn, $cat_query);
 
                             <div class="cat-card-footer">
                                 <span class="fw-bold text-dark small"><?= $cat['eq_count']; ?> <?= __('equipment_count'); ?></span>
-                                <a href="search_equipment.php?category=<?= urlencode($cat['category_name']); ?>" class="text-success fw-bold text-decoration-none small d-flex align-items-center gap-1">
+                                <a href="category_items.php?category_id=<?= (int)$cat['category_id']; ?>" class="text-success fw-bold text-decoration-none small d-flex align-items-center gap-1">
                                     <?= __('view_equipment'); ?> <i class="fa-solid fa-arrow-right"></i>
                                 </a>
                             </div>
@@ -362,7 +364,8 @@ $cat_res = mysqli_query($conn, $cat_query);
 
     </div>
 
-    <!-- ADD CATEGORY MODAL -->
+    <!-- ADD CATEGORY MODAL (Only rendered if non-renter) -->
+    <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'renter'): ?>
     <div class="modal fade" id="addCategoryModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <form method="POST" enctype="multipart/form-data" class="modal-content">
@@ -394,6 +397,7 @@ $cat_res = mysqli_query($conn, $cat_query);
             </form>
         </div>
     </div>
+    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
