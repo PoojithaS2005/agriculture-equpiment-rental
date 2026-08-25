@@ -11,29 +11,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Handle Add Category Logic (Only available if logged in user is NOT a renter)
-if (isset($_POST['add_category']) && isset($_SESSION['role']) && $_SESSION['role'] !== 'renter') {
-    $category_name = mysqli_real_escape_string($conn, $_POST['category_name']);
-    $description   = mysqli_real_escape_string($conn, $_POST['description']);
-    $icon_class    = mysqli_real_escape_string($conn, $_POST['icon_class']);
-    
-    $image_name = '';
-    if (!empty($_FILES['category_image']['name'])) {
-        $image_name = time() . '_' . $_FILES['category_image']['name'];
-        move_uploaded_file($_FILES['category_image']['tmp_name'], 'uploads/' . $image_name);
-    }
-
-    $insert_sql = "INSERT INTO categories (category_name, description, image, icon_class) 
-                   VALUES ('$category_name', '$description', '$image_name', '$icon_class')";
-    mysqli_query($conn, $insert_sql);
-    header("Location: categories.php");
-    exit();
-}
-
-// Fetch categories and count linked equipment using category_id
-$cat_query = "SELECT c.*, 
-              (SELECT COUNT(*) FROM equipment e WHERE e.category_id = c.category_id) AS eq_count 
-              FROM categories c ORDER BY c.category_id ASC";
+$cat_query = "SELECT * FROM categories ORDER BY category_id ASC";
 $cat_res = mysqli_query($conn, $cat_query);
 ?>
 
@@ -42,10 +20,17 @@ $cat_res = mysqli_query($conn, $cat_query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= __('categories'); ?> - Agriculture Equipment Rental</title>
+    <title>
+        <?php 
+            if($current_lang == 'kn') echo 'ವರ್ಗಗಳು - ಕೃಷಿ ಉಪಕರಣಗಳ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ';
+            elseif($current_lang == 'hi') echo 'श्रेणियाँ - कृषि उपकरण किराया प्रणाली';
+            else echo 'Categories - Agriculture Equipment Rental System';
+        ?>
+    </title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
+
     <style>
         :root {
             --brand-green: #2d6a4f;
@@ -61,9 +46,8 @@ $cat_res = mysqli_query($conn, $cat_query);
             color: #2d3748;
         }
 
-        /* Sidebar Styling */
         .sidebar {
-            width: 250px;
+            width: 260px;
             min-height: 100vh;
             background-color: #ffffff;
             border-right: 1px solid var(--card-border);
@@ -71,67 +55,85 @@ $cat_res = mysqli_query($conn, $cat_query);
             top: 0;
             left: 0;
             z-index: 100;
-            padding-top: 20px;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .sidebar .brand-logo {
-            padding: 0 20px 20px 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            text-align: center;
+            padding: 0 10px 20px 10px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 15px;
         }
 
-        .sidebar .brand-logo i {
-            font-size: 1.8rem;
+        .sidebar .brand-logo img {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        .sidebar .brand-title {
+            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--brand-green);
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .sidebar .nav-link {
             color: #4a5568;
-            padding: 10px 20px;
+            padding: 10px 15px;
             font-size: 0.9rem;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 12px;
-            border-radius: 0 20px 20px 0;
-            margin-bottom: 2px;
+            border-radius: 10px;
+            margin-bottom: 4px;
             text-decoration: none;
+            transition: 0.2s;
         }
 
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
             color: var(--brand-green);
             background-color: var(--brand-green-light);
             font-weight: 600;
         }
 
-        /* Main Content Layout */
         .main-wrapper {
-            margin-left: 250px;
-            padding: 20px 35px;
+            margin-left: 260px;
+            padding: 25px 35px;
         }
 
-        .top-bar {
+        .top-navbar {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--card-border);
+            justify-content: flex-end;
+            margin-bottom: 30px;
         }
 
-        /* Category Card Layout */
         .cat-card {
             background: #ffffff;
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 24px;
+            padding: 20px;
             transition: all 0.2s ease-in-out;
             height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
         }
 
         .cat-card:hover {
@@ -139,7 +141,32 @@ $cat_res = mysqli_query($conn, $cat_query);
             border-color: #cbd5e1;
         }
 
-        .cat-badge-icon {
+        .cat-img-container {
+            height: 160px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .cat-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+        }
+
+        .cat-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cat-circle-icon {
             width: 42px;
             height: 42px;
             border-radius: 50%;
@@ -149,255 +176,450 @@ $cat_res = mysqli_query($conn, $cat_query);
             font-size: 1.1rem;
         }
 
-        .cat-img-box {
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-        }
-
-        .cat-img-box img {
-            max-height: 100%;
-            max-width: 100%;
-            object-fit: contain;
-        }
-
-        .cat-card-footer {
+        .support-banner {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 15px 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 15px;
-            border-top: 1px dashed var(--card-border);
-            margin-top: 15px;
-        }
-
-        .lang-select {
-            border: none;
-            background: transparent;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
         }
     </style>
 </head>
+
 <body>
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="brand-logo">
-            <i class="fa-solid fa-tractor"></i>
-            <div>
-                <strong style="color: var(--brand-green); display: block; line-height: 1;">AGRICULTURE</strong>
-                <span style="font-size: 0.65rem; color: #64748b; font-weight: 700;">EQUIPMENT RENTAL SYSTEM</span>
+
+        <div>
+            <!-- LOGO & TITLE -->
+            <div class="brand-logo">
+                <img src="images/logo.png" alt="Agriculture Logo" onerror="this.src='images/tractor.png'">
+                <span class="brand-title">
+                    <?php 
+                        if ($current_lang == 'kn') echo 'ಕೃಷಿ ಉಪಕರಣಗಳ ಬಾಡಿಗೆ';
+                        elseif ($current_lang == 'hi') echo 'कृषि उपकरण किराया';
+                        else echo 'Agriculture Equipment Rental';
+                    ?>
+                </span>
             </div>
+
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="renter_dashboard.php" class="nav-link">
+                        <i class="fa-solid fa-border-all"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್';
+                            elseif($current_lang == 'hi') echo 'डैशबोर्ड';
+                            else echo 'Dashboard';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="search_equipment.php" class="nav-link">
+                        <i class="fa-solid fa-magnifying-glass"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ';
+                            elseif($current_lang == 'hi') echo 'उपकरण खोजें';
+                            else echo 'Search Equipment';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="categories.php" class="nav-link active">
+                        <i class="fa-solid fa-layer-group"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ವರ್ಗಗಳು';
+                            elseif($current_lang == 'hi') echo 'श्रेणियाँ';
+                            else echo 'Categories';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="featured_equipment.php" class="nav-link">
+                        <i class="fa-regular fa-star"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ವಿಶೇಷ ಉಪಕರಣಗಳು';
+                            elseif($current_lang == 'hi') echo 'विशेष उपकरण';
+                            else echo 'Featured Equipment';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="recommended.php" class="nav-link">
+                        <i class="fa-regular fa-thumbs-up"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ';
+                            elseif($current_lang == 'hi') echo 'अनुशंसित';
+                            else echo 'Recommended';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="my_bookings.php" class="nav-link">
+                        <i class="fa-regular fa-calendar-check"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು';
+                            elseif($current_lang == 'hi') echo 'मेरी बुकिंग';
+                            else echo 'My Bookings';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="rental_history.php" class="nav-link">
+                        <i class="fa-solid fa-clock-rotate-left"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಬಾಡಿಗೆ ಇತಿಹಾಸ';
+                            elseif($current_lang == 'hi') echo 'किराए का इतिहास';
+                            else echo 'Rental History';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="profile.php" class="nav-link">
+                        <i class="fa-regular fa-user"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ನನ್ನ ಪ್ರೊಫೈಲ್';
+                            elseif($current_lang == 'hi') echo 'मेरी प्रोफाइल';
+                            else echo 'My Profile';
+                        ?>
+                    </a>
+                </li>
+
+                <li class="nav-item mt-2">
+                    <a href="logout.php" class="nav-link text-danger">
+                        <i class="fa-solid fa-right-from-bracket"></i> 
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಲಾಗ್ ಔಟ್';
+                            elseif($current_lang == 'hi') echo 'लॉग आउट';
+                            else echo 'Logout';
+                        ?>
+                    </a>
+                </li>
+            </ul>
         </div>
 
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a href="renter_dashboard.php" class="nav-link">
-                    <i class="fa-solid fa-border-all"></i> <?= __('dashboard'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="search_equipment.php" class="nav-link">
-                    <i class="fa-solid fa-magnifying-glass"></i> <?= __('search_equipment'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="categories.php" class="nav-link active">
-                    <i class="fa-solid fa-layer-group"></i> <?= __('categories'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="featured_equipment.php" class="nav-link">
-                    <i class="fa-regular fa-star"></i> <?= __('featured_equipment'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="recommended.php" class="nav-link">
-                    <i class="fa-regular fa-thumbs-up"></i> <?= __('recommended'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="my_bookings.php" class="nav-link">
-                    <i class="fa-regular fa-calendar-check"></i> <?= __('my_bookings'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="rental_history.php" class="nav-link">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <?= __('rental_history'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="profile.php" class="nav-link">
-                    <i class="fa-regular fa-user"></i> <?= __('my_profile'); ?>
-                </a>
-            </li>
-            <li class="nav-item mt-3">
-                <a href="logout.php" class="nav-link text-danger">
-                    <i class="fa-solid fa-right-from-bracket"></i> <?= __('logout'); ?>
-                </a>
-            </li>
-        </ul>
+        <!-- Bottom Sidebar Illustration -->
+        <div class="text-center pb-2">
+            <img src="images/tractor3.jpg"
+                 alt="Tractor Illustration"
+                 class="img-fluid rounded"
+                 onerror="this.src='images/tractor.png'"
+                 style="height: 100px; object-fit: cover; width: 100%;">
+        </div>
+
     </div>
 
-    <!-- MAIN WRAPPER -->
+    <!-- MAIN CONTAINER -->
     <div class="main-wrapper">
 
-        <!-- TOP BAR -->
-        <div class="top-bar">
-            <div class="search-box position-relative w-50">
-                <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                <input type="text" class="form-control ps-5 rounded-pill bg-light border-0" placeholder="<?= __('search_placeholder'); ?>">
-            </div>
-
-            <div class="d-flex align-items-center gap-4">
-                <!-- LANGUAGE SELECTOR -->
-                <div class="d-flex align-items-center gap-1">
-                    <i class="fa-solid fa-globe text-secondary"></i>
-                    <select class="lang-select" onchange="window.location.href='categories.php?lang=' + this.value;">
-                        <option value="en" <?= ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
-                        <option value="kn" <?= ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ</option>
-                        <option value="hi" <?= ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी</option>
-                    </select>
-                </div>
-
-                <!-- ADD CATEGORY BUTTON (Hidden for Renters) -->
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'renter'): ?>
-                    <button class="btn btn-sm btn-success fw-semibold rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                        <i class="fa-solid fa-plus me-1"></i> <?= __('add_category'); ?>
+        <!-- TOP NAVBAR -->
+        <div class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border dropdown-toggle"
+                            type="button"
+                            data-bs-toggle="dropdown">
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಕನ್ನಡ';
+                            elseif($current_lang == 'hi') echo 'हिन्दी';
+                            else echo 'English';
+                        ?>
                     </button>
-                <?php endif; ?>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="categories.php?lang=en">English</a></li>
+                        <li><a class="dropdown-item" href="categories.php?lang=kn">ಕನ್ನಡ</a></li>
+                        <li><a class="dropdown-item" href="categories.php?lang=hi">हिन्दी</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- BREADCRUMB & HEADER -->
-        <nav aria-label="breadcrumb" class="mb-1">
-            <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
-                <li class="breadcrumb-item"><a href="renter_dashboard.php" class="text-success text-decoration-none"><?= __('home'); ?></a></li>
-                <li class="breadcrumb-item active"><?= __('categories'); ?></li>
-            </ol>
-        </nav>
-
-        <div class="d-flex justify-content-between align-items-start mb-4">
+        <!-- HEADER & PROMO BANNER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold mb-1"><?= __('equipment_categories'); ?></h3>
-                <p class="text-muted small mb-0"><?= __('categories_desc'); ?></p>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1" style="font-size: 0.8rem;">
+                        <li class="breadcrumb-item">
+                            <a href="renter_dashboard.php" class="text-muted text-decoration-none">
+                                <?php 
+                                    if($current_lang == 'kn') echo 'ಮುಖಪುಟ';
+                                    elseif($current_lang == 'hi') echo 'होम';
+                                    else echo 'Home';
+                                ?>
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active text-success fw-semibold">
+                            <?php 
+                                if($current_lang == 'kn') echo 'ವರ್ಗಗಳು';
+                                elseif($current_lang == 'hi') echo 'श्रेणियाँ';
+                                else echo 'Categories';
+                            ?>
+                        </li>
+                    </ol>
+                </nav>
+
+                <h3 class="fw-bold mb-1">
+                    <?php 
+                        if($current_lang == 'kn') echo 'ಉಪಕರಣಗಳ ವರ್ಗಗಳು';
+                        elseif($current_lang == 'hi') echo 'उपकरण श्रेणियाँ';
+                        else echo 'Equipment Categories';
+                    ?>
+                </h3>
+                <p class="text-muted small mb-0">
+                    <?php 
+                        if($current_lang == 'kn') echo 'ವರ್ಗಗಳ ಪ್ರಕಾರ ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ನಿಮಗೆ ಬೇಕಾದುದನ್ನು ಹುಡುಕಿ.';
+                        elseif($current_lang == 'hi') echo 'श्रेणियों के अनुसार उपकरण ब्राउज़ करें और अपनी आवश्यकतानुसार खोजें।';
+                        else echo 'Browse equipment by categories and find what you need.';
+                    ?>
+                </p>
             </div>
 
-            <!-- CAN'T FIND BOX -->
-            <div class="bg-success-subtle p-3 rounded-4 d-flex align-items-center gap-3 border border-success-subtle">
-                <div class="bg-success text-white rounded-circle p-2">
-                    <i class="fa-solid fa-tractor"></i>
-                </div>
-                <div>
-                    <div class="fw-bold small"><?= __('cant_find_title'); ?></div>
-                    <a href="search_equipment.php" class="text-success text-decoration-none fw-bold small"><?= __('try_searching'); ?></a>
+            <div class="support-banner bg-white shadow-sm" style="max-width: 300px;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-tractor text-success fs-4"></i>
+                    <div>
+                        <span class="fw-bold d-block" style="font-size: 0.8rem;">
+                            <?php 
+                                if($current_lang == 'kn') echo 'ನಿಮಗೆ ಬೇಕಾಗಿರುವುದು ಸಿಗುತ್ತಿಲ್ಲವೇ?';
+                                elseif($current_lang == 'hi') echo 'जो आप ढूंढ रहे हैं वह नहीं मिला?';
+                                else echo "Can't find what you're looking for?";
+                            ?>
+                        </span>
+                        <a href="search_equipment.php" class="text-success text-decoration-none fw-semibold" style="font-size: 0.75rem;">
+                            <?php 
+                                if($current_lang == 'kn') echo 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ಪ್ರಯತ್ನಿಸಿ';
+                                elseif($current_lang == 'hi') echo 'उपकरण खोजने का प्रयास करें';
+                                else echo 'Try searching equipment';
+                            ?>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- CATEGORIES GRID (UPDATED: View equipment via category_id) -->
+        <!-- CATEGORIES GRID -->
         <div class="row g-4 mb-4">
             <?php if ($cat_res && mysqli_num_rows($cat_res) > 0): ?>
-                <?php 
-                $bg_colors = ['#e8f5e9', '#fff8e1', '#e0f7fa', '#fbe9e7', '#f3e5f5'];
-                $text_colors = ['#2d6a4f', '#d97706', '#0284c7', '#ea580c', '#9333ea'];
-                $i = 0;
-                while ($cat = mysqli_fetch_assoc($cat_res)): 
-                    $bg = $bg_colors[$i % count($bg_colors)];
-                    $color = $text_colors[$i % count($text_colors)];
-                    $i++;
+                <?php while ($cat = mysqli_fetch_assoc($cat_res)):
+                    $original_name = trim($cat['category_name']);
+                    $original_desc = trim($cat['description']);
+
+                    $display_name = $original_name;
+                    $display_desc = $original_desc;
+
+                    if ($current_lang == 'kn') {
+                        if (strcasecmp($original_name, 'Tractors') == 0) {
+                            $display_name = 'ಟ್ರಾಕ್ಟರ್‌ಗಳು';
+                            $display_desc = 'ಭೂಮಿ ಉಳುಮೆ ಮತ್ತು ಸಾಗಾಣಿಕೆಗಾಗಿ ವಿಶ್ವಾಸಾರ್ಹ ಟ್ರಾಕ್ಟರ್‌ಗಳು.';
+                        } elseif (strcasecmp($original_name, 'Harvesting Equipment') == 0) {
+                            $display_name = 'ಕೊಯ್ಲು ಉಪಕರಣಗಳು';
+                            $display_desc = 'ಸುಲಭವಾಗಿ ಬೆಳೆ ಕೀಳಲು ಮತ್ತು ಕೊಯ್ಲು ಮಾಡಲು ಆಧುನಿಕ ಯಂತ್ರಗಳು.';
+                        } elseif (strcasecmp($original_name, 'Irrigation Equipment') == 0) {
+                            $display_name = 'ನೀರಾವರಿ ಉಪಕರಣಗಳು';
+                            $display_desc = 'ಪರಿಣಾಮಕಾರಿ ನೀರು ನಿರ್ವಹಣೆಗಾಗಿ ಪಂಪ್‌ಗಳು ಮತ್ತು ನೀರಾವರಿ ವ್ಯವಸ್ಥೆಗಳು.';
+                        } elseif (strcasecmp($original_name, 'Tillage Equipment') == 0) {
+                            $display_name = 'ಉಳುಮೆ ಉಪಕರಣಗಳು';
+                            $display_desc = 'ಬಿತ್ತನೆಗೆ ಮುಂಚಿತವಾಗಿ ಮಣ್ಣನ್ನು ಹದಗೊಳಿಸಲು ಮತ್ತು ಉಳುಮೆ ಮಾಡಲು ಉಪಕರಣಗಳು.';
+                        } elseif (strcasecmp($original_name, 'Seeding Equipment') == 0) {
+                            $display_name = 'ಬಿತ್ತನೆ ಉಪಕರಣಗಳು';
+                            $display_desc = 'ಸರಿಯಾದ ಆಳದಲ್ಲಿ ನಿಖರವಾಗಿ ಬೀಜಗಳನ್ನು ಬಿತ್ತನೆ ಮಾಡುವ ಯಂತ್ರಗಳು.';
+                        }
+                    } elseif ($current_lang == 'hi') {
+                        if (strcasecmp($original_name, 'Tractors') == 0) {
+                            $display_name = 'ट्रैक्टर';
+                            $display_desc = 'खेती और ढुलाई के काम के लिए शक्तिशाली और विश्वसनीय ट्रैक्टर।';
+                        } elseif (strcasecmp($original_name, 'Harvesting Equipment') == 0) {
+                            $display_name = 'कटाई उपकरण';
+                            $display_desc = 'फसलों की आसान और कुशल कटाई के लिए आधुनिक मशीनें।';
+                        } elseif (strcasecmp($original_name, 'Irrigation Equipment') == 0) {
+                            $display_name = 'सिंचाई उपकरण';
+                            $display_desc = 'प्रभावी जल प्रबंधन के लिए पंप और सिंचाई प्रणाली।';
+                        } elseif (strcasecmp($original_name, 'Tillage Equipment') == 0) {
+                            $display_name = 'जुताई उपकरण';
+                            $display_desc = 'बुआई से पहले मिट्टी को तैयार करने और जोतने के लिए उपकरण।';
+                        } elseif (strcasecmp($original_name, 'Seeding Equipment') == 0) {
+                            $display_name = 'बुआई उपकरण';
+                            $display_desc = 'उचित गहराई पर सटीक बीज बुआई के लिए मशीनें।';
+                        }
+                    }
+
+                    // Flexible counting logic supporting both items and equipment tables + plural/singular case matching
+                    $base_name = rtrim(strtolower($original_name), 's');
+                    $searchTerm = '%' . $base_name . '%';
+
+                    $q_items = "SELECT COUNT(*) AS total FROM items WHERE LOWER(category) LIKE '$searchTerm'";
+                    $res_items = mysqli_query($conn, $q_items);
+                    $row_items = mysqli_fetch_assoc($res_items);
+                    $count_items = $row_items['total'] ?? 0;
+
+                    $q_equip = "SELECT COUNT(*) AS total FROM equipment WHERE LOWER(category) LIKE '$searchTerm'";
+                    $res_equip = mysqli_query($conn, $q_equip);
+                    $row_equip = mysqli_fetch_assoc($res_equip);
+                    $count_equip = $row_equip['total'] ?? 0;
+
+                    $eq_count = max($count_items, $count_equip);
+
+                    $lower_name = strtolower($original_name);
+
+                    if (str_contains($lower_name, 'tractor')) {
+                        $cat_img = 'images/tractor.png';
+                        $circle_bg = '#e8f5e9';
+                        $circle_color = '#2d6a4f';
+                        $circle_icon = 'fa-solid fa-tractor';
+                    } elseif (str_contains($lower_name, 'harvest')) {
+                        $cat_img = 'images/harvesting.png';
+                        $circle_bg = '#fef3c7';
+                        $circle_color = '#d97706';
+                        $circle_icon = 'fa-solid fa-wheat-awn';
+                    } elseif (str_contains($lower_name, 'irrigat')) {
+                        $cat_img = 'images/irrigation.png';
+                        $circle_bg = '#e0f2fe';
+                        $circle_color = '#0284c7';
+                        $circle_icon = 'fa-solid fa-droplet';
+                    } elseif (str_contains($lower_name, 'till')) {
+                        $cat_img = 'images/tillage.png';
+                        $circle_bg = '#ffedd5';
+                        $circle_color = '#ea580c';
+                        $circle_icon = 'fa-solid fa-arrows-split-up-and-left';
+                    } elseif (str_contains($lower_name, 'seed')) {
+                        $cat_img = 'images/seeding.png';
+                        $circle_bg = '#d1fae5';
+                        $circle_color = '#059669';
+                        $circle_icon = 'fa-solid fa-seedling';
+                    } else {
+                        $cat_img = 'images/spraying.png';
+                        $circle_bg = '#f3e8ff';
+                        $circle_color = '#9333ea';
+                        $circle_icon = 'fa-solid fa-spray-can-sparkles';
+                    }
                 ?>
                     <div class="col-lg-4 col-md-6">
                         <div class="cat-card">
                             <div>
-                                <div class="cat-badge-icon mb-3" style="background-color: <?= $bg; ?>; color: <?= $color; ?>;">
-                                    <i class="<?= !empty($cat['icon_class']) ? $cat['icon_class'] : 'fa-solid fa-tractor'; ?>"></i>
+                                <div class="cat-header-row">
+                                    <div class="cat-circle-icon" style="background-color: <?= $circle_bg; ?>; color: <?= $circle_color; ?>;">
+                                        <i class="<?= $circle_icon; ?>"></i>
+                                    </div>
                                 </div>
-                                <h5 class="fw-bold mb-1"><?= htmlspecialchars($cat['category_name']); ?></h5>
-                                <p class="text-muted small mb-3"><?= htmlspecialchars($cat['description'] ?? 'Equipment for farming activities.'); ?></p>
-                                
-                                <div class="cat-img-box">
-                                    <?php if (!empty($cat['image']) && file_exists('uploads/' . $cat['image'])): ?>
-                                        <img src="uploads/<?= $cat['image']; ?>" alt="<?= htmlspecialchars($cat['category_name']); ?>">
-                                    <?php else: ?>
-                                        <i class="fa-solid fa-tractor text-muted fa-4x opacity-25"></i>
-                                    <?php endif; ?>
+
+                                <div class="cat-img-container">
+                                    <img src="<?= $cat_img; ?>" 
+                                         alt="<?= htmlspecialchars($display_name); ?>"
+                                         onerror="this.src='images/tractor.png'">
                                 </div>
+
+                                <h5 class="fw-bold mb-1">
+                                    <?= htmlspecialchars($display_name); ?>
+                                </h5>
+
+                                <p class="text-muted small mb-3" style="font-size: 0.85rem;">
+                                    <?= htmlspecialchars($display_desc); ?>
+                                </p>
                             </div>
 
-                            <div class="cat-card-footer">
-                                <span class="fw-bold text-dark small"><?= $cat['eq_count']; ?> <?= __('equipment_count'); ?></span>
-                                <a href="category_items.php?category_id=<?= (int)$cat['category_id']; ?>" class="text-success fw-bold text-decoration-none small d-flex align-items-center gap-1">
-                                    <?= __('view_equipment'); ?> <i class="fa-solid fa-arrow-right"></i>
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-2">
+                                <span class="text-dark fw-bold small">
+                                    <?= (int)$eq_count; ?> 
+                                    <?php 
+                                        if($current_lang == 'kn') echo 'ಉಪಕರಣಗಳು';
+                                        elseif($current_lang == 'hi') echo 'उपकरण';
+                                        else echo 'Equipment';
+                                    ?>
+                                </span>
+
+                                <a href="category_items.php?category=<?= urlencode($original_name); ?>"
+                                   class="text-success fw-bold text-decoration-none small d-flex align-items-center gap-1">
+                                    <?php 
+                                        if($current_lang == 'kn') echo 'ಉಪಕರಣಗಳನ್ನು ವೀಕ್ಷಿಸಿ';
+                                        elseif($current_lang == 'hi') echo 'उपकरण देखें';
+                                        else echo 'View Equipment';
+                                    ?> 
+                                    <i class="fa-solid fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>
-                <div class="col-12"><div class="alert alert-light text-center border py-4"><?= __('no_categories'); ?></div></div>
+                <div class="col-12">
+                    <div class="alert alert-light text-center border py-4">
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಡಾಟಾಬೇಸ್‌ನಲ್ಲಿ ಯಾವುದೇ ವರ್ಗಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.';
+                            elseif($current_lang == 'hi') echo 'डेटाबेस में कोई श्रेणी कॉन्फ़िगर नहीं की गई है।';
+                            else echo 'No categories configured in database.';
+                        ?>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
 
         <!-- FOOTER TRUST BANNER -->
-        <div class="bg-success-subtle rounded-4 p-3 border border-success-subtle d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-success text-white p-2 rounded-circle">
-                    <i class="fa-solid fa-shield-halved fa-lg"></i>
-                </div>
+        <div class="bg-white border rounded-4 p-3 d-flex align-items-center justify-content-around text-muted small shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-success fs-5"></i>
                 <div>
-                    <h6 class="fw-bold mb-0"><?= __('secure_platform'); ?></h6>
-                    <small class="text-muted"><?= __('secure_sub'); ?></small>
+                    <strong class="text-dark d-block" style="font-size: 0.8rem;">
+                        <?php 
+                            if($current_lang == 'kn') echo 'ಸುರಕ್ಷಿತ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ವೇದಿಕೆ';
+                            elseif($current_lang == 'hi') echo 'सुरक्षित और विश्वसनीय प्लेटफ़ॉर्म';
+                            else echo 'Secure & Trusted Platform';
+                        ?>
+                    </strong>
+                    <span style="font-size: 0.7rem;">
+                        <?php 
+                            if($current_lang == 'kn') echo '100% ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್ • ಪರಿಶೀಲಿಸಿದ ಮಾಲೀಕರು';
+                            elseif($current_lang == 'hi') echo '100% सुरक्षित बुकिंग • सत्यापित मालिक';
+                            else echo '100% secure bookings • Verified owners';
+                        ?>
+                    </span>
                 </div>
             </div>
-            
-            <div class="d-flex gap-4 text-muted small fw-semibold">
-                <div><i class="fa-solid fa-check text-success me-1"></i> <?= __('verified_eq'); ?></div>
-                <div><i class="fa-solid fa-lock text-success me-1"></i> <?= __('secure_booking'); ?></div>
-                <div><i class="fa-solid fa-rotate-left text-success me-1"></i> <?= __('easy_cancel'); ?></div>
-                <div><i class="fa-solid fa-headset text-success me-1"></i> <?= __('support_247'); ?></div>
+
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                <span style="font-size: 0.8rem;" class="fw-semibold text-dark">
+                    <?php 
+                        if($current_lang == 'kn') echo 'ಪರಿಶೀಲಿಸಿದ ಉಪಕರಣಗಳು';
+                        elseif($current_lang == 'hi') echo 'सत्यापित उपकरण';
+                        else echo 'Verified Equipment';
+                    ?>
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-lock text-success fs-5"></i>
+                <span style="font-size: 0.8rem;" class="fw-semibold text-dark">
+                    <?php 
+                        if($current_lang == 'kn') echo 'ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್';
+                        elseif($current_lang == 'hi') echo 'सुरक्षित बुकिंग';
+                        else echo 'Secure Booking';
+                    ?>
+                </span>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-rotate-left text-success fs-5"></i>
+                <span style="font-size: 0.8rem;" class="fw-semibold text-dark">
+                    <?php 
+                        if($current_lang == 'kn') echo 'ಸುಲಭ ರದ್ದತಿ';
+                        elseif($current_lang == 'hi') echo 'आसान रद्दीकरण';
+                        else echo 'Easy Cancellation';
+                    ?>
+                </span>
             </div>
         </div>
 
     </div>
-
-    <!-- ADD CATEGORY MODAL (Only rendered if non-renter) -->
-    <?php if (isset($_SESSION['role']) && $_SESSION['role'] !== 'renter'): ?>
-    <div class="modal fade" id="addCategoryModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <form method="POST" enctype="multipart/form-data" class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold"><?= __('add_category'); ?></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><?= __('category_name'); ?></label>
-                        <input type="text" name="category_name" class="form-control" placeholder="e.g. Tractors, Tillage" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><?= __('category_desc'); ?></label>
-                        <textarea name="description" class="form-control" rows="2" placeholder="Brief explanation of equipment type..."></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><?= __('category_image'); ?></label>
-                        <input type="file" name="category_image" class="form-control" accept="image/*">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold"><?= __('category_icon'); ?></label>
-                        <input type="text" name="icon_class" class="form-control" placeholder="e.g. fa-solid fa-tractor">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="add_category" class="btn btn-success fw-semibold w-100"><?= __('save'); ?></button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

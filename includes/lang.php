@@ -267,7 +267,55 @@ $translations = [
 
         // Buttons
         'reset' => 'Reset',
-        'save_equipment' => 'Save Equipment'
+        'save_equipment' => 'Save Equipment',
+         //CATeGORIES PAgE
+         // Sidebar Navigation
+        'brand_title' => 'Agriculture Equipment Rental',
+        'dashboard' => 'Dashboard',
+        'search_equipment' => 'Search Equipment',
+        'categories' => 'Categories',
+        'featured_equipment' => 'Featured Equipment',
+        'recommended' => 'Recommended',
+        'my_bookings' => 'My Bookings',
+        'rental_history' => 'Rental History',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+
+        // Categories Page Header
+        'home' => 'Home',
+        'equipment_categories' => 'Equipment Categories',
+        'categories_subtitle' => 'Browse equipment by categories and find what you need.',
+        'missing_item_title' => "Can't find what you're looking for?",
+        'try_searching' => 'Try searching equipment',
+        'equipment' => 'Equipment',
+        'view_equipment' => 'View Equipment',
+        'no_categories' => 'No categories configured in database.',
+
+        // Category Titles & Descriptions (From Screenshot)
+        'cat_tractors' => 'Tractors',
+        'desc_tractors' => 'Heavy-duty tractors and utility vehicles for all farming operations.',
+        
+        'cat_harvesting' => 'Harvesting',
+        'desc_harvesting' => 'Combines, reapers, and crop gathering machinery.',
+        
+        'cat_irrigation' => 'Irrigation',
+        'desc_irrigation' => 'Water pumps, sprinklers, and drip irrigation systems.',
+        
+        'cat_tillage' => 'Tillage',
+        'desc_tillage' => 'Plows, cultivators, and soil preparation equipment.',
+        
+        'cat_seeding' => 'Seeding',
+        'desc_seeding' => 'Seed drills, planters, and broadcasting machinery.',
+        
+        'cat_spraying' => 'Spraying',
+        'desc_spraying' => 'Pesticide sprayers, mist blowers, and boom sprayers.',
+
+        // Footer Trust Banner
+        'secure_platform' => 'Secure & Trusted Platform',
+        'secure_subtitle' => '100% secure bookings • Verified owners',
+        'verified_equipment' => 'Verified Equipment',
+        'secure_booking' => 'Secure Booking',
+        'easy_cancellation' => 'Easy Cancellation',
         
 
     ],
@@ -523,7 +571,55 @@ $translations = [
 
         // Buttons
         'reset' => 'ಮರುಹೊಂದಿಸಿ',
-        'save_equipment' => 'ಉಪಕರಣವನ್ನು ಉಳಿಸಿ'
+        'save_equipment' => 'ಉಪಕರಣವನ್ನು ಉಳಿಸಿ',
+
+        //CATEGORIES PAGE
+         'brand_title' => 'ಕೃಷಿ ಉಪಕರಣಗಳ ಬಾಡಿಗೆ',
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'search_equipment' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+        'categories' => 'ವರ್ಗಗಳು',
+        'featured_equipment' => 'ವಿಶೇಷ ಉಪಕರಣಗಳು',
+        'recommended' => 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಲಾಗ್ ಔಟ್',
+
+        // Categories Page Header
+        'home' => 'ಮುಖಪುಟ',
+        'equipment_categories' => 'ಉಪಕರಣಗಳ ವರ್ಗಗಳು',
+        'categories_subtitle' => 'ವರ್ಗಗಳ ಪ್ರಕಾರ ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ನಿಮಗೆ ಬೇಕಾದುದನ್ನು ಹುಡುಕಿ.',
+        'missing_item_title' => 'ನಿಮಗೆ ಬೇಕಾಗಿರುವುದು ಸಿಗುತ್ತಿಲ್ಲವೇ?',
+        'try_searching' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ಪ್ರಯತ್ನಿಸಿ',
+        'equipment' => 'ಉಪಕರಣಗಳು',
+        'view_equipment' => 'ಉಪಕರಣಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'no_categories' => 'ಡಾಟಾಬೇಸ್‌ನಲ್ಲಿ ಯಾವುದೇ ವರ್ಗಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.',
+
+        // Category Titles & Descriptions (Kannada)
+        'cat_tractors' => 'ಟ್ರಾಕ್ಟರ್‌ಗಳು',
+        'desc_tractors' => 'ಎಲ್ಲಾ ಕೃಷಿ ಕಾರ್ಯಾಚರಣೆಗಳಿಗಾಗಿ ಹೆವಿ-ಡ್ಯೂಟಿ ಟ್ರಾಕ್ಟರ್‌ಗಳು ಮತ್ತು ಯುಟಿಲಿಟಿ ವಾಹನಗಳು.',
+        
+        'cat_harvesting' => 'ಕೊಯ್ಲು ಉಪಕರಣಗಳು',
+        'desc_harvesting' => 'ಕಂಬೈನ್ ಹಾರ್ವೆಸ್ಟರ್‌ಗಳು, ರೀಪರ್‌ಗಳು ಮತ್ತು ಬೆಳೆ ಸಂಗ್ರಹಣೆ ಯಂತ್ರೋಪಕರಣಗಳು.',
+        
+        'cat_irrigation' => 'ನೀರಾವರಿ',
+        'desc_irrigation' => 'ನೀರಿನ ಪಂಪ್‌ಗಳು, ಸ್ಪ್ರಿಂಕ್ಲರ್‌ಗಳು ಮತ್ತು ಹನಿ ನೀರಾವರಿ ವ್ಯವಸ್ಥೆಗಳು.',
+        
+        'cat_tillage' => 'ಉಳುಮೆ ಉಪಕರಣಗಳು',
+        'desc_tillage' => 'ನೇಗಿಲುಗಳು, ಕೃಷಿ ಸಲಕರಣೆಗಳು ಮತ್ತು ಮಣ್ಣು ತಯಾರಿ ಉಪಕರಣಗಳು.',
+        
+        'cat_seeding' => 'ಬಿತ್ತನೆ ಉಪಕರಣಗಳು',
+        'desc_seeding' => 'ಬೀಜ ಬಿತ್ತುವ ಡ್ರಿಲ್‌ಗಳು, ಪ್ಲಾಂಟರ್‌ಗಳು ಮತ್ತು ಬಿತ್ತನೆ ಯಂತ್ರಗಳು.',
+        
+        'cat_spraying' => 'ಸಿಂಪಡಣೆ ಉಪಕರಣಗಳು',
+        'desc_spraying' => 'ಕ್ರಿಮಿನಾಶಕ ಸ್ಪ್ರೇಯರ್‌ಗಳು, ಮಿಸ್ಟ್ ब್ಲೋವರ್‌ಗಳು ಮತ್ತು ಬೂಮ್ ಸ್ಪ್ರೇಯರ್‌ಗಳು.',
+
+        // Footer Trust Banner
+        'secure_platform' => 'ಸುರಕ್ಷಿತ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ವೇದಿಕೆ',
+        'secure_subtitle' => '100% ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್ • ಪರಿಶೀಲಿಸಿದ ಮಾಲೀಕರು',
+        'verified_equipment' => 'ಪರಿಶೀಲಿಸಿದ ಉಪಕರಣಗಳು',
+        'secure_booking' => 'ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್',
+        'easy_cancellation' => 'ಸುಲಭ ರದ್ದತಿ',
 
         
     ],
@@ -784,7 +880,56 @@ $translations = [
 
         // Buttons
         'reset' => 'रीसेट करें',
-        'save_equipment' => 'उपकरण सहेजें'
+        'save_equipment' => 'उपकरण सहेजें',
+
+         //CATEGORIES PAGE
+         // Sidebar Navigation
+        'brand_title' => 'कृषि उपकरण किराया',
+        'dashboard' => 'डैशबोर्ड',
+        'search_equipment' => 'उपकरण खोजें',
+        'categories' => 'श्रेणियाँ',
+        'featured_equipment' => 'विशेष उपकरण',
+        'recommended' => 'अनुशंसित',
+        'my_bookings' => 'मेरी बुकिंग',
+        'rental_history' => 'किराए का इतिहास',
+        'my_profile' => 'मेरी प्रोफाइल',
+        'logout' => 'लॉग आउट',
+
+        // Categories Page Header
+        'home' => 'होम',
+        'equipment_categories' => 'उपकरण श्रेणियाँ',
+        'categories_subtitle' => 'श्रेणियों के अनुसार उपकरण ब्राउज़ करें और अपनी आवश्यकतानुसार खोजें।',
+        'missing_item_title' => 'जो आप ढूंढ रहे हैं वह नहीं मिला?',
+        'try_searching' => 'उपकरण खोजने का प्रयास करें',
+        'equipment' => 'उपकरण',
+        'view_equipment' => 'उपकरण देखें',
+        'no_categories' => 'डेटाबेस में कोई श्रेणी कॉन्फ़िगर नहीं की गई है।',
+
+        // Category Titles & Descriptions (Hindi)
+        'cat_tractors' => 'ट्रैक्टर',
+        'desc_tractors' => 'सभी कृषि कार्यों के लिए भारी-भरकम ट्रैक्टर और उपयोगिता वाहन।',
+        
+        'cat_harvesting' => 'कटाई उपकरण',
+        'desc_harvesting' => 'कंबाइन, रीपर और फसल कटाई की मशीनरी।',
+        
+        'cat_irrigation' => 'सिंचाई',
+        'desc_irrigation' => 'वाटर पंप, छिड़काव यंत्र (sprinklers) और ड्रिप सिंचाई प्रणाली।',
+        
+        'cat_tillage' => 'जुताई उपकरण',
+        'desc_tillage' => 'हल, कल्टीवेटर और मिट्टी की तैयारी के उपकरण।',
+        
+        'cat_seeding' => 'बुआई उपकरण',
+        'desc_seeding' => 'बीज ड्रिल, प्लांटर्स और बुआई मशीनरी।',
+        
+        'cat_spraying' => 'छिड़काव उपकरण',
+        'desc_spraying' => 'कीटनाशक स्प्रेयर, मिस्ट ब्लोअर और बूम स्प्रेयर।',
+
+        // Footer Trust Banner
+        'secure_platform' => 'सुरक्षित और विश्वसनीय प्लेटफ़ॉर्म',
+        'secure_subtitle' => '100% सुरक्षित बुकिंग • सत्यापित मालिक',
+        'verified_equipment' => 'सत्यापित उपकरण',
+        'secure_booking' => 'सुरक्षित बुकिंग',
+        'easy_cancellation' => 'आसान रद्दीकरण',
 
     ]
 ];

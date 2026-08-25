@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 22, 2026 at 03:52 PM
+-- Generation Time: Aug 25, 2026 at 05:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -58,6 +58,18 @@ CREATE TABLE `categories` (
   `icon_class` varchar(50) DEFAULT 'fa-tractor'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`category_id`, `category_name`, `description`, `image`, `icon_class`) VALUES
+(1, 'Tractor', 'Heavy-duty tractors and utility vehicles for all farming operations.', NULL, 'fa-solid fa-tractor'),
+(2, 'Harvesting', 'Combines, reapers, and crop gathering machinery.', NULL, 'fa-solid fa-wheat-awn'),
+(3, 'Irrigation', 'Water pumps, sprinklers, and drip irrigation systems.', NULL, 'fa-solid fa-water'),
+(4, 'Tillage', 'Plows, cultivators, and soil preparation equipment.', NULL, 'fa-solid fa-seedling'),
+(5, 'Seeding', 'Seed drills, planters, and broadcasting machinery.', NULL, 'fa-solid fa-hands-holding-child'),
+(6, 'Spraying', 'Pesticide sprayers, mist blowers, and boom sprayers.', NULL, 'fa-solid fa-spray-can-sparkles');
+
 -- --------------------------------------------------------
 
 --
@@ -97,7 +109,8 @@ CREATE TABLE `equipment` (
 
 INSERT INTO `equipment` (`equipment_id`, `category_id`, `lender_id`, `title`, `category`, `brand_model`, `power_hp`, `drive_type`, `model_year`, `fuel_type`, `working_width`, `equipment_condition`, `price_per_day`, `min_booking_days`, `service_location`, `distance_km`, `description`, `image`, `badge`, `status`, `rating`, `rating_count`, `created_at`, `is_featured`) VALUES
 (1, 1, 7, 'tractor', 'Tractor', 'vg gr', 23, '4WD', 2026, 'Diesel', '', '', 443.00, 1, 'Bengaluru Rural, Tumakuru', 25.0, 'gbb', '1787390934_5282.png', '', 'Available', 0.0, 0, '2026-08-22 09:28:54', 1),
-(2, 1, 7, 'rere', 'Tractor', 're fr', 6, '4WD', 2026, 'Diesel', '', 'Good', 3.00, 144, 'Bengaluru Rural', 25.0, 'sdf', '', '', 'Available', 0.0, 0, '2026-08-22 09:53:34', 1);
+(2, 1, 7, 'rere', 'Tractor', 're fr', 6, '4WD', 2026, 'Diesel', '', 'Good', 3.00, 144, 'Bengaluru Rural', 25.0, 'sdf', '', '', 'Available', 0.0, 0, '2026-08-22 09:53:34', 1),
+(3, 1, 7, 'trt', 'Harvesting', 'ttr yt', 45, '4WD', 2026, 'Diesel', '', '', 44.00, 1, 'Bengaluru Rural', 25.0, 'gtrt', '', '', 'Available', 0.0, 0, '2026-08-22 14:31:34', 0);
 
 -- --------------------------------------------------------
 
@@ -135,7 +148,8 @@ CREATE TABLE `items` (
 
 INSERT INTO `items` (`item_id`, `lender_id`, `title`, `category`, `brand`, `model`, `year_of_purchase`, `item_condition`, `description`, `price_per_day`, `security_deposit`, `min_rental_days`, `max_rental_days`, `status`, `service_areas`, `fuel_type`, `power_hp`, `working_hours`, `is_recommended`, `image`, `created_at`) VALUES
 (1, 7, 'tractor', 'Tractor', 'vg', 'gr', 2026, 'Excellent', 'gbb', 443.00, 44.00, 1, 8, 'Available', 'Bengaluru Rural, Tumakuru', 'Diesel', 23, 3, 1, '1787390934_5282.png', '2026-08-22 09:28:54'),
-(2, 7, 'rere', 'Tractor', 're', 'fr', 2026, 'Good', 'sdf', 3.00, 45.00, 144, 51, 'Available', 'Bengaluru Rural', 'Diesel', 6, 6, 1, '', '2026-08-22 09:53:34');
+(2, 7, 'rere', 'Tractor', 're', 'fr', 2026, 'Good', 'sdf', 3.00, 45.00, 144, 51, 'Available', 'Bengaluru Rural', 'Diesel', 6, 6, 1, '', '2026-08-22 09:53:34'),
+(3, 7, 'trt', 'Harvesting', 'ttr', 'yt', 2026, 'Excellent', 'gtrt', 44.00, 42.00, 1, 5, 'Available', 'Bengaluru Rural', 'Diesel', 45, 2, 0, '', '2026-08-22 14:31:34');
 
 -- --------------------------------------------------------
 
@@ -197,7 +211,8 @@ INSERT INTO `users` (`user_id`, `full_name`, `email`, `phone`, `password`, `role
 (4, 'sowmya r', 'sowmyar2006@gmail.com', '1234567891', '$2y$10$jTM5b6Ag4R./IxHAMOnarOfVYc4w7BEvTlMu1Y91lEXRgWNX3nL9K', 'renter', 'first_pet', 'pinkyz', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL),
 (5, 'pragathi', 'pragathikt29@gmail.com', '9845442268', '$2y$10$zibi4oNs8WechG/OzlMmu.DZzv88c4yMmw3DwoLoo8YdK8fVEDrHa', 'renter', 'birth_city', 'arsikere', 'hassan karnataka', 'default_avatar.png', NULL, NULL, NULL, NULL),
 (6, 'Tejomurthy', 'pragathikt2@gmail.com', '123456789', '$2y$10$KnT2yCXV.txkoTz.wQpyVeOqVj4PxHK4gRgfGwjYjM.bC3evG9zOy', 'lender', 'first_school', 'kodhialli school', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL),
-(7, 'Tejomurthy', 'pragathikt4@gmail.com', '7975865577', '$2y$10$atpaFVFLYvVlHz.Vuv4MY.XxRqJntVb6T/ZWlI7qmMzYQMnwP4kz.', 'lender', 'first_school', 'government school', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL);
+(7, 'Tejomurthy', 'pragathikt4@gmail.com', '7975865577', '$2y$10$atpaFVFLYvVlHz.Vuv4MY.XxRqJntVb6T/ZWlI7qmMzYQMnwP4kz.', 'lender', 'first_school', 'government school', 'mysuru', 'default_avatar.png', NULL, NULL, NULL, NULL),
+(8, 'Radha', 'rhn39@gmail.com', '2708200627', '$2y$10$rL9fd7lOcSMBCnVIiCFOUubMj2xmQykBL1RlNm6hNNuIlpj2E5JBS', 'renter', 'first_pet', 'ruby', 'Hassan Karnataka', 'default_avatar.png', NULL, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -268,19 +283,19 @@ ALTER TABLE `bookings`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `equipment`
 --
 ALTER TABLE `equipment`
-  MODIFY `equipment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `equipment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -298,7 +313,7 @@ ALTER TABLE `saved_items`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables

@@ -48,11 +48,8 @@ $spent_res = mysqli_query($conn, $spent_sql);
 $spent_val = mysqli_fetch_assoc($spent_res)['total'];
 $total_spent = ($spent_val) ? number_format($spent_val, 0) : '0';
 
-// 4. Fetch Categories & Equipment (UPDATED: Added category_id)
-$cat_query = "SELECT c.category_id, c.category_name, c.icon_class, COUNT(e.equipment_id) AS eq_count 
-              FROM categories c 
-              LEFT JOIN equipment e ON c.category_id = e.category_id 
-              GROUP BY c.category_id LIMIT 6";
+// 4. Fetch Categories Base Info
+$cat_query = "SELECT category_id, category_name, icon_class FROM categories LIMIT 6";
 $cat_res = mysqli_query($conn, $cat_query);
 
 $featured_query = "SELECT * FROM equipment WHERE is_featured = 1 LIMIT 3";
@@ -152,11 +149,28 @@ $recent_res = mysqli_query($conn, $recent_query);
             margin-bottom: 20px;
         }
 
+        /* Welcome Banner with Full Background Image */
         .welcome-banner {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/tractor3.jpg');
+            background-size: cover;
+            background-position: center;
             border-radius: 16px;
-            padding: 25px 30px;
+            padding: 35px 30px;
             margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #d4edda;
+            color: #ffffff;
+        }
+
+        .welcome-banner h3 {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .welcome-banner p {
+            color: #f1f5f9 !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
         .stat-card {
@@ -370,13 +384,12 @@ $recent_res = mysqli_query($conn, $recent_query);
             </div>
         </div>
 
-        <!-- WELCOME BANNER -->
-        <div class="welcome-banner d-flex justify-content-between align-items-center">
-            <div>
-                <h2><?= __('welcome_back'); ?>, <?= htmlspecialchars($user_info['full_name'] ?? 'User'); ?> 🌿</h2>
-                <p class="text-secondary mb-0 small"><?= __('find_and_rent'); ?></p>
+        <!-- WELCOME BANNER WITH tractor3.jpg FULL BACKGROUND -->
+        <div class="welcome-banner">
+            <div style="max-width: 100%;">
+                <h3 class="fw-bold mb-2"><?= __('welcome_back'); ?>, <?= htmlspecialchars($user_info['full_name'] ?? 'User'); ?> 🌿</h3>
+                <p class="mb-0 small"><?= __('find_and_rent'); ?></p>
             </div>
-            <i class="fa-solid fa-tractor fa-4x text-success opacity-25"></i>
         </div>
 
         <!-- DYNAMIC STATS -->
@@ -427,7 +440,7 @@ $recent_res = mysqli_query($conn, $recent_query);
             </div>
         </div>
 
-        <!-- POPULAR CATEGORIES (UPDATED: Links to category_items.php using category_id) -->
+        <!-- POPULAR CATEGORIES (WITH FLEXIBLE DYNAMIC COUNTING LOGIC) -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h6 class="fw-bold mb-0"><?= __('popular_categories'); ?></h6>
             <a href="categories.php" class="text-success small text-decoration-none fw-semibold"><?= __('view_all'); ?> →</a>
@@ -435,12 +448,29 @@ $recent_res = mysqli_query($conn, $recent_query);
         <div class="row g-3 mb-4">
             <?php if ($cat_res && mysqli_num_rows($cat_res) > 0): ?>
                 <?php while ($cat = mysqli_fetch_assoc($cat_res)): ?>
+                    <?php 
+                        $cat_name = $cat['category_name'];
+                        $base_name = rtrim(strtolower($cat_name), 's');
+                        $searchTerm = '%' . $base_name . '%';
+
+                        $q_items = "SELECT COUNT(*) AS total FROM items WHERE LOWER(category) LIKE '$searchTerm'";
+                        $res_items = mysqli_query($conn, $q_items);
+                        $row_items = mysqli_fetch_assoc($res_items);
+                        $count_items = $row_items['total'] ?? 0;
+
+                        $q_equip = "SELECT COUNT(*) AS total FROM equipment WHERE LOWER(category) LIKE '$searchTerm'";
+                        $res_equip = mysqli_query($conn, $q_equip);
+                        $row_equip = mysqli_fetch_assoc($res_equip);
+                        $count_equip = $row_equip['total'] ?? 0;
+
+                        $total_equipment_count = max($count_items, $count_equip);
+                    ?>
                     <div class="col-md-2 col-4">
                         <a href="category_items.php?category_id=<?= (int)$cat['category_id']; ?>" class="text-decoration-none text-dark d-block h-100">
                             <div class="bg-white border rounded p-3 text-center h-100 cat-box">
                                 <i class="<?= $cat['icon_class'] ?: 'fa-solid fa-gears'; ?> text-success fa-xl mb-2"></i>
-                                <div class="fw-bold small"><?= htmlspecialchars($cat['category_name']); ?></div>
-                                <span class="text-muted" style="font-size: 0.7rem;">(<?= $cat['eq_count']; ?>)</span>
+                                <div class="fw-bold small"><?= htmlspecialchars($cat_name); ?></div>
+                                <span class="text-muted" style="font-size: 0.7rem;">(<?= (int)$total_equipment_count; ?>)</span>
                             </div>
                         </a>
                     </div>
