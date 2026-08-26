@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 25, 2026 at 05:39 PM
+-- Generation Time: Aug 26, 2026 at 11:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -110,7 +110,7 @@ CREATE TABLE `equipment` (
 INSERT INTO `equipment` (`equipment_id`, `category_id`, `lender_id`, `title`, `category`, `brand_model`, `power_hp`, `drive_type`, `model_year`, `fuel_type`, `working_width`, `equipment_condition`, `price_per_day`, `min_booking_days`, `service_location`, `distance_km`, `description`, `image`, `badge`, `status`, `rating`, `rating_count`, `created_at`, `is_featured`) VALUES
 (1, 1, 7, 'tractor', 'Tractor', 'vg gr', 23, '4WD', 2026, 'Diesel', '', '', 443.00, 1, 'Bengaluru Rural, Tumakuru', 25.0, 'gbb', '1787390934_5282.png', '', 'Available', 0.0, 0, '2026-08-22 09:28:54', 1),
 (2, 1, 7, 'rere', 'Tractor', 're fr', 6, '4WD', 2026, 'Diesel', '', 'Good', 3.00, 144, 'Bengaluru Rural', 25.0, 'sdf', '', '', 'Available', 0.0, 0, '2026-08-22 09:53:34', 1),
-(3, 1, 7, 'trt', 'Harvesting', 'ttr yt', 45, '4WD', 2026, 'Diesel', '', '', 44.00, 1, 'Bengaluru Rural', 25.0, 'gtrt', '', '', 'Available', 0.0, 0, '2026-08-22 14:31:34', 0);
+(3, 1, 7, 'trt', 'Harvesting', 'ttr yt', 45, '4WD', 2026, 'Diesel', '', 'Good', 44.00, 3, 'Bengaluru Rural', 25.0, 'gtrt', '', '', 'Available', 0.0, 0, '2026-08-22 14:31:34', 1);
 
 -- --------------------------------------------------------
 

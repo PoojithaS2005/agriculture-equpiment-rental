@@ -15,20 +15,21 @@ if (isset($_POST['step'])) {
     $step = (int)$_POST['step'];
 }
 
-// STEP 1: Email Lookup & Method Selection
+// STEP 1: Email or Phone Lookup & Method Selection
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_find_account'])) {
-    $email = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $identity = mysqli_real_escape_string($conn, trim($_POST['identity']));
     $method = $_POST['reset_method'] ?? 'otp';
 
-    $stmt = $conn->prepare("SELECT user_id, security_question FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
+    // Check against either email or phone column in the users table
+    $stmt = $conn->prepare("SELECT user_id, email, security_question FROM users WHERE email = ? OR phone = ?");
+    $stmt->bind_param("ss", $identity, $identity);
     $stmt->execute();
     $res = $stmt->get_result();
 
     if ($res->num_rows === 1) {
         $user = $res->fetch_assoc();
         $_SESSION['reset_user_id'] = $user['user_id'];
-        $_SESSION['reset_email'] = $email;
+        $_SESSION['reset_email'] = $user['email']; // Keep email saved for OTP sending if needed
 
         if ($method === 'otp') {
             $otp = sprintf("%06d", mt_rand(100000, 999999));
@@ -39,12 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_find_account']
             $update_stmt->execute();
             $update_stmt->close();
 
-            // Send Real Email OTP
-            $to = $email;
-            $subject = "Your Password Reset OTP";
-            $message = "Hello,\n\nYour OTP for password recovery is: " . $otp . "\n\nThis code is valid for 10 minutes.";
-            $headers = "From: no-reply@" . $_SERVER['SERVER_NAME'];
-            @mail($to, $subject, $message, $headers);
+            // Send Real Email OTP (Only if user has a valid email address)
+            if (!empty($user['email'])) {
+                $to = $user['email'];
+                $subject = "Your Password Reset OTP";
+                $message = "Hello,\n\nYour OTP for password recovery is: " . $otp . "\n\nThis code is valid for 10 minutes.";
+                $headers = "From: no-reply@" . $_SERVER['SERVER_NAME'];
+                @mail($to, $subject, $message, $headers);
+            }
 
             $step = 2;
         } else {
@@ -111,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_verify_answer'
     }
 }
 
-// STEP 4: Reset Password & Auto Login
 // STEP 4: Reset Password & Redirect to Login
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password'])) {
     if (!($_SESSION['verified_reset'] ?? false)) {
@@ -169,8 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
         }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            /* Gradient background mixing soft green and warm yellow */
-            background: linear-gradient(135deg, #f0fdf4 0%, #fefcbf 100%);
+            /* Full Background Image with a dark gradient overlay */
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('images/tractor3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
             color: #333; 
         }
@@ -182,8 +187,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
         .brand-text-main { font-weight: 800; color: var(--brand-green); font-size: 1.25rem; line-height: 1.1; letter-spacing: 0.5px; }
         .brand-text-sub { font-size: 0.68rem; font-weight: 700; color: #555; letter-spacing: 1px; }
         .lang-dropdown { border: 1px solid #ddd; border-radius: 8px; padding: 6px 16px; font-size: 0.9rem; background: #fff; cursor: pointer; }
-        .login-card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); padding: 35px 30px; background: #ffffff; max-width: 450px; margin: 40px auto; }
-        .avatar-circle { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--brand-green); color: var(--brand-green); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 10px auto; }
+        .login-card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); padding: 35px 30px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px); max-width: 450px; margin: 40px auto; }
+        .avatar-circle { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--brand-green); color: var(--brand-green); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 10px auto; background: #f4f9f5; }
         .btn-brand-green { background-color: var(--brand-green); color: #fff; border-radius: 10px; padding: 12px; font-weight: 600; border: none; }
         .btn-brand-green:hover { background-color: var(--brand-green-hover); color: #fff; }
         .question-box { background: #f4f9f5; border: 1px solid #dce1e5; border-radius: 10px; padding: 12px; font-weight: 600; color: var(--brand-green); }
@@ -192,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
 <body>
 
     <!-- NAVBAR HEADER -->
-    <nav class="navbar navbar-expand-lg navbar-light py-3 border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light py-3 border-bottom shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
                 <div class="brand-logo-icon"><i class="fa-solid fa-tractor"></i></div>
@@ -227,13 +232,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
                 <div class="alert alert-danger py-2 text-center small"><?= htmlspecialchars($error); ?></div>
             <?php endif; ?>
 
-            <!-- STEP 1: EMAIL & METHOD -->
+            <!-- STEP 1: EMAIL OR PHONE & METHOD -->
             <?php if ($step === 1): ?>
                 <form method="POST" action="forgot_password.php">
                     <input type="hidden" name="step" value="1">
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-secondary"><?= __('enter_email'); ?></label>
-                        <input type="email" name="email" class="form-control" required placeholder="example@domain.com">
+                        <label class="form-label small fw-semibold text-secondary">Enter Registered Email or Mobile Number</label>
+                        <input type="text" name="identity" class="form-control" required placeholder="Enter email or mobile number">
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-semibold text-secondary"><?= __('choose_method'); ?></label>

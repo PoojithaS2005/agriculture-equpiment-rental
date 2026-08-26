@@ -87,9 +87,26 @@ $active_result = mysqli_query($conn, $active_query);
 
         .lang-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; outline: none; background: #fff; cursor: pointer; }
 
-        .welcome-card { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .welcome-card { 
+            background: #e0f2fe url('uploads/welcome-bg.jpg') no-repeat right center; 
+            background-size: contain; /* Keeps the full tractor image visible without cropping */
+            padding: 25px; 
+            border-radius: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            min-height: 120px; /* Gives the card enough height to show the full image */
+        }
+        
         .welcome-text h2 { color: #0f172a; font-size: 22px; margin-bottom: 5px; }
-        .welcome-text p { color: #475569; font-size: 14px; }
+        .welcome-text p { color: #334155; font-size: 14px; font-weight: 600; }
+        
+        /* Make the text white so it pops nicely over the full background */
+        .welcome-text h2 { color: #ffffff; font-size: 24px; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .welcome-text p { color: #f1f5f9; font-size: 15px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .welcome-text h2 { color: #0f172a; font-size: 22px; margin-bottom: 5px; }
+        .welcome-text p { color: #334155; font-size: 14px; font-weight: 600; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; }
@@ -137,9 +154,9 @@ $active_result = mysqli_query($conn, $active_query);
                 </a>
             </li>
             <li class="nav-item">
-                <a href="my_equipment.php" class="nav-link">
-                    <i class="fa-solid fa-list"></i> <?php echo __('my_equipment'); ?>
-                </a>
+             <a href="my_equipment.php" class="nav-link">
+                <i class="fa-solid fa-list"></i> <?php echo __('my_equipment'); ?>
+              </a>
             </li>
             <li class="nav-item">
                 <a href="rental_requests.php" class="nav-link">
@@ -174,10 +191,11 @@ $active_result = mysqli_query($conn, $active_query);
                 </a>
             </li>
             <li class="nav-item">
-                <a href="profile.php" class="nav-link">
-                    <i class="fa-regular fa-user"></i> <?php echo __('my_profile'); ?>
-                </a>
-            </li>
+            <a href="profile.php" class="nav-link">
+               <i class="fa-regular fa-user"></i>
+               My Profile
+            </a>
+             </li>
             <li class="nav-item" style="margin-top: 20px;">
                 <a href="logout.php" class="nav-link" style="color: #ef4444;">
                     <i class="fa-solid fa-right-from-bracket"></i> <?php echo __('logout'); ?>

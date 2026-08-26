@@ -256,9 +256,11 @@ $recent_res = mysqli_query($conn, $recent_query);
                 </a>
             </li>
             <li class="nav-item">
-                <a href="profile.php" class="nav-link">
-                    <i class="fa-regular fa-user"></i> <?= __('my_profile'); ?>
-                </a>
+               <a href="profile.php" class="nav-link">
+                  <i class="fa-regular fa-user"></i>
+                My Profile
+             </a>
+              </li>
             </li>
             <li class="nav-item mt-3">
                 <a href="logout.php" class="nav-link text-danger">

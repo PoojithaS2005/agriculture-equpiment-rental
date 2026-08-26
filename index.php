@@ -3,7 +3,9 @@
 require_once 'includes/lang.php';
 
 // Start the session before any output is sent.
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 /*
 // Commented out so logged-in users can stay on index.php:
