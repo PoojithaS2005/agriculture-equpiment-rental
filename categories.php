@@ -116,7 +116,7 @@ $cat_res = mysqli_query($conn, $cat_query);
             padding: 12px 20px;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: space-between;
             margin-bottom: 30px;
         }
 
@@ -170,16 +170,6 @@ $cat_res = mysqli_query($conn, $cat_query);
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
-        }
-
-        .support-banner {
-            background: #ffffff;
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
     </style>
 </head>
@@ -253,8 +243,19 @@ $cat_res = mysqli_query($conn, $cat_query);
     <!-- MAIN CONTAINER -->
     <div class="main-wrapper">
 
-        <!-- TOP NAVBAR -->
+        <!-- TOP NAVBAR WITH SEARCH BAR -->
         <div class="top-navbar">
+            <form action="search_equipment.php" method="GET" class="d-flex w-75 gap-2 align-items-center">
+                <?php if (!empty($current_lang)): ?>
+                    <input type="hidden" name="lang" value="<?php echo htmlspecialchars($current_lang); ?>">
+                <?php endif; ?>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" name="q" class="form-control border-start-0" placeholder="<?php echo __('search_placeholder', 'Search equipment...'); ?>" required>
+                </div>
+                <button type="submit" class="btn btn-sm text-white px-3" style="background-color: #2d6a4f;"><?php echo __('search', 'Search'); ?></button>
+            </form>
+
             <div class="d-flex align-items-center gap-3">
                 <div class="dropdown">
                     <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
