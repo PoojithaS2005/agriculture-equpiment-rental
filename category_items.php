@@ -323,9 +323,9 @@ $result = mysqli_stmt_get_result($stmt);
                                     </a>
 
                                     <!-- Existing Rent Now Button -->
-                                    <a href="rent_equipment.php?equipment_id=<?= $eq['equipment_id']; ?>" class="btn btn-sm text-white w-50" style="background-color: #2d6a4f;">
-                                        <?php echo __('rent_now', 'Rent Now'); ?>
-                                    </a>
+                                    <a href="rent_now.php?equipment_id=<?= $eq['equipment_id']; ?>" class="btn btn-agro btn-sm w-100">
+                                           <i class="fa-solid fa-cart-shopping me-1"></i> Rent Now
+                                           </a>
                                 </div>
                             </div>
                         </div>
