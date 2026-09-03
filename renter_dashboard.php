@@ -450,23 +450,18 @@ $recent_res = mysqli_query($conn, $recent_query);
         <div class="row g-3 mb-4">
             <?php if ($cat_res && mysqli_num_rows($cat_res) > 0): ?>
                 <?php while ($cat = mysqli_fetch_assoc($cat_res)): ?>
-                    <?php 
-                        $cat_name = $cat['category_name'];
-                        $base_name = rtrim(strtolower($cat_name), 's');
-                        $searchTerm = '%' . $base_name . '%';
+    <?php 
+        $cat_name = $cat['category_name'];
 
-                        $q_items = "SELECT COUNT(*) AS total FROM items WHERE LOWER(category) LIKE '$searchTerm'";
-                        $res_items = mysqli_query($conn, $q_items);
-                        $row_items = mysqli_fetch_assoc($res_items);
-                        $count_items = $row_items['total'] ?? 0;
+        $q_equip = "SELECT COUNT(*) AS total 
+                    FROM equipment 
+                    WHERE category_id = " . (int)$cat['category_id'];
 
-                        $q_equip = "SELECT COUNT(*) AS total FROM equipment WHERE LOWER(category) LIKE '$searchTerm'";
-                        $res_equip = mysqli_query($conn, $q_equip);
-                        $row_equip = mysqli_fetch_assoc($res_equip);
-                        $count_equip = $row_equip['total'] ?? 0;
+        $res_equip = mysqli_query($conn, $q_equip);
+        $row_equip = mysqli_fetch_assoc($res_equip);
 
-                        $total_equipment_count = max($count_items, $count_equip);
-                    ?>
+        $total_equipment_count = $row_equip['total'] ?? 0;
+    ?>
                     <div class="col-md-2 col-4">
                         <a href="category_items.php?category_id=<?= (int)$cat['category_id']; ?>" class="text-decoration-none text-dark d-block h-100">
                             <div class="bg-white border rounded p-3 text-center h-100 cat-box">

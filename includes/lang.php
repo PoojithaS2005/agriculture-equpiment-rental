@@ -113,6 +113,7 @@ $translations = [
         'no_categories' => 'No equipment categories available yet',
         'browse_equipment' => 'Browse Equipment',
         // Categories
+        'category_items_desc' => 'Find and rent agricultural equipment available in this category.',
         'home'                  => 'Home',
        'equipment_categories'  => 'Equipment Categories',
         'categories_desc'       => 'Browse equipment by categories and find what you need.',
@@ -192,6 +193,7 @@ $translations = [
 
         //add_items page translations
           // Sidebar
+          
         'dashboard' => 'Dashboard',
         'my_equipment' => 'My Equipment',
         'add_equipment' => 'Add Equipment',
@@ -582,6 +584,7 @@ $translations = [
         'no_categories' => 'ಯಾವುದೇ ಉಪಕರಣಗಳ ವರ್ಗಗಳು ಲಭ್ಯವಿಲ್ಲ',
         'browse_equipment' => 'ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ',
         // Categories
+        'category_items_desc' => 'ಈ ವರ್ಗದಲ್ಲಿ ಲಭ್ಯವಿರುವ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ ಮತ್ತು ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ.',
         'home'                  => 'ಮುಖಪುಟ',
         'equipment_categories'  => 'ಉಪಕರಣ ವರ್ಗಗಳು',
         'categories_desc'       => 'ವರ್ಗಗಳ ಮೂಲಕ ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ನೀವು ಬೇಕಾದುದನ್ನು ಕಂಡುಕೊಳ್ಳಿ.',
@@ -1046,6 +1049,7 @@ $translations = [
         'no_categories' => 'कोई उपकरण श्रेणी उपलब्ध नहीं है',
         'browse_equipment' => 'उपकरण ब्राउज़ करें',
         // Categories
+        'category_items_desc' => 'इस श्रेणी में उपलब्ध कृषि उपकरण खोजें और किराए पर लें।',
         'home'                  => 'होम',
 'equipment_categories'  => 'उपकरण श्रेणियां',
 'categories_desc'       => 'श्रेणियों के अनुसार उपकरण ब्राउज़ करें और अपनी आवश्यकता पाएं।',
