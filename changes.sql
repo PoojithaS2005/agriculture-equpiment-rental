@@ -7,8 +7,8 @@ ADD COLUMN `phone_number` VARCHAR(15) DEFAULT NULL AFTER `renter_id`,
 ADD COLUMN `id_number` VARCHAR(50) DEFAULT NULL AFTER `id_proof_doc`,
 ADD COLUMN `delivery_address` TEXT NOT NULL AFTER `id_number`;
 
---Date:
---Changes:
+--Date:3-09-2026
+--Changes:updated equipment table category_id for equipment_id 3 to 2 and added new equipment with id 2 and 3.
 UPDATE equipment
 SET category_id = 2
 WHERE equipment_id = 3;
