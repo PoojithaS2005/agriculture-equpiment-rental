@@ -53,17 +53,16 @@ if (!empty($search_query)) {
     }
     $eq_stmt->close();
 
-    // Step B: If full-phrase search fails, try breaking into words (e.g., "Mahindra" + "tractor")
+    // Step B: If full-phrase search fails, try breaking into words
     if (empty($raw_collected_items)) {
         $words = explode(' ', $search_query);
         if (count($words) > 1) {
-            // Build a dynamic query requiring status = Available and matching any significant word
             $conditions = [];
             $types = '';
             $params = [];
             
             foreach ($words as $word) {
-                if (strlen(trim($word)) > 2) { // Ignore tiny filler words
+                if (strlen(trim($word)) > 2) { 
                     $w_term = "%" . trim($word) . "%";
                     $conditions[] = "(title LIKE ? OR category LIKE ? OR brand_model LIKE ? OR description LIKE ?)";
                     $types .= 'ssss';
@@ -85,7 +84,7 @@ if (!empty($search_query)) {
         }
     }
 
-    // Step C: MISSING SECOND FALLBACK SEARCH — If still empty, detect category and fallback
+    // Step C: Fallback to Category match if still empty
     if (empty($raw_collected_items)) {
         $search_mode = 'fallback';
         $query_lower = mb_strtolower($search_query);
@@ -110,7 +109,7 @@ if (!empty($search_query)) {
         }
     }
 
-    // Step D: Process collected items into Location Priority sections (Nearby vs Other)
+    // Step D: Process collected items into Location Priority sections
     $nearby_equipment = [];
     $other_equipment = [];
 
@@ -143,12 +142,12 @@ if (!empty($search_query)) {
         body { background-color: #f4f6f9; display: flex; color: #333; margin: 0; }
         
         .sidebar { width: 250px; background: #fff; min-height: 100vh; padding: 20px; border-right: 1px solid #e0e0e0; }
-        .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #1e3a8a; font-size: 15px; margin-bottom: 30px; }
-        .logo i { font-size: 24px; color: #0e7490; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; color: #198754; font-size: 15px; margin-bottom: 30px; }
+        .logo i { font-size: 24px; color: #198754; }
         .nav-list { list-style: none; padding-left: 0; }
         .nav-item { margin-bottom: 8px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #64748b; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: #0e7490; color: #fff; }
+        .nav-link:hover, .nav-link.active { background-color: #198754; color: #fff; }
 
         .main-content { flex: 1; padding: 20px 30px; }
         .top-search-bar { background: #fff; padding: 15px 20px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
@@ -165,11 +164,14 @@ if (!empty($search_query)) {
         .card-body-content { padding: 15px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
         .equipment-title { font-size: 16px; font-weight: bold; color: #0f172a; margin-bottom: 0; }
         .meta-text { font-size: 13px; color: #64748b; }
-        .price-tag { font-size: 16px; font-weight: bold; color: #0e7490; margin-top: auto; }
+        .price-tag { font-size: 16px; font-weight: bold; color: #198754; margin-top: auto; }
         
-        .card-footer-actions { padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
-        .btn-view { background: #0e7490; color: #fff; width: 100%; font-weight: 600; font-size: 13px; border-radius: 6px; padding: 8px; text-align: center; text-decoration: none; display: inline-block; }
-        .btn-view:hover { background: #0b5ed7; color: #fff; }
+        .card-footer-actions { padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
+        .btn-view { background: #6c757d; color: #fff; flex: 1; font-weight: 600; font-size: 12px; border-radius: 6px; padding: 8px 4px; text-align: center; text-decoration: none; display: inline-block; }
+        .btn-view:hover { background: #5c636a; color: #fff; }
+        
+        .btn-rent-now { background: #198754; color: #fff; flex: 1; font-weight: 600; font-size: 12px; border-radius: 6px; padding: 8px 4px; text-align: center; text-decoration: none; display: inline-block; }
+        .btn-rent-now:hover { background: #157347; color: #fff; }
 
         .empty-state { text-align: center; padding: 40px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 20px; }
         .empty-state i { font-size: 48px; color: #cbd5e1; margin-bottom: 15px; }
@@ -194,23 +196,28 @@ if (!empty($search_query)) {
     <!-- Main Content Area -->
     <div class="main-content">
         
-        <!-- Search Bar -->
+        <!-- Search Bar with Language Selector -->
         <div class="top-search-bar">
             <form action="search_equipment.php" method="GET" class="d-flex w-100 gap-2 align-items-center">
-                <?php if (!empty($current_lang)): ?>
-                    <input type="hidden" name="lang" value="<?php echo htmlspecialchars($current_lang); ?>">
-                <?php endif; ?>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
                     <input type="text" name="q" id="searchInput" class="form-control border-start-0" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="<?php echo __('search_placeholder'); ?>" required>
                 </div>
-                <button type="submit" class="btn text-white px-4" style="background-color: #0e7490;"><?php echo __('search'); ?></button>
+                
+                <!-- Language Dropdown Menu -->
+                <select name="lang" class="form-select w-auto" onchange="this.form.submit()">
+                    <option value="en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
+                    <option value="hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी (Hindi)</option>
+                    <option value="kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ (Kannada)</option>
+                </select>
+
+                <button type="submit" class="btn text-white px-4" style="background-color: #198754;"><?php echo __('search'); ?></button>
             </form>
         </div>
 
         <!-- Search Header & Fallback Notice -->
         <div class="mb-4">
-            <h4><?php echo __('search_results_for'); ?>: <span class="text-primary">"<?php echo htmlspecialchars($search_query); ?>"</span></h4>
+            <h4><?php echo __('search_results_for'); ?>: <span class="text-success">"<?php echo htmlspecialchars($search_query); ?>"</span></h4>
             <p class="text-muted mb-1"><i class="fa-solid fa-location-dot me-1 text-danger"></i> <?php echo __('registered_location'); ?>: <strong><?php echo htmlspecialchars($user_address); ?></strong></p>
             
             <?php if ($search_mode === 'fallback' && !empty($detected_fallback_category)): ?>
@@ -227,7 +234,6 @@ if (!empty($search_query)) {
                 <h5><?php echo __('enter_keyword_prompt'); ?></h5>
             </div>
         <?php elseif (empty($nearby_equipment) && empty($other_equipment)): ?>
-            <!-- No Equipment Found State (triggered for completely unrelated queries like "car") -->
             <div class="empty-state">
                 <i class="fa-solid fa-box-open"></i>
                 <h5><?php echo __('no_equipment_found'); ?> "<?php echo htmlspecialchars($search_query); ?>"</h5>
@@ -244,13 +250,13 @@ if (!empty($search_query)) {
                 <div class="equipment-grid">
                     <?php foreach ($nearby_equipment as $eq): ?>
                         <?php 
-                            $img_path = !empty($eq['image']) ? 'images/' . htmlspecialchars($eq['image']) : '';
-                            $has_valid_img = !empty($eq['image']) && file_exists($img_path);
+                            $img_path = !empty($eq['image']) ? 'uploads/' . $eq['image'] : '';
+                            $has_valid_img = !empty($eq['image']) && file_exists(__DIR__ . '/' . $img_path);
                         ?>
                         <div class="equipment-card">
                             <div class="card-img-container">
                                 <?php if ($has_valid_img): ?>
-                                    <img src="<?php echo $img_path; ?>" alt="Equipment">
+                                    <img src="<?php echo htmlspecialchars($img_path); ?>" alt="Equipment Image">
                                 <?php else: ?>
                                     <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
                                         <i class="fa-solid fa-tractor fa-2x"></i>
@@ -269,6 +275,7 @@ if (!empty($search_query)) {
                             </div>
                             <div class="card-footer-actions">
                                 <a href="equipment_details.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param)?'&lang='.urlencode($current_lang):''; ?>" class="btn-view"><?php echo __('view_equipment'); ?></a>
+                                <a href="rent_now.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param)?'&lang='.urlencode($current_lang):''; ?>" class="btn-rent-now"><i class="fa-solid fa-calendar-check me-1"></i> Rent Now</a>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -283,13 +290,13 @@ if (!empty($search_query)) {
                 <div class="equipment-grid">
                     <?php foreach ($other_equipment as $eq): ?>
                         <?php 
-                            $img_path = !empty($eq['image']) ? 'images/' . htmlspecialchars($eq['image']) : '';
-                            $has_valid_img = !empty($eq['image']) && file_exists($img_path);
+                            $img_path = !empty($eq['image']) ? 'uploads/' . $eq['image'] : '';
+                            $has_valid_img = !empty($eq['image']) && file_exists(__DIR__ . '/' . $img_path);
                         ?>
                         <div class="equipment-card">
                             <div class="card-img-container">
                                 <?php if ($has_valid_img): ?>
-                                    <img src="<?php echo $img_path; ?>" alt="Equipment">
+                                    <img src="<?php echo htmlspecialchars($img_path); ?>" alt="Equipment Image">
                                 <?php else: ?>
                                     <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
                                         <i class="fa-solid fa-tractor fa-2x"></i>
@@ -308,6 +315,7 @@ if (!empty($search_query)) {
                             </div>
                             <div class="card-footer-actions">
                                 <a href="equipment_details.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param)?'&lang='.urlencode($current_lang):''; ?>" class="btn-view"><?php echo __('view_equipment'); ?></a>
+                                <a href="rent_now.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param)?'&lang='.urlencode($current_lang):''; ?>" class="btn-rent-now"><i class="fa-solid fa-calendar-check me-1"></i> Rent Now</a>
                             </div>
                         </div>
                     <?php endforeach; ?>

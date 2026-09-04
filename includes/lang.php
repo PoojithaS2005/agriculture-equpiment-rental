@@ -479,7 +479,24 @@ $translations = [
         'err_file_size' => 'File size exceeds the maximum limit of 5 MB.',
         'err_file_format' => 'Invalid file format. Only JPG, PNG, and PDF formats are accepted.',
         'err_db' => 'Database error occurred while processing your booking.',
-        'err_upload' => 'Failed to upload the identity verification document.'
+        'err_upload' => 'Failed to upload the identity verification document.',
+
+        //search equipment page
+        'search_results_for' => 'Search results for',
+'registered_location' => 'Registered location',
+'equipment_near_you' => 'Equipment Near You',
+'other_equipment' => 'Other Equipment',
+'available_status_label' => 'Available',
+'view_equipment' => 'View Equipment',
+'rent_now' => 'Rent Now',
+'per_day' => 'per day',
+'search' => 'Search',
+'search_placeholder' => 'Search equipment...',
+'no_equipment_found' => 'No equipment found for',
+'try_different_keyword' => 'Try searching with a different keyword.',
+'back_to_dashboard' => 'Back to Dashboard',
+'enter_keyword_prompt' => 'Please enter a keyword to search for equipment.',
+'specific_item_not_available' => 'The specific item is not available. Showing other available equipment in',
         
 
     ],
@@ -947,7 +964,24 @@ $translations = [
         'err_file_size' => 'ಫೈಲ್ ಗಾತ್ರವು 5 MB ಗರಿಷ್ಠ ಮಿತಿಯನ್ನು ಮೀರಿದೆ.',
         'err_file_format' => 'ಅಮಾನ್ಯ ಫೈಲ್ ಸ್ವರೂಪ. ಕೇವಲ JPG, PNG ಮತ್ತು PDF ಸ್ವರೂಪಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗುತ್ತದೆ.',
         'err_db' => 'ನಿಮ್ಮ ಬುಕಿಂಗ್ ಅನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ಡೇಟಾಬೇಸ್ ದೋಷ ಸಂಭವಿಸಿದೆ.',
-        'err_upload' => 'ಗುರುತಿನ ಪರಿಶೀಲನಾ ದಾಖಲೆಯನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.'
+        'err_upload' => 'ಗುರುತಿನ ಪರಿಶೀಲನಾ ದಾಖಲೆಯನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.',
+
+        //search equipment page
+          'search_results_for' => 'ಹುಡುಕಾಟ ಫಲಿತಾಂಶಗಳು',
+'registered_location' => 'ನೋಂದಾಯಿತ ಸ್ಥಳ',
+'equipment_near_you' => 'ನಿಮ್ಮ ಸಮೀಪದ ಉಪಕರಣಗಳು',
+'other_equipment' => 'ಇತರ ಉಪಕರಣಗಳು',
+'available_status_label' => 'ಲಭ್ಯವಿದೆ',
+'view_equipment' => 'ಉಪಕರಣವನ್ನು ವೀಕ್ಷಿಸಿ',
+'rent_now' => 'ಈಗ ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ',
+'per_day' => 'ಪ್ರತಿ ದಿನ',
+'search' => 'ಹುಡುಕಿ',
+'search_placeholder' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ...',
+'no_equipment_found' => 'ಯಾವುದೇ ಉಪಕರಣ ಕಂಡುಬಂದಿಲ್ಲ',
+'try_different_keyword' => 'ಬೇರೆ ಕೀವರ್ಡ್ ಬಳಸಿ ಹುಡುಕಲು ಪ್ರಯತ್ನಿಸಿ.',
+'back_to_dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ',
+'enter_keyword_prompt' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ದಯವಿಟ್ಟು ಕೀವರ್ಡ್ ನಮೂದಿಸಿ.',
+'specific_item_not_available' => 'ನಿರ್ದಿಷ್ಟ ಉಪಕರಣ ಲಭ್ಯವಿಲ್ಲ. ಇತರ ಲಭ್ಯವಿರುವ ಉಪಕರಣಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ',
 
 
         
@@ -1423,7 +1457,25 @@ $translations = [
         'err_file_size' => 'फाइल का आकार 5 एमबी की अधिकतम सीमा से अधिक है।',
         'err_file_format' => 'अमान्य फ़ाइल स्वरूप। केवल JPG, PNG और PDF स्वरूप स्वीकार किए जाते हैं।',
         'err_db' => 'आपकी बुकिंग को प्रोसेस करते समय डेटाबेस त्रुटि हुई।',
-        'err_upload' => 'पहचान सत्यापन दस्तावेज़ अपलोड करने में विफल।'
+        'err_upload' => 'पहचान सत्यापन दस्तावेज़ अपलोड करने में विफल।',
+
+        //search equipment page
+          'search_results_for' => 'खोज परिणाम',
+          'search_results_for' => 'खोज परिणाम',
+'registered_location' => 'पंजीकृत स्थान',
+'equipment_near_you' => 'आपके पास के उपकरण',
+'other_equipment' => 'अन्य उपकरण',
+'available_status_label' => 'उपलब्ध',
+'view_equipment' => 'उपकरण देखें',
+'rent_now' => 'अभी किराए पर लें',
+'per_day' => 'प्रति दिन',
+'search' => 'खोजें',
+'search_placeholder' => 'उपकरण खोजें...',
+'no_equipment_found' => 'के लिए कोई उपकरण नहीं मिला',
+'try_different_keyword' => 'कृपया कोई दूसरा कीवर्ड खोजें।',
+'back_to_dashboard' => 'डैशबोर्ड पर वापस जाएँ',
+'enter_keyword_prompt' => 'उपकरण खोजने के लिए कृपया कोई कीवर्ड दर्ज करें।',
+'specific_item_not_available' => 'विशिष्ट उपकरण उपलब्ध नहीं है। अन्य उपलब्ध उपकरण दिखाए जा रहे हैं',
     ]
 ];
 

@@ -29,13 +29,17 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'renter') {
 }
 
 $renter_id = intval($_SESSION['user_id']);
-$equipment_id = isset($_GET['equipment_id']) ? intval($_GET['equipment_id']) : 0;
+$equipment_id = 0;
+if (isset($_GET['equipment_id'])) {
+    $equipment_id = intval($_GET['equipment_id']);
+} elseif (isset($_GET['id'])) {
+    $equipment_id = intval($_GET['id']);
+}
 
 if ($equipment_id <= 0) {
     header("Location: categories.php");
     exit();
 }
-
 /* =========================================================
    2. FETCH EQUIPMENT DETAILS
    =========================================================
