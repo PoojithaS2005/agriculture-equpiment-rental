@@ -497,6 +497,104 @@ $translations = [
 'back_to_dashboard' => 'Back to Dashboard',
 'enter_keyword_prompt' => 'Please enter a keyword to search for equipment.',
 'specific_item_not_available' => 'The specific item is not available. Showing other available equipment in',
+           //My Bookings Page
+           'dashboard' => 'Dashboard',
+        'categories' => 'Categories',
+        'my_bookings' => 'My Bookings',
+        'notifications' => 'Notifications',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+        'brand_main' => 'AGRICULTURE',
+        'brand_sub' => 'EQUIPMENT RENTAL',
+        'page_title' => 'My Bookings',
+        'all_bookings' => 'All Bookings',
+        'upcoming' => 'Upcoming',
+        'ongoing' => 'Ongoing',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled',
+        'sort_by' => 'Sort by:',
+        'latest' => 'Latest',
+        'oldest' => 'Oldest',
+        'start_date' => 'Start Date',
+        'amount' => 'Amount',
+        'category' => 'Category',
+        'lender' => 'Lender',
+        'id' => 'ID',
+        'end' => 'End',
+        'total' => 'Total',
+        'advance' => 'Advance',
+        'payment' => 'Payment',
+        'booked_on' => 'Booked on',
+        'view_details' => 'View Details',
+        'no_bookings' => 'No bookings found in this category.',
+        'no_bookings_desc' => "You haven't made any bookings matching this filter yet.",
+        'browse_equipment' => 'Browse Equipment',
+
+        //BOkking deatils and lender details page
+        'dashboard' => 'Dashboard',
+        'categories' => 'Categories',
+        'my_bookings' => 'My Bookings',
+        'notifications' => 'Notifications',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+        'back_to_bookings' => 'Back to My Bookings',
+        
+        // Page Headers
+        'booking_details_title' => 'Booking Details & Status',
+        'booking_details_subtitle' => 'Track your equipment rental status and lender details.',
+        'lender_details_title' => 'Lender Details',
+        'lender_details_subtitle' => 'View complete contact and verification info for the equipment lender.',
+        
+        // Cards & Sections
+        'booking_info' => 'Booking Information',
+        'booking_status' => 'Booking Status',
+        'rental_timeline' => 'Rental Timeline',
+        'important_notes' => 'Important Notes',
+        'order_summary' => 'Order Summary',
+        
+        // Specifications & Labels
+        'category' => 'Category',
+        'booking_id' => 'Booking ID',
+        'booking_date' => 'Booking Date',
+        'lender_name' => 'Lender Name',
+        'phone_number' => 'Phone Number',
+        'rental_period' => 'Rental Period',
+        'delivery_address' => 'Delivery Address',
+        'price_per_day' => 'Price per Day',
+        'total_days' => 'Total Days',
+        'total_rent' => 'Total Rent',
+        'advance_paid' => 'Advance Paid',
+        'remaining_cod' => 'Remaining Amount (COD)',
+        'payment_method' => 'Payment Method',
+        'cash_on_delivery' => 'Cash on Delivery',
+        
+        // Timeline Status Steps
+        'submitted' => 'Submitted',
+        'pending_approval' => 'Pending Approval',
+        'accepted' => 'Accepted',
+        'delivered' => 'Delivered',
+        'returned' => 'Returned',
+        
+        // Timeline Descriptions
+        'req_submitted_desc' => 'You have requested to book this equipment.',
+        'lender_review_desc' => 'Lender has reviewed and accepted your request.',
+        'waiting_review_desc' => 'Awaiting lender review and confirmation.',
+        'equipment_delivered_desc' => 'Equipment has been delivered successfully.',
+        'pending_delivery_desc' => 'Pending delivery execution by the lender.',
+        'expected_return_date' => 'Expected Return Date',
+        'return_instruction_desc' => 'Please return the equipment on or before this date in good condition.',
+        
+        // Important Notes Content
+        'note_1' => 'Ensure the equipment is operated carefully and used only for intended agricultural purposes.',
+        'note_2' => 'Return the equipment on or before the agreed end date to avoid late penalty charges.',
+        'note_3' => 'Inspect the equipment upon delivery and report any mechanical issues immediately.',
+        'note_4' => 'Keep the equipment clean and securely stored when not in use during your rental period.',
+        'note_5' => 'Contact the lender directly if you need any assistance or have questions regarding operation.',
+        
+        // Action Buttons
+        'view_lender_details' => 'View Lender Details',
+        'contact_lender' => 'Contact Lender'
+    
         
 
     ],
@@ -982,6 +1080,105 @@ $translations = [
 'back_to_dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ',
 'enter_keyword_prompt' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ದಯವಿಟ್ಟು ಕೀವರ್ಡ್ ನಮೂದಿಸಿ.',
 'specific_item_not_available' => 'ನಿರ್ದಿಷ್ಟ ಉಪಕರಣ ಲಭ್ಯವಿಲ್ಲ. ಇತರ ಲಭ್ಯವಿರುವ ಉಪಕರಣಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ',
+                    //My Bookings Page
+                    'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'ವರ್ಗಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಹೊರನಡೆي (Logout)',
+        'brand_main' => 'ಕೃಷಿ',
+        'brand_sub' => 'ಉಪಕರಣ ಬಾಡಿಗೆ',
+        
+        
+        'page_title' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'all_bookings' => 'ಎಲ್ಲಾ ಬುಕಿಂಗ್‌ಗಳು',
+        'upcoming' => 'ಮುಂಬರುವ',
+        'ongoing' => 'ನಡೆಯುತ್ತಿರುವ',
+        'completed' => 'ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'cancelled' => 'ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+        'sort_by' => 'ವಿಂಗಡಿಸಿ:',
+        'latest' => 'ಇತ್ತೀಚಿನ',
+        'oldest' => 'ಹಳೆಯದು',
+        'start_date' => 'ಪ್ರಾರಂಭ ದಿನಾಂಕ',
+        'amount' => 'ಮೊತ್ತ',
+        'category' => 'ವರ್ಗ',
+        'lender' => 'ನೀಡಿದವರು (Lender)',
+        'id' => 'ಐಡಿ',
+        'end' => 'ಮುಕ್ತಾಯ',
+        'total' => 'ಒಟ್ಟು',
+        'advance' => 'ಮುಂಗಡ',
+        'payment' => 'ಪಾವತಿ',
+        'booked_on' => 'ಬುಕ್ ಮಾಡಿದ ದಿನಾಂಕ',
+        'view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'no_bookings' => 'ಈ ವರ್ಗದಲ್ಲಿ ಯಾವುದೇ ಬುಕಿಂಗ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
+        'no_bookings_desc' => 'ಈ ಫಿಲ್ಟರ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಬುಕಿಂಗ್‌ಗಳನ್ನು ನೀವು ಮಾಡಿಲ್ಲ.',
+        'browse_equipment' => 'ಉಪಕರಣಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+
+        //Bokking details and lender dwtails page
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'ವರ್ಗಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಹೊರನಡೆ',
+        'back_to_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
+        
+        // Page Headers
+        'booking_details_title' => 'ಬುಕಿಂಗ್ ವಿವರಗಳು ಮತ್ತು ಸ್ಥಿತಿ',
+        'booking_details_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆ ಸ್ಥಿತಿ ಮತ್ತು ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.',
+        'lender_details_title' => 'ಸಾಲದಾತರ ವಿವರಗಳು',
+        'lender_details_subtitle' => 'ಉಪಕರಣ ಸಾಲದಾತರ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಮತ್ತು ಪರಿಶೀಲನೆ ಮಾಹಿತಿಯನ್ನು ವೀಕ್ಷಿಸಿ.',
+        
+        // Cards & Sections
+        'booking_info' => 'ಬುಕಿಂಗ್ ಮಾಹಿತಿ',
+        'booking_status' => 'ಬುಕಿಂಗ್ ಸ್ಥಿತಿ',
+        'rental_timeline' => 'ಬಾಡಿಗೆ ಕಾಲಾವಧಿ',
+        'important_notes' => 'ಪ್ರಮುಖ ಸೂಚನೆಗಳು',
+        'order_summary' => 'ಆರ್ಡರ್ ಸಾರಾಂಶ',
+        
+        // Specifications & Labels
+        'category' => 'ವರ್ಗ',
+        'booking_id' => 'ಬುಕಿಂಗ್ ಐಡಿ',
+        'booking_date' => 'ಬುಕಿಂಗ್ ದಿನಾಂಕ',
+        'lender_name' => 'ಸಾಲದಾತರ ಹೆಸರು',
+        'phone_number' => 'ಫೋನ್ ಸಂಖ್ಯೆ',
+        'rental_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
+        'delivery_address' => 'ವಿಳಾಸ',
+        'price_per_day' => 'ದಿನದ ಬೆಲೆ',
+        'total_days' => 'ಒಟ್ಟು ದಿನಗಳು',
+        'total_rent' => 'ಒಟ್ಟು ಬಾಡಿಗೆ',
+        'advance_paid' => 'ಪಾವತಿಸಿದ ಮುಂಗಡ',
+        'remaining_cod' => 'ಉಳಿದ ಮೊತ್ತ (ಸಿಒಡಿ)',
+        'payment_method' => 'ಪಾವತಿ ವಿಧಾನ',
+        'cash_on_delivery' => 'ಕ್ಯಾಶ್ ಆನ್ ಡೆಲಿವರಿ',
+        
+        // Timeline Status Steps
+        'submitted' => 'ಸಲ್ಲಿಸಲಾಗಿದೆ',
+        'pending_approval' => 'ಅನುಮೋದನೆ ಬಾಕಿ ಇದೆ',
+        'accepted' => 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+        'delivered' => 'ತಲುಪಿಸಲಾಗಿದೆ',
+        'returned' => 'ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+        
+        // Timeline Descriptions
+        'req_submitted_desc' => 'ನೀವು ಈ ಉಪಕರಣವನ್ನು ಬುಕ್ ಮಾಡಲು ವಿನಂತಿಸಿದ್ದೀರಿ.',
+        'lender_review_desc' => 'ಸಾಲದಾತರು ನಿಮ್ಮ ವಿನಂತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಸ್ವೀಕರಿಸಿದ್ದಾರೆ.',
+        'waiting_review_desc' => 'ಸಾಲದಾತರ ಪರಿಶೀಲನೆ ಮತ್ತು ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ.',
+        'equipment_delivered_desc' => 'ಉಪಕರಣವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ತಲುಪಿಸಲಾಗಿದೆ.',
+        'pending_delivery_desc' => 'ಸಾಲದಾತರಿಂದ ವಿತರಣೆ ಬಾಕಿ ಇದೆ.',
+        'expected_return_date' => 'ಹಿಂತಿರುಗಿಸುವ ನಿರೀಕ್ಷಿತ ದಿನಾಂಕ',
+        'return_instruction_desc' => 'ದಯವಿಟ್ಟು ಈ ದಿನಾಂಕದಂದು ಅಥವಾ ಅದಕ್ಕಿಂತ ಮೊದಲು ಉಪಕರಣವನ್ನು ಉತ್ತಮ ಸ್ಥಿತಿಯಲ್ಲಿ ಹಿಂತಿರುಗಿಸಿ.',
+        
+        // Important Notes Content
+        'note_1' => 'ಉಪಕರಣವನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ನಿರ್ವಹಿಸುವುದನ್ನು ಮತ್ತು ಉದ್ದೇಶಿತ ಕೃಷಿ ಉದ್ದೇಶಗಳಿಗಷ್ಟೇ ಬಳಸಿ.',
+        'note_2' => 'ತಡವಾದ ದಂಡ ಶುಲ್ಕವನ್ನು ತಪ್ಪಿಸಲು ಒಪ್ಪಿದ ದಿನಾಂಕದಂದು ಅಥವಾ ಮೊದಲು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿ.',
+        'note_3' => 'ವಿತರಣೆಯ ಮೇರೆಗೆ ಉಪಕರಣವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಯಾವುದೇ ಯಾಂತ್ರಿಕ ಸಮಸ್ಯೆಗಳನ್ನು ತಕ್ಷಣವೇ ವರದಿ ಮಾಡಿ.',
+        'note_4' => 'ಬಾಡಿಗೆ ಅವಧಿಯಲ್ಲಿ ಬಳಕೆಯಲ್ಲಿಲ್ಲದಿದ್ದಾಗ ಉಪಕರಣವನ್ನು ಸ್ವಚ್ಛವಾಗಿ ಮತ್ತು ಸುರಕ್ಷಿತವಾಗಿ ಸಂಗ್ರಹಿಸಿ.',
+        'note_5' => 'ನಿಮಗೆ ಯಾವುದೇ ಸಹಾಯ ಬೇಕಿದ್ದರೆ ಅಥವಾ ಕಾರ್ಯಾಚರಣೆಯ ಬಗ್ಗೆ ಪ್ರಶ್ನೆಗಳಿದ್ದರೆ ನೇರವಾಗಿ ಸಾಲದಾತರನ್ನು ಸಂಪರ್ಕಿಸಿ.',
+        
+        // Action Buttons
+        'view_lender_details' => 'ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'contact_lender' => 'ಸಾಲದಾತರನ್ನು ಸಂಪರ್ಕಿಸಿ'
 
 
         
@@ -1476,6 +1673,105 @@ $translations = [
 'back_to_dashboard' => 'डैशबोर्ड पर वापस जाएँ',
 'enter_keyword_prompt' => 'उपकरण खोजने के लिए कृपया कोई कीवर्ड दर्ज करें।',
 'specific_item_not_available' => 'विशिष्ट उपकरण उपलब्ध नहीं है। अन्य उपलब्ध उपकरण दिखाए जा रहे हैं',
+        //My Bookings Page
+        'dashboard' => 'डैशबोर्ड',
+        'categories' => 'श्रेणियाँ',
+        'my_bookings' => 'मेरी बुकिंग',
+        'notifications' => 'सूचनाएं',
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+        'logout' => 'लॉग आउट',
+        'brand_main' => 'कृषि',
+        'brand_sub' => 'उपकरण किराया',
+        
+        
+        'page_title' => 'मेरी बुकिंग',
+        'all_bookings' => 'सभी बुकिंग',
+        'upcoming' => 'आगामी',
+        'ongoing' => 'चालू',
+        'completed' => 'पूर्ण',
+        'cancelled' => 'रद्द',
+        'sort_by' => 'क्रमबद्ध करें:',
+        'latest' => 'नवीनतम',
+        'oldest' => 'सबसे पुराना',
+        'start_date' => 'प्रारंभ तिथि',
+        'amount' => 'राशि',
+        'category' => 'श्रेणी',
+        'lender' => 'प्रदाता (लेंडर)',
+        'id' => 'आईडी',
+        'end' => 'समाप्त',
+        'total' => 'कुल',
+        'advance' => 'अग्रिम',
+        'payment' => 'भुगतान',
+        'booked_on' => 'बुकिंग की तारीख',
+        'view_details' => 'विवरण देखें',
+        'no_bookings' => 'इस श्रेणी में कोई बुकिंग नहीं मिली।',
+        'no_bookings_desc' => 'आपने इस फ़िल्टर से मेल खाती कोई बुकिंग नहीं की है।',
+        'browse_equipment' => 'उपकरण ब्राउज़ करें',
+
+        //Booking details and lender details page
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'श्रेणियाँ',
+        'my_bookings' => 'मेरी बुकिंग',
+        'notifications' => 'सूचनाएं',
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+        'logout' => 'लॉग आउट',
+        'back_to_bookings' => 'मेरी बुकिंग पर वापस जाएं',
+        
+        // Page Headers
+        'booking_details_title' => 'बुकिंग विवरण और स्थिति',
+        'booking_details_subtitle' => 'अपनी उपकरण किराये की स्थिति और ऋणदाता विवरण को ट्रैक करें।',
+        'lender_details_title' => 'ऋणदाता विवरण',
+        'lender_details_subtitle' => 'उपकरण ऋणदाता के लिए पूर्ण संपर्क और सत्यापन जानकारी देखें।',
+        
+        // Cards & Sections
+        'booking_info' => 'बुकिंग की जानकारी',
+        'booking_status' => 'बुकिंग की स्थिति',
+        'rental_timeline' => 'किराये की समय-सारणी',
+        'important_notes' => 'महत्वपूर्ण नोट्स',
+        'order_summary' => 'ऑर्डर सारांश',
+        
+        // Specifications & Labels
+        'category' => 'श्रेणी',
+        'booking_id' => 'बुकिंग आईडी',
+        'booking_date' => 'बुकिंग की तारीख',
+        'lender_name' => 'ऋणदाता का नाम',
+        'phone_number' => 'फ़ोन नंबर',
+        'rental_period' => 'किराये की अवधि',
+        'delivery_address' => 'डिलीवरी का पता',
+        'price_per_day' => 'प्रति दिन मूल्य',
+        'total_days' => 'कुल दिन',
+        'total_rent' => 'कुल किराया',
+        'advance_paid' => 'भुगतान किया गया अग्रिम',
+        'remaining_cod' => 'शेष राशि (कैश ऑन डिलीवरी)',
+        'payment_method' => 'भुगतान का तरीका',
+        'cash_on_delivery' => 'कैश ऑन डिलीवरी',
+        
+        // Timeline Status Steps
+        'submitted' => 'सबमिट किया गया',
+        'pending_approval' => 'अनुमोदन बाकी है',
+        'accepted' => 'स्वीकृत',
+        'delivered' => 'डिलीवर किया गया',
+        'returned' => 'वापस किया गया',
+        
+        // Timeline Descriptions
+        'req_submitted_desc' => 'आपने इस उपकरण को बुक करने का अनुरोध किया है।',
+        'lender_review_desc' => 'ऋणदाता ने आपके अनुरोध की समीक्षा कर ली है और स्वीकार कर लिया है।',
+        'waiting_review_desc' => 'ऋणदाता की समीक्षा और पुष्टि की प्रतीक्षा है।',
+        'equipment_delivered_desc' => 'उपकरण सफलतापूर्वक डिलीवर कर दिया गया है।',
+        'pending_delivery_desc' => 'ऋणदाता द्वारा डिलीवरी निष्पादित होना बाकी है।',
+        'expected_return_date' => 'अपेक्षित वापसी की तारीख',
+        'return_instruction_desc' => 'कृपया इस तारीख को या इससे पहले अच्छी स्थिति में उपकरण वापस करें।',
+        
+        // Important Notes Content
+        'note_1' => 'सुनिश्चित करें कि उपकरण को सावधानी से संचालित किया जाता है और केवल इच्छित कृषि उद्देश्यों के लिए उपयोग किया जाता है।',
+        'note_2' => 'अतिरिक्त पेनल्टी शुल्क से बचने के लिए सहमत अंतिम तिथि पर या उससे पहले उपकरण वापस करें।',
+        'note_3' => 'डिलीवरी पर उपकरण का निरीक्षण करें और किसी भी यांत्रिक समस्या की तुरंत रिपोर्ट करें।',
+        'note_4' => 'किराये की अवधि के दौरान उपयोग में न होने पर उपकरण को साफ और सुरक्षित रूप से स्टोर करें।',
+        'note_5' => 'यदि आपको किसी सहायता की आवश्यकता है या संचालन के बारे में प्रश्न हैं, तो सीधे ऋणदाता से संपर्क करें।',
+        
+        // Action Buttons
+        'view_lender_details' => 'ऋणदाता का विवरण देखें',
+        'contact_lender' => 'ऋणदाता से संपर्क करें'
     ]
 ];
 
