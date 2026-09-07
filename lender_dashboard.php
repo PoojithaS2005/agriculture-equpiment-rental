@@ -159,8 +159,8 @@ $active_result = mysqli_query($conn, $active_query);
               </a>
             </li>
             <li class="nav-item">
-                <a href="rental_requests.php" class="nav-link">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <?php echo __('rental_requests'); ?>
+                <a href="rental_request.php" class="nav-link">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <?php echo __('rental_request'); ?>
                     <span class="badge"><?php echo $pending_requests; ?></span>
                 </a>
             </li>
