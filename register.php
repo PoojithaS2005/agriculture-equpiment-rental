@@ -105,16 +105,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* --- Navbar --- */
+        .navbar {
+            padding: 12px 0;
+        }
+
+        /* Logo image */
         .brand-logo-icon {
             width: 42px;
             height: 42px;
-            background-color: var(--brand-green);
-            color: #ffffff;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .brand-logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .brand-text-main {
@@ -364,20 +375,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <nav class="navbar navbar-expand-lg">
         <div class="container">
 
-            <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
+            <!-- LOGO + AGRIRENT TEXT -->
+           
+<a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
 
-                <div class="brand-logo-icon">
-                    <!-- Icon here -->
-                </div>
+    <div class="brand-logo-icon">
+        <img src="images/logo.png" alt="AgriRent Logo">
+    </div>
 
-                <div>
-                    <div class="brand-text-main">AgriRent</div>
-                    <div class="brand-text-sub">
-                        Agriculture Equipment Rental System
-                    </div>
-                </div>
+    <div>
+        <div class="brand-text-main">
+            AgriRent
+        </div>
 
-            </a>
+        <div class="brand-text-sub">
+            Agriculture Equipment Rental System
+        </div>
+    </div>
+
+</a>
 
             <button class="navbar-toggler"
                     type="button"
@@ -392,39 +408,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <ul class="navbar-nav align-items-center me-3">
 
+                    <!-- HOME -->
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Home</a>
+                        <a class="nav-link" href="index.php">
+                            Home
+                        </a>
                     </li>
 
+                    <!-- HOW IT WORKS -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Browse Equipment</a>
+                        <a class="nav-link" href="how-it-works.php">
+                            How It Works
+                        </a>
                     </li>
 
+                    <!-- ABOUT US -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Categories</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">How It Works</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">About Us</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contact Us</a>
+                        <a class="nav-link" href="#">
+                            About Us
+                        </a>
                     </li>
 
                 </ul>
 
+                <!-- LOGIN -->
                 <a href="login.php" class="btn-outline-login">
-                    <i class="fa-regular fa-user"></i> Login
+                    <i class="fa-regular fa-user"></i>
+                    Login
                 </a>
 
             </div>
         </div>
     </nav>
+
 
     <!-- MAIN REGISTRATION CARD CONTAINER -->
     <div class="container">
@@ -465,6 +481,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 </div>
 
+
                 <!-- RIGHT PANEL: Registration Form -->
                 <div class="col-lg-7">
 
@@ -479,6 +496,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             Fill in the details to create your account
                         </p>
 
+
                         <?php if($error != ""): ?>
 
                             <div class="alert alert-danger py-2 text-center small">
@@ -487,6 +505,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         <?php endif; ?>
 
+
                         <?php if($success != ""): ?>
 
                             <div class="alert alert-success py-2 text-center small">
@@ -494,6 +513,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
 
                         <?php endif; ?>
+
 
                         <form method="POST" action="">
 
@@ -520,6 +540,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 </div>
 
+
                                 <!-- Email Address -->
                                 <div class="col-md-6">
 
@@ -540,6 +561,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     </div>
 
                                 </div>
+
 
                                 <!-- Phone Number -->
                                 <div class="col-md-6">
@@ -562,6 +584,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 </div>
 
+
                                 <!-- Address -->
                                 <div class="col-md-6">
 
@@ -582,6 +605,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     </div>
 
                                 </div>
+
 
                                 <!-- Select User Type -->
                                 <div class="col-md-6">
@@ -618,6 +642,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 </div>
 
+
                                 <!-- Password -->
                                 <div class="col-md-6">
 
@@ -642,6 +667,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     </div>
 
                                 </div>
+
 
                                 <!-- Confirm Password -->
                                 <div class="col-md-6">
@@ -670,6 +696,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                             </div>
 
+
                             <!-- SECURITY QUESTION DIVIDER -->
                             <div class="security-divider">
 
@@ -679,6 +706,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 </span>
 
                             </div>
+
 
                             <div class="row g-3 mb-3">
 
@@ -725,6 +753,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 </div>
 
+
                                 <!-- Security Answer -->
                                 <div class="col-md-6">
 
@@ -748,6 +777,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                             </div>
 
+
                             <!-- Terms & Conditions Checkbox -->
                             <div class="form-check mb-4 mt-2">
 
@@ -761,11 +791,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                        for="termsCheck">
 
                                     I agree to the
+
                                     <a href="#"
                                        class="text-success fw-semibold text-decoration-none">
                                         Terms & Conditions
                                     </a>
+
                                     and
+
                                     <a href="#"
                                        class="text-success fw-semibold text-decoration-none">
                                         Privacy Policy
@@ -774,6 +807,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 </label>
 
                             </div>
+
 
                             <!-- Submit Register Button -->
                             <button type="submit"
@@ -784,10 +818,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                             </button>
 
+
                             <!-- Footer Login Link -->
                             <div class="login-link-footer">
 
                                 Already have an account?
+
                                 <a href="login.php">
                                     Login here
                                 </a>
@@ -805,6 +841,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
     </div>
+
 
     <!-- Bootstrap 5 JS & Toggle Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
