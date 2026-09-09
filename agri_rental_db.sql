@@ -832,3 +832,81 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- ====================================================================
+--  TABLE STRUCTURE: recommended_equipment
+-- Purpose: Stores individual agricultural machinery listings 
+--          associated with recommendation groupings/categories.
+-- ====================================================================
+
+
+
+
+/recommended
+CREATE TABLE `recommended_equipment` (
+  `recommendation_id` int(11) NOT NULL,
+  `equipment_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `price_per_day` decimal(10,2) DEFAULT 0.00,
+  `location` varchar(255) DEFAULT NULL,
+  `rating` decimal(3,1) DEFAULT 0.0,
+  `review_count` int(11) DEFAULT 0,
+  `lender_id` int(11) DEFAULT NULL,
+  `lender_name` varchar(255) DEFAULT NULL,
+  `lender_profile` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ====================================================================
+-- Purpose: Populates the marketplace interface with baseline hardware assets
+--          matching category layout structures (Tractors, Harvesting, Irrigation).
+-- ====================================================================
+
+
+INSERT INTO `recommended_equipment` (`recommendation_id`, `equipment_id`, `title`, `category`, `image`, `price_per_day`, `location`, `rating`, `review_count`, `lender_id`, `lender_name`, `lender_profile`, `created_at`) VALUES
+(1, 0, 'Tractors', 'Tractor', 'C:\\xampp\\htdocs\\argriculutre-eqiupiment-rental\\images\\Tractor.png', 1200.00, 'Hassan, Karnataka', 4.5, 12, 7, 'Lender', NULL, '2026-09-06 16:09:52'),
+(2, 0, ' Harvesting', 'Harvesting', 'C:\\xampp\\htdocs\\argriculutre-eqiupiment-rental\\images\\harvesting.png', 2500.00, 'kolar Karnataka', 4.6, 8, 7, 'Lender', NULL, '2026-09-06 16:09:52'),
+(3, 0, 'Irrigation ', 'Irrigation', 'C:\\xampp\\htdocs\\argriculutre-eqiupiment-rental\\images\\Irrigation.png', 800.00, 'mysuru, Karnataka', 4.4, 6, 7, 'Lender', NULL, '2026-09-06 16:09:52'),
+(4, 0, 'Tillage', 'Tillage', 'C:\\xampp\\htdocs\\argriculutre-eqiupiment-rental\\images\\Tillage.png', 1000.00, ' Karnatakatumukru', 4.5, 10, 7, 'Lender', NULL, '2026-09-06 16:09:52'),
+(5, 0, 'Seed Drill', 'Seeding', 'C:\\xampp\\htdocs\\argriculutre-eqiupiment-rental\\images\\Seeding.png', 900.00, 'Hassan, Karnataka', 4.3, 5, 7, 'Lender', NULL, '2026-09-06 16:09:52'),
+(6, 0, 'Sprayer', 'Spraying', 'C:\\xampp\\htdocs\\argriculutre-eqiupiment-rental\\images\\Spraying.png', 700.00, 'mandya, Karnataka', 4.4, 7, 7, 'Lender', NULL, '2026-09-06 16:09:52');
+
+-- ====================================================================
+--  TABLE STRUCTURE: rental_history
+-- Purpose: Tracks all structural historical transactions, status tracking,
+--          and financial breakdowns for rented agricultural items.
+-- ====================================================================
+
+
+// rental history
+CREATE TABLE rental_history (
+    rental_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    equipment_id INT NOT NULL,
+    equipment_name VARCHAR(150) NOT NULL,
+    category VARCHAR(100),
+    rental_start DATE NOT NULL,
+    rental_end DATE NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    status ENUM('Pending','Confirmed','Ongoing','Completed') DEFAULT 'Pending',
+    payment_status ENUM('Pending','Paid','Partial','Refunded') DEFAULT 'Pending',
+    rented_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ====================================================================
+--  DATA INSERTION PACK: TRANSACTION RECORDS
+-- Purpose: Seeds complete relational mock variables matching past workflow
+--          states (Completed, Ongoing, Confirmed) to fill the grid module.
+-- ====================================================================
+
+INSERT INTO rental_history 
+(user_id, equipment_id, equipment_name, category, rental_start, rental_end, total_amount, status, payment_status)
+VALUES
+(1, 1, 'John Deere 5050D Tractor', 'Tractors', '2026-08-01', '2026-08-03', 6000.00, 'Completed', 'Paid'),
+(1, 2, 'Mahindra Combine Harvester', 'Harvesting', '2026-08-10', '2026-08-11', 6000.00, 'Completed', 'Paid'),
+(1, 4, 'Rotavator', 'Tillage', '2026-08-20', '2026-08-21', 1000.00, 'Ongoing', 'Partial'),
+(2, 5, 'Seed Drill', 'Seeding', '2026-08-25', '2026-08-26', 900.00, 'Confirmed', 'Pending'),
+(2, 6, 'Sprayer', 'Spraying', '2026-09-01', '2026-09-02', 700.00, 'Pending', 'Pending');

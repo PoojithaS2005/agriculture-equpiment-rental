@@ -595,66 +595,141 @@ $translations = [
         'view_lender_details' => 'View Lender Details',
         'contact_lender' => 'Contact Lender',
 
-        //active_rentals
-        'search_placeholder' => 'Search equipment, renters, bookings',
-        'lender_role' => 'Lender',
-        'menu_dashboard' => 'Dashboard',
-        'menu_add_equipment' => 'Add Equipment',
-        'menu_my_equipment' => 'My Equipment',
-        'menu_rental_requests' => 'Rental Requests',
-        'menu_active_rentals' => 'Active Rentals',
-        'menu_rental_history' => 'Rental History',
-        'menu_profile' => 'Profile',
-        'menu_logout' => 'Logout',
-        'sidebar_help_title' => 'Need Help?',
-        'sidebar_help_desc' => 'We are here to help you for any queries',
-        'sidebar_contact_btn' => 'Contact Support',
-        'page_title_active_rentals' => 'Active Rentals',
-        'page_subtitle_active_rentals' => 'Manage and track all your ongoing equipment rentals',
-        'btn_download_report' => 'Download Report',
-        'stat_total_active' => 'Total Active Rentals',
-        'stat_ongoing_rentals' => 'Ongoing Rentals',
-        'stat_total_equipment' => 'Total Equipment',
-        'stat_rented_out' => 'Registered Units',
-        'stat_total_days' => 'Total Days Rented',
-        'stat_across_rentals' => 'Across all rentals',
-        'stat_total_earned' => 'Total Earned (So Far)',
-        'stat_from_active' => 'From active rentals',
-        'table_col_equipment' => 'Equipment',
-        'table_col_renter' => 'Renter Details',
-        'table_col_period' => 'Rental Period',
-        'table_col_address' => 'Delivery Address',
-        'table_col_days_left' => 'Days Left',
-        'table_col_amount' => 'Amount (Total)',
-        'table_col_status' => 'Status',
-        'table_col_action' => 'Action',
-        'btn_view_details' => 'View Details',
-        'btn_track_equipment' => 'Track',
-        'no_active_rentals' => 'No active rentals found in your account.',
+// Recommended Equipment
+'agriculture' => 'AGRICULTURE',
+        'equipment_rental_system' => 'EQUIPMENT RENTAL SYSTEM',
 
-        //rental request
-        'page_title_rental_requests' => 'Rental Requests',
-        'page_subtitle_rental_requests' => 'Manage all rental requests for your equipment',
-         'filter_all_requests' => 'All Requests',
-         'stat_total_requests' => 'Total Requests',
-         'stat_pending_requests' => 'Pending Requests',
-         'stat_accepted_requests' => 'Accepted Requests',
-         'stat_rejected_requests' => 'Rejected Requests',
-        'stat_all_time' => 'All time',
-        'stat_awaiting_response' => 'Awaiting your response',
-        'stat_this_month' => 'This month',
-        'table_col_request_id' => 'Request ID',
-        'table_col_equipment' => 'Equipment',
-        'table_col_renter' => 'Renter',
-        'table_col_rental_period' => 'Rental Period',
-        'table_col_days' => 'Days',
-        'table_col_total_amount' => 'Total Amount',
-        'table_col_status' => 'Status',
-        'table_col_requested_on' => 'Requested On',
-        'table_col_action' => 'Action',
-         'no_rental_requests' => 'No rental requests found.'
+        'dashboard' => 'Dashboard',
+        'categories' => 'Categories',
+        'my_bookings' => 'My Bookings',
+        'notifications' => 'Notifications',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
 
-],
+        'renter' => 'Renter',
+        'home' => 'Home',
+        'recommended' => 'Recommended',
+
+        'recommended_equipment' => 'Recommended Equipment',
+
+        'recommended_description' =>
+            'Handpicked equipment based on your bookings and preferences.',
+
+        'browse_all' => 'Browse All',
+
+        'category' => 'Category',
+        'day' => 'day',
+        'reviews' => 'Reviews',
+
+        'view_lender' => 'View Lender Profile',
+        'view_equipment' => 'View Equipment',
+
+        'location_not_set' => 'Location not set',
+        'location_not_available' => 'Location not available',
+
+        'no_recommended_equipment' =>
+            'No recommended equipment available.',
+
+        // Equipment
+        'equipment_tractors' => 'Tractors',
+        'equipment_harvesting' => 'Harvesting Equipment',
+        'equipment_irrigation' => 'Irrigation Equipment',
+        'equipment_tillage' => 'Tillage Equipment',
+        'equipment_seed_drill' => 'Seed Drill',
+        'equipment_sprayer' => 'Sprayer',
+
+        // Categories
+        'category_tractor' => 'Tractor',
+        'category_harvesting' => 'Harvesting',
+        'category_irrigation' => 'Irrigation',
+        'category_tillage' => 'Tillage',
+        'category_seeding' => 'Seeding',
+        'category_spraying' => 'Spraying',
+
+
+
+// Rental History
+
+        'dashboard' => 'Dashboard',
+
+        'categories' => 'Categories',
+
+        'my_bookings' => 'My Bookings',
+
+        'notifications' => 'Notifications',
+
+        'my_profile' => 'My Profile',
+
+        'rental_history' => 'Rental History',
+
+        'logout' => 'Logout',
+
+        'home' => 'Home',
+
+        'rental_history_title' => 'Rental History',
+
+        'rental_history_description' => 'View your past bookings and rental activities.',
+
+        'all_status' => 'All Status',
+
+        'equipment' => 'Equipment',
+
+        'booking_id' => 'Booking ID',
+
+        'rental_period' => 'Rental Period',
+
+        'total_amount' => 'Total Amount',
+
+        'status' => 'Status',
+
+        'booked_on' => 'Booked On',
+
+        'action' => 'Action',
+
+        'category' => 'Category',
+
+        'tractor' => 'Tractor',
+
+        'tractors' => 'Tractors',
+
+        'tillage_equipment' => 'Tillage Equipment',
+
+        'irrigation' => 'Irrigation',
+
+        'harvesters' => 'Harvesters',
+
+        'completed' => 'Completed',
+
+        'cancelled' => 'Cancelled',
+
+        'pending' => 'Pending',
+
+        'approved' => 'Approved',
+
+        'rejected' => 'Rejected',
+
+        'days' => 'Days',
+
+        'day' => 'Day',
+
+        'advance' => 'Advance',
+
+        'view_details' => 'View Details',
+
+        'no_rental_history' => 'No rental history found.',
+
+        'renter' => 'Renter',
+
+        'english' => 'English',
+
+        'kannada' => 'Kannada',
+
+        'hindi' => 'Hindi'
+
+
+        
+
+    ],
 
 
 
@@ -1236,69 +1311,142 @@ $translations = [
         // Action Buttons
         'view_lender_details' => 'ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
         'contact_lender' => 'ಸಾಲದಾತರನ್ನು ಸಂಪರ್ಕಿಸಿ',
-          
-        //active_rentals
-        'search_placeholder' => 'ಉಪಕರಣಗಳು, ಬಾಡಿಗೆದಾರರು, ಬುಕಿಂಗ್‌ಗಳನ್ನು ಹುಡುಕಿ',
-        'lender_role' => 'ಸಾಲ ನೀಡುವವರು',
-        'menu_dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
-        'menu_add_equipment' => 'ಉಪಕರಣ ಸೇರಿಸಿ',
-        'menu_my_equipment' => 'ನನ್ನ ಉಪಕರಣಗಳು',
-        'menu_rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
-        'menu_active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
-        'menu_rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
-        'menu_profile' => 'ಪ್ರೊಫೈಲ್',
-        'menu_logout' => 'ಲಾಗ್‌ಔಟ್',
-        'sidebar_help_title' => 'ಸಹಾಯ ಬೇಕೇ?',
-        'sidebar_help_desc' => 'ಯಾವುದೇ ಪ್ರಶ್ನೆಗಳಿಗೆ ನಾವು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಇಲ್ಲಿದ್ದೇವೆ.',
-        'sidebar_contact_btn' => 'ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ',
-        'page_title_active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
-        'page_subtitle_active_rentals' => 'ನಿಮ್ಮ ನಡೆಯುತ್ತಿರುವ ಎಲ್ಲಾ ಉಪಕರಣಗಳ ಬಾಡಿಗೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ ಮತ್ತು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.',
-        'btn_download_report' => 'ವರದಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ',
-        'stat_total_active' => 'ಒಟ್ಟು ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
-        'stat_ongoing_rentals' => 'ನಡೆಯುತ್ತಿರುವ ಬಾಡಿಗೆಗಳು',
-        'stat_total_equipment' => 'ಒಟ್ಟು ಉಪಕರಣಗಳು',
-        'stat_rented_out' => 'ನೋಂದಾಯಿತ ಘಟಕಗಳು',
-        'stat_total_days' => 'ಬಾಡಿಗೆಗೆ ಪಡೆದ ಒಟ್ಟು ದಿನಗಳು',
-        'stat_across_rentals' => 'ಎಲ್ಲಾ ಬಾಡಿಗೆಗಳಾದ್ಯಂತ',
-        'stat_total_earned' => 'ಒಟ್ಟು ಗಳಿಕೆ (ಇಲ್ಲಿಯವರೆಗೆ)',
-        'stat_from_active' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳಿಂದ',
-        'table_col_equipment' => 'ಉಪಕರಣ',
-        'table_col_renter' => 'ಬಾಡಿಗೆದಾರರ ವಿವರಗಳು',
-        'table_col_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
-        'table_col_address' => 'ವಿಳಾಸ',
-        'table_col_days_left' => 'ಉಳಿದ ದಿನಗಳು',
-        'table_col_amount' => 'ಮೊತ್ತ (ಒಟ್ಟು)',
-        'table_col_status' => 'ಸ್ಥಿತಿ',
-        'table_col_action' => 'ಕ್ರಿಯೆ',
-        'btn_view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
-        'btn_track_equipment' => 'ಟ್ರ್ಯಾಕ್',
-        'no_active_rentals' => 'ನಿಮ್ಮ ಖಾತೆಯಲ್ಲಿ ಯಾವುದೇ ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
-
-
-        //rental request
-        'page_title_rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
-'page_subtitle_rental_requests' => 'ನಿಮ್ಮ ಉಪಕರಣಗಳ ಎಲ್ಲಾ ಬಾಡಿಗೆ ವಿನಂತಿಗಳನ್ನು ನಿರ್ವಹಿಸಿ',
-'filter_all_requests' => 'ಎಲ್ಲಾ ವಿನಂತಿಗಳು',
-'stat_total_requests' => 'ಒಟ್ಟು ವಿನಂತಿಗಳು',
-'stat_pending_requests' => 'ಬಾಕಿ ಇರುವ ವಿನಂತಿಗಳು',
-'stat_accepted_requests' => 'स्वीಕರಿಸಿದ ವಿನಂತಿಗಳು',
-'stat_rejected_requests' => 'ತಿರಸ್ಕರಿಸಿದ ವಿನಂತಿಗಳು',
-'stat_all_time' => 'ಎಲ್ಲಾ ಸಮಯ',
-'stat_awaiting_response' => 'ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಗಾಗಿ ಕಾಯುತ್ತಿದೆ',
-'stat_this_month' => 'ಈ ತಿಂಗಳು',
-'table_col_request_id' => 'ವಿನಂತಿ ಐಡಿ',
-'table_col_equipment' => 'ಉಪಕರಣ',
-'table_col_renter' => 'ಬಾಡಿಗೆದಾರ',
-'table_col_rental_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
-'table_col_days' => 'ದಿನಗಳು',
-'table_col_total_amount' => 'ಒಟ್ಟು ಮೊತ್ತ',
-'table_col_status' => 'ಸ್ಥಿತಿ',
-'table_col_requested_on' => 'ವಿನಂತಿಸಿದ ದಿನಾಂಕ',
-'table_col_action' => 'ಕ್ರಿಯೆ',
-'no_rental_requests' => 'ಯಾವುದೇ ಬಾಡಿಗೆ ವಿನಂತಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ.'
         
-    ],
 
+//recommmneded
+'agriculture' => 'ಕೃಷಿ',
+        'equipment_rental_system' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'ವರ್ಗಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಲಾಗ್ ಔಟ್',
+
+        'renter' => 'ಬಾಡಿಗೆದಾರ',
+        'home' => 'ಮುಖಪುಟ',
+        'recommended' => 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
+
+        'recommended_equipment' => 'ಶಿಫಾರಸು ಮಾಡಲಾದ ಉಪಕರಣಗಳು',
+
+        'recommended_description' =>
+            'ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು ಮತ್ತು ಆದ್ಯತೆಗಳ ಆಧಾರದ ಮೇಲೆ ಆಯ್ಕೆ ಮಾಡಿದ ಉಪಕರಣಗಳು.',
+
+        'browse_all' => 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ',
+
+        'category' => 'ವರ್ಗ',
+        'day' => 'ದಿನ',
+        'reviews' => 'ವಿಮರ್ಶೆಗಳು',
+
+        'view_lender' => 'ಬಾಡಿಗೆದಾರರ ಪ್ರೊಫೈಲ್ ವೀಕ್ಷಿಸಿ',
+        'view_equipment' => 'ಉಪಕರಣ ವೀಕ್ಷಿಸಿ',
+
+        'location_not_set' => 'ಸ್ಥಳವನ್ನು ಹೊಂದಿಸಲಾಗಿಲ್ಲ',
+        'location_not_available' => 'ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ',
+
+        'no_recommended_equipment' =>
+            'ಯಾವುದೇ ಶಿಫಾರಸು ಮಾಡಲಾದ ಉಪಕರಣಗಳು ಲಭ್ಯವಿಲ್ಲ.',
+
+        // Equipment
+        'equipment_tractors' => 'ಟ್ರ್ಯಾಕ್ಟರ್‌ಗಳು',
+        'equipment_harvesting' => 'ಕೊಯ್ಲು ಉಪಕರಣಗಳು',
+        'equipment_irrigation' => 'ನೀರಾವರಿ ಉಪಕರಣಗಳು',
+        'equipment_tillage' => 'ಉಳುಮೆ ಉಪಕರಣಗಳು',
+        'equipment_seed_drill' => 'ಬಿತ್ತನೆ ಉಪಕರಣಗಳು',
+        'equipment_sprayer' => 'ಸಿಂಪಡಿಸುವ ಯಂತ್ರ',
+
+        // Categories
+        'category_tractor' => 'ಟ್ರ್ಯಾಕ್ಟರ್',
+        'category_harvesting' => 'ಕೊಯ್ಲು',
+        'category_irrigation' => 'ನೀರಾವರಿ',
+        'category_tillage' => 'ಉಳುಮೆ',
+        'category_seeding' => 'ಬಿತ್ತನೆ',
+        'category_spraying' => 'ಸಿಂಪಡಣೆ',
+
+
+
+//rental history
+    'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+
+        'categories' => 'ವರ್ಗಗಳು',
+
+        'my_bookings' => 'ನನ್ನ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+
+        'rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+
+        'logout' => 'ಲಾಗ್‌ಔಟ್',
+
+        'home' => 'ಮುಖಪುಟ',
+
+        'rental_history_title' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+
+        'rental_history_description' => 'ನಿಮ್ಮ ಹಿಂದಿನ ಬುಕ್ಕಿಂಗ್‌ಗಳು ಮತ್ತು ಬಾಡಿಗೆ ಚಟುವಟಿಕೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ.',
+
+        'all_status' => 'ಎಲ್ಲಾ ಸ್ಥಿತಿಗಳು',
+
+        'equipment' => 'ಉಪಕರಣ',
+
+        'booking_id' => 'ಬುಕ್ಕಿಂಗ್ ಐಡಿ',
+
+        'rental_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
+
+        'total_amount' => 'ಒಟ್ಟು ಮೊತ್ತ',
+
+        'status' => 'ಸ್ಥಿತಿ',
+
+        'booked_on' => 'ಬುಕ್ ಮಾಡಿದ ದಿನಾಂಕ',
+
+        'action' => 'ಕ್ರಿಯೆ',
+
+        'category' => 'ವರ್ಗ',
+
+        'tractor' => 'ಟ್ರ್ಯಾಕ್ಟರ್',
+
+        'tractors' => 'ಟ್ರ್ಯಾಕ್ಟರ್‌ಗಳು',
+
+        'tillage_equipment' => 'ಉಳುಮೆ ಉಪಕರಣ',
+
+        'irrigation' => 'ನೀರಾವರಿ',
+
+        'harvesters' => 'ಕೊಯ್ಲು ಯಂತ್ರಗಳು',
+
+        'completed' => 'ಪೂರ್ಣಗೊಂಡಿದೆ',
+
+        'cancelled' => 'ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+
+        'confirmed' => 'ದೃಢೀಕರಿಸಲಾಗಿದೆ',
+        
+        'pending' => 'ಬಾಕಿಯಿದೆ',
+
+        'approved' => 'ಅನುಮೋದಿಸಲಾಗಿದೆ',
+
+        'rejected' => 'ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
+
+        'days' => 'ದಿನಗಳು',
+
+        'day' => 'ದಿನ',
+
+        'advance' => 'ಮುಂಗಡ',
+
+        'view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+
+        'no_rental_history' => 'ಯಾವುದೇ ಬಾಡಿಗೆ ಇತಿಹಾಸ ಕಂಡುಬಂದಿಲ್ಲ.',
+
+        'renter' => 'ಬಾಡಿಗೆದಾರ',
+
+        'english' => 'ಇಂಗ್ಲಿಷ್',
+
+        'kannada' => 'ಕನ್ನಡ',
+
+        'hindi' => 'ಹಿಂದಿ'
+
+
+],
     'hi' => [
         // Index / General Keys
         'title' => 'कृषि उपकरण किराया प्रणाली',
@@ -1889,65 +2037,141 @@ $translations = [
         'view_lender_details' => 'ऋणदाता का विवरण देखें',
         'contact_lender' => 'ऋणदाता से संपर्क करें',
 
-        //active_rentals
-        'search_placeholder' => 'उपकरण, किराएदार, बुकिंग खोजें',
-        'lender_role' => 'ऋणदाता',
-        'menu_dashboard' => 'डैशबोर्ड',
-        'menu_add_equipment' => 'उपकरण जोड़ें',
-        'menu_my_equipment' => 'मेरे उपकरण',
-        'menu_rental_requests' => 'किराये के अनुरोध',
-        'menu_active_rentals' => 'सक्रिय किराए',
-        'menu_rental_history' => 'किराए का इतिहास',
-        'menu_profile' => 'प्रोफ़ाइल',
-        'menu_logout' => 'लॉग आउट',
-        'sidebar_help_title' => 'सहायता चाहिए?',
-        'sidebar_help_desc' => 'हम किसी भी प्रश्न के लिए आपकी सहायता के लिए यहाँ हैं।',
-        'sidebar_contact_btn' => 'सहायता से संपर्क करें',
-        'page_title_active_rentals' => 'सक्रिय किराए',
-        'page_subtitle_active_rentals' => 'अपने सभी चल रहे उपकरणों के किराए को प्रबंधित और ट्रैक करें।',
-        'btn_download_report' => 'रिपोर्ट डाउनलोड करें',
-        'stat_total_active' => 'कुल सक्रिय किराए',
-        'stat_ongoing_rentals' => 'चल रहे किराए',
-        'stat_total_equipment' => 'कुल उपकरण',
-        'stat_rented_out' => 'पंजीकृत इकाइयाँ',
-        'stat_total_days' => 'किराए पर दिए गए कुल दिन',
-        'stat_across_rentals' => 'सभी किरायों में',
-        'stat_total_earned' => 'कुल कमाई (अब तक)',
-        'stat_from_active' => 'सक्रिय किरायों से',
-        'table_col_equipment' => 'उपकरण',
-        'table_col_renter' => 'किराएदार विवरण',
-        'table_col_period' => 'किराए की अवधि',
-        'table_col_address' => 'वितरण पता',
-        'table_col_days_left' => 'शेष दिन',
-        'table_col_amount' => 'राशि (कुल)',
-        'table_col_status' => 'स्थिति',
-        'table_col_action' => 'कार्रवाई',
-        'btn_view_details' => 'विवरण देखें',
-        'btn_track_equipment' => 'टरैक करें',
-        'no_active_rentals' => 'आपके खाते में कोई सक्रिय किराया नहीं मिला।',
+        // recommended
+'agriculture' => 'कृषि',
+        'equipment_rental_system' => 'कृषि उपकरण किराया प्रणाली',
+
+        'dashboard' => 'डैशबोर्ड',
+        'categories' => 'श्रेणियाँ',
+        'my_bookings' => 'मेरी बुकिंग',
+        'notifications' => 'सूचनाएँ',
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+        'logout' => 'लॉग आउट',
+
+        'renter' => 'किरायेदार',
+        'home' => 'होम',
+        'recommended' => 'अनुशंसित',
+
+        'recommended_equipment' => 'अनुशंसित उपकरण',
+
+        'recommended_description' =>
+            'आपकी बुकिंग और प्राथमिकताओं के आधार पर चुने गए उपकरण।',
+
+        'browse_all' => 'सभी देखें',
+
+        'category' => 'श्रेणी',
+        'day' => 'दिन',
+        'reviews' => 'समीक्षाएँ',
+
+        'view_lender' => 'उपकरण मालिक की प्रोफ़ाइल देखें',
+        'view_equipment' => 'उपकरण देखें',
+
+        'location_not_set' => 'स्थान निर्धारित नहीं है',
+        'location_not_available' => 'स्थान उपलब्ध नहीं है',
+
+        'no_recommended_equipment' =>
+            'कोई अनुशंसित उपकरण उपलब्ध नहीं है।',
+
+        // Equipment
+        'equipment_tractors' => 'ट्रैक्टर',
+        'equipment_harvesting' => 'कटाई उपकरण',
+        'equipment_irrigation' => 'सिंचाई उपकरण',
+        'equipment_tillage' => 'जुताई उपकरण',
+        'equipment_seed_drill' => 'बीज ड्रिल',
+        'equipment_sprayer' => 'स्प्रेयर',
+
+        // Categories
+        'category_tractor' => 'ट्रैक्टर',
+        'category_harvesting' => 'कटाई',
+        'category_irrigation' => 'सिंचाई',
+        'category_tillage' => 'जुताई',
+        'category_seeding' => 'बुवाई',
+        'category_spraying' => 'छिड़काव',
+
+// rental history
 
 
-        //rental request
-        'page_title_rental_requests' => 'किराए के अनुरोध',
-'page_subtitle_rental_requests' => 'अपने उपकरणों के लिए सभी किराए के अनुरोधों को प्रबंधित करें',
-'filter_all_requests' => 'सभी अनुरोध',
-'stat_total_requests' => 'कुल अनुरोध',
-'stat_pending_requests' => 'लंबित अनुरोध',
-'stat_accepted_requests' => 'स्वीकृत अनुरोध',
-'stat_rejected_requests' => 'अस्वीकृत अनुरोध',
-'stat_all_time' => 'सभी समय',
-'stat_awaiting_response' => 'आपकी प्रतिक्रिया की प्रतीक्षा है',
-'stat_this_month' => 'इस महीने',
-'table_col_request_id' => 'अनुरोध आईडी',
-'table_col_equipment' => 'उपकरण',
-'table_col_renter' => 'किराएदार',
-'table_col_rental_period' => 'किराए की अवधि',
-'table_col_days' => 'दिन',
-'table_col_total_amount' => 'कुल राशि',
-'table_col_status' => 'स्थिति',
-'table_col_requested_on' => 'अनुरोध किया गया',
-'table_col_action' => 'कार्रवाई',
-'no_rental_requests' => 'कोई किराया अनुरोध नहीं मिला।',
+        'dashboard' => 'डैशबोर्ड',
+
+        'categories' => 'श्रेणियाँ',
+
+        'my_bookings' => 'मेरी बुकिंग',
+
+        'notifications' => 'सूचनाएँ',
+
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+
+        'rental_history' => 'किराया इतिहास',
+
+        'logout' => 'लॉगआउट',
+
+        'home' => 'होम',
+
+        'rental_history_title' => 'किराया इतिहास',
+
+        'rental_history_description' => 'अपनी पिछली बुकिंग और किराये की गतिविधियाँ देखें।',
+
+        'all_status' => 'सभी स्थिति',
+
+        'equipment' => 'उपकरण',
+
+        'booking_id' => 'बुकिंग आईडी',
+
+        'rental_period' => 'किराये की अवधि',
+
+        'total_amount' => 'कुल राशि',
+
+        'status' => 'स्थिति',
+
+        'booked_on' => 'बुकिंग की तारीख',
+
+        'action' => 'कार्रवाई',
+
+        'category' => 'श्रेणी',
+
+        'tractor' => 'ट्रैक्टर',
+
+        'tractors' => 'ट्रैक्टर',
+
+        'tillage_equipment' => 'जुताई उपकरण',
+
+        'irrigation' => 'सिंचाई',
+
+        'harvesters' => 'हार्वेस्टर',
+
+        'completed' => 'पूर्ण',
+
+        'cancelled' => 'रद्द',
+
+        'pending' => 'लंबित',
+        
+        'confirmed' => 'पुष्टि की गई',
+
+        'approved' => 'स्वीकृत',
+
+        'rejected' => 'अस्वीकृत',
+
+        'days' => 'दिन',
+
+        'day' => 'दिन',
+
+        'advance' => 'अग्रिम',
+
+        'view_details' => 'विवरण देखें',
+
+        'no_rental_history' => 'कोई किराया इतिहास नहीं मिला।',
+
+        'renter' => 'किरायेदार',
+
+        'english' => 'अंग्रेज़ी',
+
+        'kannada' => 'कन्नड़',
+
+        'hindi' => 'हिंदी'
+
+
+
+        
     ]
 ];
 

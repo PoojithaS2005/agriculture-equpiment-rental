@@ -1,6 +1,5 @@
 <?php
 session_start();
-require_once 'includes/lang.php'; // <--- Fixed path to include lang.php correctly
 
 // Database connection configuration
 $host = 'localhost';
@@ -15,23 +14,25 @@ if ($conn->connect_error) {
 
 // Authentication Check: Ensure lender is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'lender') {
+    // Defaulting to lender ID 7 from your seed data for testing if session is absent
     $_SESSION['user_id'] = 7;
 }
 $lender_id = $_SESSION['user_id'];
 
-// Fetch Dynamic Summary Statistics... (keeping existing queries)
+// Fetch Dynamic Summary Statistics for this Lender
 $stats_query = "SELECT 
-                COUNT(b.booking_id) as total_active,
-                COALESCE(SUM(b.total_amount), 0) as total_earned,
-                COALESCE(SUM(b.total_days), 0) as total_days
-            FROM bookings b
-            JOIN equipment e ON b.equipment_id = e.equipment_id
-            WHERE e.lender_id = ? AND b.status IN ('Accepted', 'Delivered', 'Overdue')";
+                    COUNT(b.booking_id) as total_active,
+                    COALESCE(SUM(b.total_amount), 0) as total_earned,
+                    COALESCE(SUM(b.total_days), 0) as total_days
+                FROM bookings b
+                JOIN equipment e ON b.equipment_id = e.equipment_id
+                WHERE e.lender_id = ? AND b.status IN ('Accepted', 'Delivered', 'Overdue')";
 $stmt = $conn->prepare($stats_query);
 $stmt->bind_param("i", $lender_id);
 $stmt->execute();
 $stats = $stmt->get_result()->fetch_assoc();
 
+// Fetch Equipment count registered by this lender
 $eq_count_query = "SELECT COUNT(*) as total_eq FROM equipment WHERE lender_id = ?";
 $stmt_eq = $conn->prepare($eq_count_query);
 $stmt_eq->bind_param("i", $lender_id);
@@ -39,16 +40,18 @@ $stmt_eq->execute();
 $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $current_lang; ?>">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo __('page_title_active_rentals'); ?> - Agriculture Equipment Rental System</title>
+    <title>Active Rentals - Agriculture Equipment Rental System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Keep your existing CSS style rules unchanged */
+        /* Core Reset & Dashboard Layout */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
+        
+        /* Header */
         .main-header { background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0; z-index: 1000; }
         .logo-container { display: flex; align-items: center; gap: 10px; color: #2e7d32; font-weight: bold; font-size: 18px; }
         .logo-icon { font-size: 24px; }
@@ -56,14 +59,31 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         .header-search-bar { display: flex; align-items: center; background: #f1f3f4; padding: 8px 15px; border-radius: 20px; width: 350px; gap: 10px; }
         .header-search-bar input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
         .header-right-controls { display: flex; align-items: center; gap: 20px; }
-        .language-selector select { padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; font-size: 13px; color: #333; cursor: pointer; outline: none; transition: border-color 0.2s; }
-        .language-selector select:focus { border-color: #2e7d32; }
+        
+        /* Updated Language Dropdown Styling */
+        .language-selector select { 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            border: 1px solid #ccc; 
+            background-color: #fff; 
+            font-size: 13px; 
+            color: #333; 
+            cursor: pointer; 
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .language-selector select:focus {
+            border-color: #2e7d32;
+        }
+
         .notification-icon { position: relative; font-size: 18px; cursor: pointer; }
         .notification-icon .badge { position: absolute; top: -5px; right: -8px; background: #2e7d32; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; }
         .user-profile-menu { display: flex; align-items: center; gap: 10px; }
         .avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
         .user-info .user-name { display: block; font-size: 13px; font-weight: bold; }
         .user-info .user-role { font-size: 11px; color: #666; }
+
+        /* Dashboard Container & Sidebar */
         .dashboard-container { display: flex; min-height: calc(100vh - 65px); }
         .sidebar { width: 240px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; }
         .sidebar-menu { list-style: none; }
@@ -74,11 +94,15 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         .sidebar-help-box h4 { font-size: 13px; color: #1b5e20; margin-bottom: 5px; }
         .sidebar-help-box p { font-size: 11px; color: #555; margin-bottom: 10px; }
         .btn-contact-support { background: #2e7d32; color: white; border: none; padding: 6px 12px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+
+        /* Main Content */
         .main-content { flex: 1; padding: 25px; background: #f8f9fa; overflow-x: auto; }
         .content-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .content-header-row h1 { font-size: 22px; color: #222; }
         .content-header-row p { font-size: 13px; color: #666; }
         .btn-download-report { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+
+        /* Stats Grid */
         .stats-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 20px; border-radius: 10px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); border: 1px solid #eee; }
         .stat-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
@@ -89,12 +113,16 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         .stat-title { font-size: 12px; color: #666; display: block; }
         .stat-value { font-size: 18px; font-weight: bold; color: #222; margin: 3px 0; }
         .stat-desc { font-size: 11px; color: #888; }
+
+        /* Table Card */
         .table-card { background: white; border-radius: 10px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.02); overflow: hidden; }
         .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         .data-table th { background: #fafafa; padding: 15px; font-weight: 600; color: #555; border-bottom: 1px solid #eee; }
         .data-table td { padding: 15px; border-bottom: 1px solid #f1f1f1; vertical-align: middle; }
         .table-equipment-info { display: flex; align-items: center; gap: 12px; }
         .eq-thumb { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
+        
+        /* Badges & Actions */
         .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
         .status-active { background: #e8f5e9; color: #2e7d32; }
         .status-due { background: #fff3e0; color: #f57c00; }
@@ -115,16 +143,16 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         <form action="search_equipment.php" method="GET" class="header-search-bar">
             <i class="fa-solid fa-bars menu-toggle-icon"></i>
             <i class="fa-solid fa-search search-icon"></i>
-            <input type="text" name="query" id="searchInput" placeholder="Search equipment, renters, bookings...">
+            <input type="text" name="query" id="searchInput" placeholder="Search equipment, renters, bookings..." data-i18n-placeholder="search_placeholder">
             <i class="fa-solid fa-microphone mic-icon"></i>
         </form>
         <div class="header-right-controls">
-            <!-- Language Dropdown Updated to trigger PHP change -->
+            <!-- Language Dropdown Menu -->
             <div class="language-selector">
-                <select id="langSelect" onchange="window.location.href='?lang=' + this.value">
-                    <option value="en" <?php echo ($current_lang == 'en') ? 'selected' : ''; ?>>English</option>
-                    <option value="kn" <?php echo ($current_lang == 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ</option>
-                    <option value="hi" <?php echo ($current_lang == 'hi') ? 'selected' : ''; ?>>हिंदी</option>
+                <select id="langSelect" onchange="changeLanguage(this.value)">
+                    <option value="en" selected>English</option>
+                    <option value="kn">ಕನ್ನಡ</option>
+                    <option value="hi">हिंदी</option>
                 </select>
             </div>
             <div class="notification-icon">
@@ -135,7 +163,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                 <img src="assets/images/default_avatar.png" alt="Profile" class="avatar">
                 <div class="user-info">
                     <span class="user-name">Tejomurthy</span>
-                    <span class="user-role"><?php echo __('lender_role'); ?></span>
+                    <span class="user-role" data-i18n="lender_role">Lender</span>
                 </div>
             </div>
         </div>
@@ -145,22 +173,22 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         <!-- Left Sidebar -->
         <aside class="sidebar">
             <ul class="sidebar-menu">
-                <li><a href="lender_dashboard.php"><i class="fa-solid fa-chart-pie"></i> <span><?php echo __('menu_dashboard'); ?></span></a></li>
-                <li><a href="add_item.php"><i class="fa-solid fa-plus"></i> <span><?php echo __('menu_add_equipment'); ?></span></a></li>
-                <li><a href="my_equipment.php"><i class="fa-solid fa-tractor"></i> <span><?php echo __('menu_my_equipment'); ?></span></a></li>
-                <li><a href="rental_request.php"><i class="fa-solid fa-star"></i> <span><?php echo __('rental request'); ?></span></a></li>
-                <li class="active"><a href="active_rentals.php"><i class="fa-solid fa-calendar-check"></i> <span><?php echo __('menu_active_rentals'); ?></span></a></li>
-                <li><a href="rental_history.php"><i class="fa-solid fa-clock-rotate-left"></i> <span><?php echo __('menu_rental_history'); ?></span></a></li>
-                <li><a href="profile.php"><i class="fa-solid fa-user"></i> <span><?php echo __('menu_profile'); ?></span></a></li>
-                <li class="logout-item"><a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> <span><?php echo __('menu_logout'); ?></span></a></li>
+                <li><a href="lender_dashboard.php"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="menu_dashboard">Dashboard</span></a></li>
+                <li><a href="add_item.php"><i class="fa-solid fa-plus"></i> <span data-i18n="menu_add_equipment">Add Equipment</span></a></li>
+                <li><a href="my_equipment.php"><i class="fa-solid fa-tractor"></i> <span data-i18n="menu_my_equipment">My Equipment</span></a></li>
+                <li><a href="rental_requests.php"><i class="fa-solid fa-star"></i> <span data-i18n="menu_rental_requests">Rental Requests</span></a></li>
+                <li class="active"><a href="active_rentals.php"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="menu_active_rentals">Active Rentals</span></a></li>
+                <li><a href="rental_history.php"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="menu_rental_history">Rental History</span></a></li>
+                <li><a href="profile.php"><i class="fa-solid fa-user"></i> <span data-i18n="menu_profile">Profile</span></a></li>
+                <li class="logout-item"><a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="menu_logout">Logout</span></a></li>
             </ul>
 
             <!-- Need Help Box -->
             <div class="sidebar-help-box">
                 <div class="help-content">
-                    <h4><?php echo __('sidebar_help_title'); ?></h4>
-                    <p><?php echo __('sidebar_help_desc'); ?></p>
-                    <button class="btn-contact-support"><?php echo __('sidebar_contact_btn'); ?></button>
+                    <h4 data-i18n="sidebar_help_title">Need Help?</h4>
+                    <p data-i18n="sidebar_help_desc">We are here to help you for any queries.</p>
+                    <button class="btn-contact-support" data-i18n="sidebar_contact_btn">Contact Support</button>
                 </div>
             </div>
         </aside>
@@ -169,10 +197,10 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         <main class="main-content">
             <div class="content-header-row">
                 <div>
-                    <h1><?php echo __('page_title_active_rentals'); ?></h1>
-                    <p><?php echo __('page_subtitle_active_rentals'); ?></p>
+                    <h1 data-i18n="page_title_active_rentals">Active Rentals</h1>
+                    <p data-i18n="page_subtitle_active_rentals">Manage and track all your ongoing equipment rentals.</p>
                 </div>
-                <button class="btn-download-report"><i class="fa-solid fa-download"></i> <span><?php echo __('btn_download_report'); ?></span></button>
+                <button class="btn-download-report"><i class="fa-solid fa-download"></i> <span data-i18n="btn_download_report">Download Report</span></button>
             </div>
 
             <!-- Dynamic Summary Cards -->
@@ -180,33 +208,33 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                 <div class="stat-card">
                     <div class="stat-icon bg-green"><i class="fa-solid fa-calendar-days"></i></div>
                     <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_total_active'); ?></span>
+                        <span class="stat-title" data-i18n="stat_total_active">Total Active Rentals</span>
                         <h2 class="stat-value"><?php echo $stats['total_active']; ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_ongoing_rentals'); ?></span>
+                        <span class="stat-desc" data-i18n="stat_ongoing_rentals">Ongoing Rentals</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon bg-blue"><i class="fa-solid fa-tractor"></i></div>
                     <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_total_equipment'); ?></span>
+                        <span class="stat-title" data-i18n="stat_total_equipment">Total Equipment</span>
                         <h2 class="stat-value"><?php echo $eq_stats['total_eq']; ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_rented_out'); ?></span>
+                        <span class="stat-desc" data-i18n="stat_rented_out">Registered Units</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon bg-orange"><i class="fa-solid fa-clock"></i></div>
                     <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_total_days'); ?></span>
+                        <span class="stat-title" data-i18n="stat_total_days">Total Days Rented</span>
                         <h2 class="stat-value"><?php echo $stats['total_days']; ?> Days</h2>
-                        <span class="stat-desc"><?php echo __('stat_across_rentals'); ?></span>
+                        <span class="stat-desc" data-i18n="stat_across_rentals">Across all rentals</span>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon bg-purple"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                     <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_total_earned'); ?></span>
+                        <span class="stat-title" data-i18n="stat_total_earned">Total Earned (So Far)</span>
                         <h2 class="stat-value">₹<?php echo number_format($stats['total_earned'], 2); ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_from_active'); ?></span>
+                        <span class="stat-desc" data-i18n="stat_from_active">From active rentals</span>
                     </div>
                 </div>
             </div>
@@ -217,18 +245,19 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th><?php echo __('table_col_equipment'); ?></th>
-                                <th><?php echo __('table_col_renter'); ?></th>
-                                <th><?php echo __('table_col_period'); ?></th>
-                                <th><?php echo __('table_col_address'); ?></th>
-                                <th><?php echo __('table_col_days_left'); ?></th>
-                                <th><?php echo __('table_col_amount'); ?></th>
-                                <th><?php echo __('table_col_status'); ?></th>
-                                <th><?php echo __('table_col_action'); ?></th>
+                                <th data-i18n="table_col_equipment">Equipment</th>
+                                <th data-i18n="table_col_renter">Renter Details</th>
+                                <th data-i18n="table_col_period">Rental Period</th>
+                                <th data-i18n="table_col_address">Delivery Address</th>
+                                <th data-i18n="table_col_days_left">Days Left</th>
+                                <th data-i18n="table_col_amount">Amount (Total)</th>
+                                <th data-i18n="table_col_status">Status</th>
+                                <th data-i18n="table_col_action">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
+                            // Fetch active bookings matching this lender's equipment using existing tables
                             $sql = "SELECT b.*, e.title as eq_title, e.category as eq_cat, e.brand_model, e.image as eq_image, 
                                            u.full_name as renter_name, u.phone as renter_phone 
                                     FROM bookings b 
@@ -242,6 +271,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
                             if ($result->num_rows > 0) {
                                 while($row = $result->fetch_assoc()) {
+                                    // Automatic Days Left & Status Calculation
                                     $current_date = new DateTime();
                                     $end_date = new DateTime($row['end_date']);
                                     $interval = $current_date->diff($end_date);
@@ -314,10 +344,10 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo $row['booking_id']; ?>)">
-                                            <i class="fa-regular fa-eye"></i> <span><?php echo __('btn_view_details'); ?></span>
+                                            <i class="fa-regular fa-eye"></i> <span data-i18n="btn_view_details">View Details</span>
                                         </button>
                                         <button class="btn-action btn-track" onclick="trackEquipment(<?php echo $row['booking_id']; ?>)">
-                                            <i class="fa-solid fa-location-crosshairs"></i> <span><?php echo __('btn_track_equipment'); ?></span>
+                                            <i class="fa-solid fa-location-crosshairs"></i> <span data-i18n="btn_track_equipment">Track</span>
                                         </button>
                                     </div>
                                 </td>
@@ -325,7 +355,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                             <?php 
                                 }
                             } else {
-                                echo '<tr><td colspan="8" style="text-align:center; padding: 25px;">' . __('no_active_rentals') . '</td></tr>';
+                                echo '<tr><td colspan="8" style="text-align:center; padding: 25px;" data-i18n="no_active_rentals">No active rentals found in your account.</td></tr>';
                             }
                             ?>
                         </tbody>
@@ -335,7 +365,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         </main>
     </div>
 
-    <script>
+   <script>
         function viewDetails(bookingId) {
             window.location.href = `booking_details.php?booking_id=${bookingId}`;
         }
