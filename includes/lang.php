@@ -1,0 +1,2183 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if language parameter is set via GET request
+if (isset($_GET['lang'])) {
+    $_SESSION['lang'] = $_GET['lang'];
+}
+
+// Default language is English
+$current_lang = $_SESSION['lang'] ?? 'en';
+
+// Translation Dictionaries
+$translations = [
+    'en' => [
+        // Index / General Keys
+        'title' => 'AGRICULTURE EQUIPMENT RENTAL SYSTEM',
+        'hero_title' => 'Smart Solutions for Modern Farming',
+        'hero_sub' => 'Rent quality agricultural equipment easily and grow your productivity.',
+        'login' => 'Login',
+        'register' => 'Register',
+        'trusted' => 'Trusted & Secure',
+        'trusted_desc' => 'Your data is safe with us',
+        'quality' => 'Quality Equipment',
+        'quality_desc' => 'Well-maintained and reliable',
+        'near' => 'Near You',
+        'near_desc' => 'Find equipment nearby',
+        // Login & Navigation Keys
+        'title'             => 'Agriculture Equipment Rental System',
+        'home'              => 'Home',
+        'how_it_works'      => 'How It Works',
+        'welcome_back'      => 'Welcome Back!',
+        'login_sub'         => 'Login to your account and start renting the best agricultural equipment near you.',
+        'login'             => 'Login',
+        'register'          => 'Register',
+        'email_or_phone'    => 'Email / Phone Number',
+        'enter_email_phone' => 'Enter your email or mobile number',
+        'password'          => 'Password',
+        'enter_password'    => 'Enter your password',
+        'remember_me'       => 'Remember Me',
+        'forgot_password'   => 'Forgot Password?',
+        'dont_have_account' => "Don't have an account?",
+        'register' => 'Register',
+        'trusted' => 'Trusted & Secure',
+        'trusted_desc' => 'Your information is safely stored with us',
+        'quality' => 'Quality Equipment',
+        'quality_desc' => 'Well-maintained and top-tier condition',
+        'near' => 'Near You',
+        'near_desc' => 'Find equipment in your local area',
+        'terms_notice' => 'By logging in, you agree to our <a href="#" class="text-success text-decoration-none fw-semibold">Terms & Conditions</a> and <a href="#" class="text-success text-decoration-none fw-semibold">Privacy Policy</a>.',
+        'popular_categories' => 'POPULAR CATEGORIES',
+        'tractor' => 'Tractor',
+        'harvesting' => 'Harvesting',
+        'irrigation' => 'Irrigation',
+        'tillage' => 'Tillage',
+        'seeding' => 'Seeding',
+        'spraying' => 'Spraying',
+        'all_rights_reserved' => 'All rights reserved.',
+        // How it works
+        'how_it_works' => 'How It Works',
+        'how_it_works_sub' => 'Simple steps to rent or list agricultural equipment in your local area.',
+        'for_renters' => 'For Renters (Farmers)',
+        'search_equipment' => 'Search Equipment',
+        'search_equipment_desc' => 'Find tractors, harvesters, or tillage tools available near your location.',
+        'book_and_pay' => 'Book & Pay',
+        'book_and_pay_desc' => 'Select your required rental duration and confirm the booking request securely.',
+        'start_farming' => 'Start Farming',
+        'start_farming_desc' => 'Get the equipment delivered or pick it up directly from the owner to start work.',
+        'for_lenders' => 'For Equipment Owners (Lenders)',
+        'list_equipment' => 'List Equipment',
+        'list_equipment_desc' => 'Post details, pricing, and images of your idle tractors or farming tools.',
+        'accept_requests' => 'Accept Requests',
+        'accept_requests_desc' => 'Review incoming rental requests from local farmers and accept them easily.',
+        'earn_income' => 'Earn Income',
+        'earn_income_desc' => 'Receive payment directly once the rental agreement period is completed.',
+        'popular_categories' => 'POPULAR CATEGORIES',
+        'tractor' => 'Tractor',
+        'harvesting' => 'Harvesting',
+        'irrigation' => 'Irrigation',
+        'tillage' => 'Tillage',
+        'seeding' => 'Seeding',
+        'spraying' => 'Spraying',
+        'all_rights_reserved' => 'All rights reserved.',
+        // Renter_dashboard
+        'title' => 'Agriculture Equipment Rental System',
+        'renter_dashboard' => 'Renter Dashboard',
+        'welcome_back' => 'Welcome back',
+        'find_and_rent' => 'Find and rent the best agricultural equipment near you.',
+        'active_bookings' => 'Active Bookings',
+        'upcoming_bookings' => 'Upcoming Bookings',
+        'completed_rentals' => 'Completed Rentals',
+        'total_spent' => 'Total Spent',
+        'popular_categories' => 'Popular Categories',
+        'featured_equipment' => 'Featured Equipment',
+        'recent_bookings' => 'Recent Bookings',
+        'view_details' => 'View Details',
+        'view_all' => 'View All',
+        'search_placeholder' => 'Search equipment...',
+        'no_active_rentals' => 'No active rentals yet',
+        'no_categories' => 'No equipment categories available yet',
+        'location' => 'Location',
+        'logout' => 'Logout',
+        'dashboard'          => 'Dashboard',
+        'search_equipment'   => 'Search Equipment',
+        'categories'         => 'Categories',
+        'featured_equipment' => 'Featured Equipment',
+        'recommended'        => 'Recommended',
+        'my_bookings'        => 'My Bookings',
+        'rental_history'     => 'Rental History',
+        'my_profile'         => 'My Profile',
+        'logout'             => 'Logout',
+        'no_categories' => 'No equipment categories available yet',
+        'browse_equipment' => 'Browse Equipment',
+        // Categories
+        'category_items_desc' => 'Find and rent agricultural equipment available in this category.',
+        'home'                  => 'Home',
+       'equipment_categories'  => 'Equipment Categories',
+        'categories_desc'       => 'Browse equipment by categories and find what you need.',
+         'cant_find_title'       => "Can't find what you're looking for?",
+            'try_searching'         => 'Try searching equipment',
+       'equipment_count'       => 'Equipment',
+         'view_equipment'        => 'View Equipment',
+          'add_category'          => 'Add Category',
+         'category_name'         => 'Category Name',
+          'category_desc'         => 'Category Description',
+         'category_image'        => 'Category Image',
+           'category_icon'         => 'FontAwesome Icon Class',
+           'save'                  => 'Save Category',
+          'secure_platform'       => 'Secure & Trusted Platform',
+          'secure_sub'            => '100% secure bookings • Verified owners • Safe payments (COD)',
+          'verified_eq'           => 'Verified Equipment',
+         'secure_booking'        => 'Secure Booking',
+          'easy_cancel'           => 'Easy Cancellation',
+            'support_247'           => '24/7 Support',
+            // Forgot password
+        'title' => 'Account Recovery',
+        'enter_email' => 'Enter Registered Email:',
+        'choose_method' => 'Choose Reset Method:',
+        'method_otp' => 'Send OTP Code to Email',
+        'method_question' => 'Answer Security Question',
+        'continue' => 'Continue',
+        'enter_otp' => 'Enter 6-Digit OTP Code:',
+        'verify_code' => 'Verify Code',
+        'security_question' => 'Security Question:',
+        'your_answer' => 'Your Answer:',
+        'verify_answer' => 'Verify Answer',
+        'new_password' => 'New Password:',
+        'confirm_password' => 'Confirm New Password:',
+        'reset_btn' => 'Update Password & Login',
+        'back_login' => 'Back to Login',
+        'err_no_account' => 'No account found with that email address.',
+        'err_no_question' => 'No security question set. Please use OTP recovery.',
+        'err_invalid_otp' => 'Invalid or expired OTP code.',
+        'err_wrong_answer' => 'Incorrect answer to security question.',
+        'err_pwd_mismatch' => 'Passwords do not match.',
+        'err_pwd_length' => 'Password must be at least 6 characters long.',
+        'err_update_failed' => 'Failed to update password. Please try again.',
+        // Lender dashboard
+        'title'             => 'Agriculture Equipment Rental System',
+          'lender_dashboard' => 'LENDER DASHBOARD',
+        'dashboard' => 'Dashboard',
+        'add_equipment' => 'Add Equipment',
+        'my_equipment' => 'My Equipment',
+        'rental_requests' => 'Rental Requests',
+        'active_rentals' => 'Active Rentals',
+        'rental_history' => 'Rental History',
+        'total_earnings' => 'Total Earnings',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+        'search_placeholder' => 'Search anything...',
+        
+        // Banner & Stat Cards
+        'welcome' => 'Welcome',
+        'banner_subtitle' => 'Manage your equipment, rentals, and grow your business.',
+        'total_equipment' => 'Total Equipment',
+        'view_details' => 'View Details →',
+        'view_all' => 'View All →',
+        
+        // Table Headers
+        'renter' => 'Renter',
+        'equipment' => 'Equipment',
+        'from_to' => 'From - To',
+        'amount' => 'Amount',
+        'action' => 'Action',
+        'accept' => 'Accept',
+        'reject' => 'Reject',
+        'in_use' => 'In Use',
+
+        // Empty States
+        'no_pending_requests' => 'No pending rental requests found.',
+        'no_active_rentals' => 'No active equipment rentals.',
+
+        //add_items page translations
+          // Sidebar
+          
+        'dashboard' => 'Dashboard',
+        'my_equipment' => 'My Equipment',
+        'add_equipment' => 'Add Equipment',
+        'rental_requests' => 'Rental Requests',
+        'my_bookings' => 'My Bookings',
+        'active_rentals' => 'Active Rentals',
+        'total_earnings' => 'Total Earnings',
+        'service_areas' => 'Service Areas',
+        'reviews' => 'Reviews',
+        'profile_settings' => 'Profile Settings',
+        'logout' => 'Logout',
+        'lender' => 'Lender',
+
+        // Header & Page Titles
+        'page_title' => 'Add New Equipment',
+        'home' => 'Home',
+        'back_dashboard' => 'Back to Dashboard',
+        'header_badge' => 'ADD EQUIPMENT',
+        'header_subtitle' => 'Fill in details to register machinery for rent',
+
+        // Section 1: Equipment Details
+        'sec_details' => '1. Equipment Details',
+        'eq_name' => 'Equipment Name',
+        'eq_name_ph' => 'Enter equipment name',
+        'category' => 'Category',
+        'select_category' => '-- Select Category --',
+        'brand' => 'Brand',
+        'brand_ph' => 'Enter brand name',
+        'model' => 'Model',
+        'model_ph' => 'Enter model',
+        'year_purchase' => 'Year of Purchase',
+        'condition' => 'Condition',
+        'select_condition' => '-- Select Condition --',
+        'description' => 'Description',
+        'description_ph' => 'Enter equipment description, features and specifications...',
+
+        // Section 2: Pricing & Availability
+        'sec_pricing' => '2. Pricing & Availability',
+        'price_per_day' => 'Price Per Day (₹)',
+        'price_per_day_ph' => 'Enter price per day',
+        'security_deposit' => 'Security Deposit (₹)',
+        'security_deposit_ph' => 'Enter security deposit (optional)',
+        'min_rental' => 'Min. Rental Days',
+        'max_rental' => 'Max. Rental Days',
+        'max_rental_ph' => 'Enter maximum days (optional)',
+        'avail_status' => 'Available Status',
+        'available' => 'Available',
+        'not_available' => 'Not Available',
+
+        // Section 3: Equipment Images
+        'sec_images' => '3. Equipment Images',
+        'drag_drop' => 'Drag & drop images here',
+        'or' => 'or',
+        'choose_files' => 'Choose Files',
+        'image_specs' => 'JPG, PNG or WEBP (Max. 5MB)',
+
+        // Section 4: Service Areas
+        'sec_service_areas' => '4. Service Areas',
+        'select_service_areas' => 'Select Service Areas',
+        'add_custom_area' => '+ Add Custom Area',
+        'prompt_custom_area' => 'Enter custom area name:',
+
+        // Section 5: Additional Information
+        'sec_additional' => '5. Additional Information',
+        'fuel_type' => 'Fuel Type',
+        'select_fuel' => '-- Select Fuel Type --',
+        'power_hp' => 'Power (HP)',
+        'power_hp_ph' => 'Enter power in HP',
+        'working_hours' => 'Working Hours',
+        'working_hours_ph' => 'Enter working hours',
+        'mark_recommended' => 'Mark as Recommended Equipment',
+        'recommended_desc' => 'This will show your equipment on homepage as recommended.',
+
+        // Buttons
+        'reset' => 'Reset',
+        'save_equipment' => 'Save Equipment',
+         //CATeGORIES PAgE
+         // Sidebar Navigation
+         'cat_spraying' => 'Spraying',
+          'desc_spraying' => 'Pesticide sprayers, mist blowers, and boom sprayers.',
+        'brand_title' => 'Agriculture Equipment Rental',
+        'dashboard' => 'Dashboard',
+        'search_equipment' => 'Search Equipment',
+        'categories' => 'Categories',
+        'featured_equipment' => 'Featured Equipment',
+        'recommended' => 'Recommended',
+        'my_bookings' => 'My Bookings',
+        'rental_history' => 'Rental History',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+
+        // Categories Page Header
+        'home' => 'Home',
+        'equipment_categories' => 'Equipment Categories',
+        'categories_subtitle' => 'Browse equipment by categories and find what you need.',
+        'missing_item_title' => "Can't find what you're looking for?",
+        'try_searching' => 'Try searching equipment',
+        'equipment' => 'Equipment',
+        'view_equipment' => 'View Equipment',
+        'no_categories' => 'No categories configured in database.',
+        'equipment_label' => 'Equipment',
+              'browse_categories_desc' => 'Browse equipment by categories and find what you need.',
+          'app_title' => 'Agriculture Equipment Rental',
+
+        // Category Titles & Descriptions (From Screenshot)
+        'cat_tractors' => 'Tractors',
+        'desc_tractors' => 'Heavy-duty tractors and utility vehicles for all farming operations.',
+        
+        'cat_harvesting' => 'Harvesting',
+        'desc_harvesting' => 'Combines, reapers, and crop gathering machinery.',
+        
+        'cat_irrigation' => 'Irrigation',
+        'desc_irrigation' => 'Water pumps, sprinklers, and drip irrigation systems.',
+        
+        'cat_tillage' => 'Tillage',
+        'desc_tillage' => 'Plows, cultivators, and soil preparation equipment.',
+        
+        'cat_seeding' => 'Seeding',
+        'desc_seeding' => 'Seed drills, planters, and broadcasting machinery.',
+        
+        'cat_spraying' => 'Spraying',
+        'desc_spraying' => 'Pesticide sprayers, mist blowers, and boom sprayers.',
+
+        // Footer Trust Banner
+        'secure_platform' => 'Secure & Trusted Platform',
+        'secure_subtitle' => '100% secure bookings • Verified owners',
+        'verified_equipment' => 'Verified Equipment',
+        'secure_booking' => 'Secure Booking',
+        'easy_cancellation' => 'Easy Cancellation',
+
+        ///MYPROFILE PAGE
+        'my_profile' => 'My Account Profile',
+        'back_to_dashboard' => 'Back to Dashboard',
+        'full_name' => 'Full Name',
+        'email_address' => 'Email Address',
+        'phone_number' => 'Phone Number',
+        'address' => 'Address',
+        'security_question' => 'Security Question',
+        'account_user_id' => 'Account User ID',
+        'change_password' => 'Change Password / Forgot Password',
+        'edit_profile' => 'Edit Profile',
+        'update_profile_info' => 'Update Your Profile Information',
+        'update_profile_pic' => 'Update Profile Picture',
+        'leave_blank_pic' => 'Leave blank to keep your current picture.',
+        'cancel' => 'Cancel',
+        'save_changes' => 'Save Changes',
+        'profile_updated_success' => 'Profile updated successfully!',
+
+        //MYEQUIPMENT PAGE
+        'my_equipment_title' => 'My Equipment',
+'my_equipment_inventory' => 'My Equipment Inventory',
+'dashboard' => 'Dashboard',
+'add_equipment' => 'Add Equipment',
+'rental_requests' => 'Rental Requests',
+'active_rentals' => 'Active Rentals',
+'my_profile' => 'My Profile',
+'logout' => 'Logout',
+'unnamed_equipment' => 'Unnamed Equipment',
+'uncategorized' => 'Uncategorized',
+'location_not_specified' => 'Location not specified',
+'condition' => 'Condition',
+'per_day' => '/ day',
+'view' => 'View',
+'edit' => 'Edit',
+'remove' => 'Remove',
+'confirm_remove_equipment' => 'Remove this equipment?',
+'no_equipment_added' => "You haven't added any equipment yet.",
+            //EDIT_EQUIPMENT PAGE
+            'edit_equipment_title' => 'Edit Equipment',
+'back_to_details' => 'Back to Details',
+'equipment_updated_success' => 'Equipment updated successfully!',
+'equipment_title_label' => 'Equipment Title',
+'status_label' => 'Status',
+'available_status' => 'Available',
+'rented_status' => 'Rented',
+'category_label' => 'Category',
+'brand_model_label' => 'Brand & Model',
+'power_hp_label' => 'Power (HP)',
+'drive_type_label' => 'Drive Type',
+'model_year_label' => 'Model Year',
+'fuel_type_label' => 'Fuel Type',
+'working_width_label' => 'Working Width',
+'equipment_condition_label' => 'Equipment Condition',
+'price_per_day_label' => 'Price Per Day (₹)',
+'min_booking_days_label' => 'Minimum Booking Days',
+'service_location_label' => 'Service Location',
+'distance_km_label' => 'Distance (Kilometers)',
+'mark_featured_label' => 'Mark as Recommended / Featured Equipment',
+'mark_featured_desc' => 'Check this box to highlight this equipment in recommended sections. Uncheck if you do not want it marked as recommended.',
+'update_image_label' => 'Update Image (Leave blank to keep current)',
+'current_file_label' => 'Current file: ',
+'description_label' => 'Description',
+'cancel_btn' => 'Cancel',
+'save_changes_btn' => 'Save Changes',
+           ////equipment deatils page
+  // ENGLISH (en)
+'equipment_details_title' => 'Equipment Details',
+'back_to_my_equipment' => 'Back to My Equipment',
+'category_spec' => 'Category',
+'brand_model_spec' => 'Brand & Model',
+'power_hp_spec' => 'Power (HP)',
+'drive_type_spec' => 'Drive Type',
+'model_year_spec' => 'Model Year',
+'fuel_type_spec' => 'Fuel Type',
+'working_width_spec' => 'Working Width',
+'equipment_condition_spec' => 'Equipment Condition',
+'price_per_day_spec' => 'Price Per Day',
+'min_booking_days_spec' => 'Minimum Booking Days',
+'days_label' => 'Days',
+'service_location_spec' => 'Service Location',
+'status_featured_spec' => 'Status & Featured',
+'rating_spec' => 'Rating',
+'reviews_label' => 'reviews',
+'created_date_spec' => 'Created Date',
+'description_spec' => 'Description',
+'no_description_provided' => 'No description provided.',
+'back_btn' => 'Back',
+'edit_equipment_btn' => 'Edit Equipment',
+
+  // RENT NOW PAGE
+              'eq_rental_system' => ' EQUIPMENT RENTAL SYSTEM',
+        'renter_role' => 'Renter',
+        'nav_dashboard' => 'Dashboard',
+        'nav_search' => 'Search Equipment',
+        'nav_categories' => 'Categories',
+        'nav_featured' => 'Featured Equipment',
+        'nav_recommended' => 'Recommended',
+        'nav_bookings' => 'My Bookings',
+        'nav_history' => 'Rental History',
+        'nav_profile' => 'My Profile',
+        'nav_support' => 'Support',
+        'nav_logout' => 'Logout',
+        'book_equipment_title' => 'Book Equipment',
+        'book_subtitle' => 'Fill in the details below to book the equipment.',
+        'lbl_category' => 'Category',
+        'lbl_owner' => 'Owner',
+        'lbl_day' => 'day',
+        'sec_rental_details' => '1. Rental Details',
+        'lbl_start_date' => 'Rental Start Date',
+        'lbl_end_date' => 'Rental End Date',
+        'lbl_quantity' => 'Quantity',
+        'lbl_unit' => 'Unit',
+        'lbl_units' => 'Units',
+        'lbl_total_days' => 'Total Days',
+        'sec_delivery_address' => '2. Delivery Address',
+        'lbl_use_reg_address' => 'Use Registered Address',
+        'lbl_state' => 'State',
+        'lbl_district' => 'District',
+        'lbl_taluk' => 'Area / Taluk',
+        'lbl_pincode' => 'PIN Code',
+        'lbl_full_address' => 'Full Address',
+        'btn_diff_address' => 'Use Different Address',
+        'sec_identity_verification' => '3. Identity Verification',
+        'lbl_gov_id' => 'Upload Government ID Proof',
+        'lbl_click_upload' => 'Click to upload',
+        'lbl_file_specs' => 'JPG, PNG or PDF (Max. 5MB)',
+        'lbl_id_number' => 'ID Number',
+        'lbl_phone_number' => 'Phone Number',
+        'sec_payment_info' => '4. Payment Information',
+        'lbl_only_cash' => 'Note: Only cash payments are accepted (Cash at Delivery & Cash on Return).',
+        'lbl_advance_payment' => 'Advance Payment',
+        'lbl_sec_deposit_lender' => 'Security Deposit set by lender',
+        'lbl_cash_at_delivery' => 'Cash at Delivery',
+        'lbl_remaining_payment' => 'Remaining Payment',
+        'lbl_total_minus_adv' => 'Total Rent - Advance Deposit',
+        'lbl_cod' => 'Cash on Return (COD)',
+        'lbl_agree_terms' => 'I agree to the Terms & Conditions and Privacy Policy',
+        'lbl_order_summary' => 'Order Summary',
+        'lbl_price_per_day' => 'Price per day',
+        'lbl_total_rent' => 'Total Rent',
+        'lbl_advance_dep' => 'Advance (Security Deposit)',
+        'lbl_remaining_cod' => 'Remaining Amount (COD)',
+        'btn_confirm_booking' => 'Confirm Booking',
+        'btn_cancel' => 'Cancel',
+        'lbl_wont_be_charged' => "You won't be charged now",
+        'eq_not_found' => 'Equipment not found or currently unavailable.',
+        'err_all_fields' => 'All required fields must be filled out.',
+        'err_past_date' => 'Rental start date cannot be in the past.',
+        'err_end_before_start' => 'Rental end date cannot be before the start date.',
+        'err_qty' => 'Quantity must be at least 1.',
+        'err_already_booked' => 'Sorry, this equipment is already booked for the selected dates.',
+        'err_id_proof' => 'Please upload your Government ID proof document.',
+        'err_file_size' => 'File size exceeds the maximum limit of 5 MB.',
+        'err_file_format' => 'Invalid file format. Only JPG, PNG, and PDF formats are accepted.',
+        'err_db' => 'Database error occurred while processing your booking.',
+        'err_upload' => 'Failed to upload the identity verification document.',
+
+        //search equipment page
+        'search_results_for' => 'Search results for',
+'registered_location' => 'Registered location',
+'equipment_near_you' => 'Equipment Near You',
+'other_equipment' => 'Other Equipment',
+'available_status_label' => 'Available',
+'view_equipment' => 'View Equipment',
+'rent_now' => 'Rent Now',
+'per_day' => 'per day',
+'search' => 'Search',
+'search_placeholder' => 'Search equipment...',
+'no_equipment_found' => 'No equipment found for',
+'try_different_keyword' => 'Try searching with a different keyword.',
+'back_to_dashboard' => 'Back to Dashboard',
+'enter_keyword_prompt' => 'Please enter a keyword to search for equipment.',
+'specific_item_not_available' => 'The specific item is not available. Showing other available equipment in',
+           //My Bookings Page
+           'dashboard' => 'Dashboard',
+        'categories' => 'Categories',
+        'my_bookings' => 'My Bookings',
+        'notifications' => 'Notifications',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+        'brand_main' => 'AGRICULTURE',
+        'brand_sub' => 'EQUIPMENT RENTAL',
+        'page_title' => 'My Bookings',
+        'all_bookings' => 'All Bookings',
+        'upcoming' => 'Upcoming',
+        'ongoing' => 'Ongoing',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled',
+        'sort_by' => 'Sort by:',
+        'latest' => 'Latest',
+        'oldest' => 'Oldest',
+        'start_date' => 'Start Date',
+        'amount' => 'Amount',
+        'category' => 'Category',
+        'lender' => 'Lender',
+        'id' => 'ID',
+        'end' => 'End',
+        'total' => 'Total',
+        'advance' => 'Advance',
+        'payment' => 'Payment',
+        'booked_on' => 'Booked on',
+        'view_details' => 'View Details',
+        'no_bookings' => 'No bookings found in this category.',
+        'no_bookings_desc' => "You haven't made any bookings matching this filter yet.",
+        'browse_equipment' => 'Browse Equipment',
+
+        //BOkking deatils and lender details page
+        'dashboard' => 'Dashboard',
+        'categories' => 'Categories',
+        'my_bookings' => 'My Bookings',
+        'notifications' => 'Notifications',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+        'back_to_bookings' => 'Back to My Bookings',
+        
+        // Page Headers
+        'booking_details_title' => 'Booking Details & Status',
+        'booking_details_subtitle' => 'Track your equipment rental status and lender details.',
+        'lender_details_title' => 'Lender Details',
+        'lender_details_subtitle' => 'View complete contact and verification info for the equipment lender.',
+        
+        // Cards & Sections
+        'booking_info' => 'Booking Information',
+        'booking_status' => 'Booking Status',
+        'rental_timeline' => 'Rental Timeline',
+        'important_notes' => 'Important Notes',
+        'order_summary' => 'Order Summary',
+        
+        // Specifications & Labels
+        'category' => 'Category',
+        'booking_id' => 'Booking ID',
+        'booking_date' => 'Booking Date',
+        'lender_name' => 'Lender Name',
+        'phone_number' => 'Phone Number',
+        'rental_period' => 'Rental Period',
+        'delivery_address' => 'Delivery Address',
+        'price_per_day' => 'Price per Day',
+        'total_days' => 'Total Days',
+        'total_rent' => 'Total Rent',
+        'advance_paid' => 'Advance Paid',
+        'remaining_cod' => 'Remaining Amount (COD)',
+        'payment_method' => 'Payment Method',
+        'cash_on_delivery' => 'Cash on Delivery',
+        
+        // Timeline Status Steps
+        'submitted' => 'Submitted',
+        'pending_approval' => 'Pending Approval',
+        'accepted' => 'Accepted',
+        'delivered' => 'Delivered',
+        'returned' => 'Returned',
+        
+        // Timeline Descriptions
+        'req_submitted_desc' => 'You have requested to book this equipment.',
+        'lender_review_desc' => 'Lender has reviewed and accepted your request.',
+        'waiting_review_desc' => 'Awaiting lender review and confirmation.',
+        'equipment_delivered_desc' => 'Equipment has been delivered successfully.',
+        'pending_delivery_desc' => 'Pending delivery execution by the lender.',
+        'expected_return_date' => 'Expected Return Date',
+        'return_instruction_desc' => 'Please return the equipment on or before this date in good condition.',
+        
+        // Important Notes Content
+        'note_1' => 'Ensure the equipment is operated carefully and used only for intended agricultural purposes.',
+        'note_2' => 'Return the equipment on or before the agreed end date to avoid late penalty charges.',
+        'note_3' => 'Inspect the equipment upon delivery and report any mechanical issues immediately.',
+        'note_4' => 'Keep the equipment clean and securely stored when not in use during your rental period.',
+        'note_5' => 'Contact the lender directly if you need any assistance or have questions regarding operation.',
+        
+        // Action Buttons
+        'view_lender_details' => 'View Lender Details',
+        'contact_lender' => 'Contact Lender',
+
+// Recommended Equipment
+'agriculture' => 'AGRICULTURE',
+        'equipment_rental_system' => 'EQUIPMENT RENTAL SYSTEM',
+
+        'dashboard' => 'Dashboard',
+        'categories' => 'Categories',
+        'my_bookings' => 'My Bookings',
+        'notifications' => 'Notifications',
+        'my_profile' => 'My Profile',
+        'logout' => 'Logout',
+
+        'renter' => 'Renter',
+        'home' => 'Home',
+        'recommended' => 'Recommended',
+
+        'recommended_equipment' => 'Recommended Equipment',
+
+        'recommended_description' =>
+            'Handpicked equipment based on your bookings and preferences.',
+
+        'browse_all' => 'Browse All',
+
+        'category' => 'Category',
+        'day' => 'day',
+        'reviews' => 'Reviews',
+
+        'view_lender' => 'View Lender Profile',
+        'view_equipment' => 'View Equipment',
+
+        'location_not_set' => 'Location not set',
+        'location_not_available' => 'Location not available',
+
+        'no_recommended_equipment' =>
+            'No recommended equipment available.',
+
+        // Equipment
+        'equipment_tractors' => 'Tractors',
+        'equipment_harvesting' => 'Harvesting Equipment',
+        'equipment_irrigation' => 'Irrigation Equipment',
+        'equipment_tillage' => 'Tillage Equipment',
+        'equipment_seed_drill' => 'Seed Drill',
+        'equipment_sprayer' => 'Sprayer',
+
+        // Categories
+        'category_tractor' => 'Tractor',
+        'category_harvesting' => 'Harvesting',
+        'category_irrigation' => 'Irrigation',
+        'category_tillage' => 'Tillage',
+        'category_seeding' => 'Seeding',
+        'category_spraying' => 'Spraying',
+
+
+
+// Rental History
+
+        'dashboard' => 'Dashboard',
+
+        'categories' => 'Categories',
+
+        'my_bookings' => 'My Bookings',
+
+        'notifications' => 'Notifications',
+
+        'my_profile' => 'My Profile',
+
+        'rental_history' => 'Rental History',
+
+        'logout' => 'Logout',
+
+        'home' => 'Home',
+
+        'rental_history_title' => 'Rental History',
+
+        'rental_history_description' => 'View your past bookings and rental activities.',
+
+        'all_status' => 'All Status',
+
+        'equipment' => 'Equipment',
+
+        'booking_id' => 'Booking ID',
+
+        'rental_period' => 'Rental Period',
+
+        'total_amount' => 'Total Amount',
+
+        'status' => 'Status',
+
+        'booked_on' => 'Booked On',
+
+        'action' => 'Action',
+
+        'category' => 'Category',
+
+        'tractor' => 'Tractor',
+
+        'tractors' => 'Tractors',
+
+        'tillage_equipment' => 'Tillage Equipment',
+
+        'irrigation' => 'Irrigation',
+
+        'harvesters' => 'Harvesters',
+
+        'completed' => 'Completed',
+
+        'cancelled' => 'Cancelled',
+
+        'pending' => 'Pending',
+
+        'approved' => 'Approved',
+
+        'rejected' => 'Rejected',
+
+        'days' => 'Days',
+
+        'day' => 'Day',
+
+        'advance' => 'Advance',
+
+        'view_details' => 'View Details',
+
+        'no_rental_history' => 'No rental history found.',
+
+        'renter' => 'Renter',
+
+        'english' => 'English',
+
+        'kannada' => 'Kannada',
+
+        'hindi' => 'Hindi'
+
+
+        
+
+    ],
+
+
+
+
+    'kn' => [
+         // Index / General Keys
+        'title' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+        'hero_title' => 'ಆಧುನಿಕ ಕೃಷಿಗಾಗಿ ಸ್ಮಾರ್ಟ್ ಪರಿಹಾರಗಳು',
+        'hero_sub' => 'ಉತ್ತಮ ಗುಣಮಟ್ಟದ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಸುಲಭವಾಗಿ ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ.',
+        'login' => 'ಲಾಗಿನ್',
+        'register' => 'ನೋಂದಣಿ',
+        'trusted' => 'ವಿಶ್ವಾಸಾರ್ಹ ಮತ್ತು ಸುರಕ್ಷಿತ',
+        'trusted_desc' => 'ನಿಮ್ಮ ಡೇಟಾ ನಮ್ಮ ಬಳಿ ಸುರಕ್ಷಿತವಾಗಿದೆ',
+        'quality' => 'ಗುಣಮಟ್ಟದ ಉಪಕರಣಗಳು',
+        'quality_desc' => 'ಉತ್ತಮ ನಿರ್ವಹಣೆ ಮತ್ತು ನಂಬಿಕಸ್ಥ',
+        'near' => 'ನಿಮ್ಮ ಹತ್ತಿರ',
+        'near_desc' => 'ಸಮೀಪದ ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+        // Login & Navigation Keys
+        'home'              => 'ಮುಖ್ಯ ಪುಟ',
+        'how_it_works'      => 'ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ',
+        'welcome_back'      => 'ಮತ್ತೆ ಸ್ವಾಗತ!',
+        'login_sub'         => 'ನಿಮ್ಮ ಖಾತೆಗೆ ಲಾಗಿನ್ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಹತ್ತಿರದ ಅತ್ಯುತ್ತಮ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ.',
+        'email_or_phone'    => 'ಇಮೇಲ್ / ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
+        'enter_email_phone' => 'ನಿಮ್ಮ ಇಮೇಲ್ ಅಥವಾ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ',
+        'password'          => 'ಪಾಸ್ವರ್ಡ್',
+        'enter_password'    => 'ನಿಮ್ಮ ಪಾಸ್ವರ್ಡ್ ನಮೂದಿಸಿ',
+        'remember_me'       => 'ನನ್ನನ್ನು ನೆನಪಿಡಿ',
+        'forgot_password'   => 'ಪಾಸ್ವರ್ಡ್ ಮರೆತಿದ್ದೀರಾ?',
+        'dont_have_account' => 'ಖಾತೆ ಇಲ್ಲವೇ?',
+        'register' => 'ನೋಂದಣಿ',
+        'trusted' => 'ವಿಶ್ವಾಸಾರ್ಹ ಮತ್ತು ಸುರಕ್ಷಿತ',
+        'trusted_desc' => 'ನಿಮ್ಮ ವಿವರಗಳು ನಮ್ಮ ಬಳಿ ಸುರಕ್ಷಿತವಾಗಿವೆ',
+        'quality' => 'ಗುಣಮಟ್ಟದ ಉಪಕರಣಗಳು',
+        'quality_desc' => 'ಉತ್ತಮ ನಿರ್ವಹಣೆ ಮತ್ತು ಸುಸ್ಥಿತಿ',
+        'near' => 'ನಿಮ್ಮ ಹತ್ತಿರ',
+        'near_desc' => 'ಸಮೀಪದ ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+        'terms_notice' => 'ಲಾಗಿನ್ ಮಾಡುವ ಮೂಲಕ, ನೀವು ನಮ್ಮ <a href="#" class="text-success text-decoration-none fw-semibold">ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು</a> ಮತ್ತು <a href="#" class="text-success text-decoration-none fw-semibold">ಗೌಪ್ಯತಾ ನೀತಿ</a>ಗೆ ಒಪ್ಪುತ್ತೀರಿ.',
+        'popular_categories' => 'ಜನಪ್ರಿಯ ವರ್ಗಗಳು',
+        'tractor' => 'ಟ್ರಾಕ್ಟರ್',
+        'harvesting' => 'ಕೊಯ್ಲು',
+        'irrigation' => 'ನೀರಾವರಿ',
+        'tillage' => 'ಉಳುಮೆ',
+        'seeding' => 'ಬಿತ್ತನೆ',
+        'spraying' => 'ಸಿಂಪಡಣೆ',
+        'all_rights_reserved' => 'ಎಲ್ಲಾ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.',
+        // how it works
+          'how_it_works' => 'ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ',
+          'how_it_works_sub' => 'ನಿಮ್ಮ ಸ್ಥಳೀಯ ಪ್ರದೇಶದಲ್ಲಿ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಬಾಡಿಗೆಗೆ ಪಡೆಯಲು ಅಥವಾ ನೀಡಲು ಸರಳ ಹಂತಗಳು.',
+          'for_renters' => 'ಬಾಡಿಗೆದಾರರಿಗೆ (ರೈತರಿಗೆ)',
+          'search_equipment' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+          'search_equipment_desc' => 'ನಿಮ್ಮ ಹತ್ತಿರ ಲಭ್ಯವಿರುವ ಟ್ರ್ಯಾಕ್ಟರ್‌ಗಳು, ಕೊಯ್ಲು ಯಂತ್ರಗಳು ಅಥವಾ ಉಳುವಿಕೆ ಉಪಕರಣಗಳನ್ನು ಕಂಡುಕೊಳ್ಳಿ.',
+          'book_and_pay' => 'ಬುಕ್ ಮಾಡಿ ಮತ್ತು ಪಾವತಿಸಿ',
+          'book_and_pay_desc' => 'ನಿಮಗೆ ಅಗತ್ಯವಿರುವ ಬಾಡಿಗೆಯ ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು ಬುಕಿಂಗ್ ಅನ್ನು ದೃಢೀಕರಿಸಿ.',
+          'start_farming' => 'ಬೆಳೆ ಕೃಷಿ ಪ್ರಾರಂಭಿಸಿ',
+          'start_farming_desc' => 'ಉಪಕರಣಗಳನ್ನು ಮನೆಗೆ ತರಿಸಿಕೊಳ್ಳಿ ಅಥವಾ ಮಾಲೀಕರಿಂದ ನೇರವಾಗಿ ಪಡೆದುಕೊಂಡು ಕೆಲಸ ಪ್ರಾರಂಭಿಸಿ.',
+          'for_lenders' => 'ಉಪಕರಣಗಳ ಮಾಲೀಕರಿಗೆ (ನೀಡುವವರಿಗೆ)',
+          'list_equipment' => 'ಉಪಕರಣಗಳ ಮಾಹಿತಿ ನೀಡಿ',
+          'list_equipment_desc' => 'ನಿಮ್ಮ ಬಳಿ ಸುಮ್ಮನೆ ಇರುವ ಟ್ರ್ಯಾಕ್ಟರ್ ಅಥವಾ ಕೃಷಿ ಉಪಕರಣಗಳ ವಿವರ, ದರ ಮತ್ತು ಚಿತ್ರಗಳನ್ನು ಸೇರಿಸಿ.',
+          'accept_requests' => 'ಕೋರಿಕೆಗಳನ್ನು ಸ್ವೀಕರಿಸಿ',
+          'accept_requests_desc' => 'ಸ್ಥಳೀಯ ರೈತರಿಂದ ಬರುವ ಬಾಡಿಗೆ ಕೋರಿಕೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಸುಲಭವಾಗಿ ಸ್ವೀಕರಿಸಿ.',
+          'earn_income' => 'ಆದಾಯ ಗಳಿಸಿ',
+          'earn_income_desc' => 'ಬಾಡಿಗೆಯ ಸಮಯ ಮುಗಿದ ನಂತರ ನೇರವಾಗಿ ಹಣವನ್ನು ಪಡೆದುಕೊಳ್ಳಿ.',
+           'popular_categories' => 'ಜನಪ್ರಿಯ ವರ್ಗಗಳು',
+        'tractor' => 'ಟ್ರಾಕ್ಟರ್',
+        'harvesting' => 'ಕೊಯ್ಲು',
+        'irrigation' => 'ನೀರಾವರಿ',
+        'tillage' => 'ಉಳುಮೆ',
+        'seeding' => 'ಬಿತ್ತನೆ',
+        'spraying' => 'ಸಿಂಪಡಣೆ',
+        'all_rights_reserved' => 'ಎಲ್ಲಾ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.',
+            // renter_dashboard
+        'title' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+        'renter_dashboard' => 'ಬಾಡಿಗೆದಾರರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'welcome_back' => 'ಸ್ವಾಗತ',
+        'find_and_rent' => 'ನಿಮ್ಮ ಹತ್ತಿರವಿರುವ ಉತ್ತಮ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ ಮತ್ತು ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ.',
+        'active_bookings' => 'ಸಕ್ರಿಯ ಬುಕಿಂಗ್‌ಗಳು',
+        'upcoming_bookings' => 'ಮುಂಬರುವ ಬುಕಿಂಗ್‌ಗಳು',
+        'completed_rentals' => 'ಪೂರ್ಣಗೊಂಡ ಬಾಡಿಗೆಗಳು',
+        'total_spent' => 'ಒಟ್ಟು ವೆಚ್ಚ',
+        'popular_categories' => 'ಜನಪ್ರಿಯ ವರ್ಗಗಳು',
+        'featured_equipment' => 'ವಿಶೇಷ ಉಪಕರಣಗಳು',
+        'recent_bookings' => 'ಇತ್ತೀಚಿನ ಬುಕಿಂಗ್‌ಗಳು',
+        'view_details' => 'ವಿವರ ವೀಕ್ಷಿಸಿ',
+        'view_all' => 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ',
+        'search_placeholder' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ...',
+        'no_active_rentals' => 'ಇನ್ನೂ ಯಾವುದೇ ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳಿಲ್ಲ',
+        'no_categories' => 'ಯಾವುದೇ ಉಪಕರಣಗಳ ವರ್ಗಗಳು ಲಭ್ಯವಿಲ್ಲ',
+        'location' => 'ಸ್ಥಳ',
+        'logout' => 'ನಿರ್ಗಮಿಸಿ',
+        'dashboard'          => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'search_equipment'   => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+        'categories'         => 'ವರ್ಗಗಳು',
+        'featured_equipment' => 'ವಿಶೇಷ ಉಪಕರಣಗಳು',
+         'recommended'        => 'ಶಿಫಾರಸು ಮಾಡಿದವು',
+        'my_bookings'        => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'rental_history'     => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+        'my_profile'         => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout'             => 'ಲಾಗಿನ್‌ನಿಂದ ನಿರ್ಗಮಿಸಿ',
+        'no_categories' => 'ಯಾವುದೇ ಉಪಕರಣಗಳ ವರ್ಗಗಳು ಲಭ್ಯವಿಲ್ಲ',
+        'browse_equipment' => 'ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ',
+        // Categories
+        'category_items_desc' => 'ಈ ವರ್ಗದಲ್ಲಿ ಲಭ್ಯವಿರುವ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ ಮತ್ತು ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ.',
+        'home'                  => 'ಮುಖಪುಟ',
+        'equipment_categories'  => 'ಉಪಕರಣ ವರ್ಗಗಳು',
+        'categories_desc'       => 'ವರ್ಗಗಳ ಮೂಲಕ ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ನೀವು ಬೇಕಾದುದನ್ನು ಕಂಡುಕೊಳ್ಳಿ.',
+        'try_searching'         => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ಪ್ರಯತ್ನಿಸಿ',
+        'equipment_count'       => 'ಉಪಕರಣಗಳು',
+         'view_equipment'        => 'ಉಪಕರಣ ವೀಕ್ಷಿಸಿ',
+        'add_category'          => 'ವರ್ಗವನ್ನು ಸೇರಿಸಿ',
+        'category_name'         => 'ವರ್ಗದ ಹೆಸರು',
+          'category_desc'         => 'ವರ್ಗದ ವಿವರಣೆ',
+         'category_image'        => 'ವರ್ಗದ ಚಿತ್ರ',
+        'category_icon'         => 'ಐಕಾನ್ ತರಗತಿ',
+        'save'                  => 'ವರ್ಗ ಉಳಿಸಿ',
+          'secure_platform'       => 'ಸುರಕ್ಷಿತ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ತಾಣ',
+         'secure_sub'            => '100% ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್ • ದೃಢೀಕರಿಸಲ್ಪಟ್ಟ ಮಾಲೀಕರು • ಸುರಕ್ಷಿತ ಪಾವತಿಗಳು',
+        'verified_eq'           => 'ದೃಢೀಕೃತ ಉಪಕರಣಗಳು',
+          'secure_booking'        => 'ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್',
+         'easy_cancel'           => 'ಸುಲಭ ರದ್ದತಿ',
+         'support_247'           => '24/7 ಬೆಂಬಲ',
+         // forgot password
+         'title' => 'ಖಾತೆ ಮರುಪಡೆಯುವಿಕೆ',
+        'enter_email' => 'ನೋಂದಾಯಿತ ಇಮೇಲ್ ನಮೂದಿಸಿ:',
+        'choose_method' => 'ಮರುಹೊಂದಿಸುವ ವಿಧಾನವನ್ನು ಆಯ್ಕೆಮಾಡಿ:',
+        'method_otp' => 'ಇಮೇಲ್‌ಗೆ OTP ಕಳುಹಿಸಿ',
+        'method_question' => 'ಸುರಕ್ಷತಾ ಪ್ರಶ್ನೆಗೆ ಉತ್ತರಿಸಿ',
+        'continue' => 'ಮುಂದುವರೆಯಿರಿ',
+        'enter_otp' => '6-ಅಂಕಿಯ OTP ಕೋಡ್ ನಮೂದಿಸಿ:',
+        'verify_code' => 'ಕೋಡ್ ಪರಿಶೀಲಿಸಿ',
+        'security_question' => 'ಸುರಕ್ಷತಾ ಪ್ರಶ್ನೆ:',
+        'your_answer' => 'ನಿಮ್ಮ ಉತ್ತರ:',
+        'verify_answer' => 'ಉತ್ತರವನ್ನು ಪರಿಶೀಲಿಸಿ',
+        'new_password' => 'ಹೊಸ ಪಾಸ್‌ವರ್ಡ್:',
+        'confirm_password' => 'ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ಖಚಿತಪಡಿಸಿ:',
+        'reset_btn' => 'ಪಾಸ್‌ವರ್ಡ್ ನವೀಕರಿಸಿ ಮತ್ತು ಲಾಗಿನ್ ಮಾಡಿ',
+        'back_login' => 'ಲಾಗಿನ್‌ಗೆ ಹಿಂತಿರುಗಿ',
+        'err_no_account' => 'ಆ ಇಮೇಲ್ ವಿಳಾಸದೊಂದಿಗೆ ಯಾವುದೇ ಖಾತೆ ಕಂಡುಬಂದಿಲ್ಲ.',
+        'err_no_question' => 'ಸುರಕ್ಷತಾ ಪ್ರಶ್ನೆ ಹೊಂದಿಸಿಲ್ಲ. ದಯವಿಟ್ಟು OTP ಬಳಸಿ.',
+        'err_invalid_otp' => 'ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮುಗಿದ OTP ಕೋಡ್.',
+        'err_wrong_answer' => 'ಸುರಕ್ಷತಾ ಪ್ರಶ್ನೆಗೆ ತಪ್ಪು ಉತ್ತರ.',
+        'err_pwd_mismatch' => 'ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ.',
+        'err_pwd_length' => 'ಪಾಸ್‌ವರ್ಡ್ ಕನಿಷ್ಠ 6 ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು.',
+        'err_update_failed' => 'ಪಾಸ್‌ವರ್ಡ್ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+        // lender dashboard
+           'title' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+          'lender_dashboard' => 'ಉಪಕರಣ ಮಾಲೀಕರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'add_equipment' => 'ಉಪಕರಣ ಸೇರಿಸಿ',
+        'my_equipment' => 'ನನ್ನ ಉಪಕರಣಗಳು',
+        'rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
+        'active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
+        'rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+        'total_earnings' => 'ಒಟ್ಟು ಗಳಿಕೆ',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಲಾಗ್‌ಔಟ್',
+        'search_placeholder' => 'ಹುಡುಕಿ...',
+        
+        'welcome' => 'ಸ್ವಾಗತ',
+        'banner_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣಗಳು, ಬಾಡಿಗೆಗಳು ಮತ್ತು ವ್ಯವಹಾರವನ್ನು ನಿರ್ವಹಿಸಿ.',
+        'total_equipment' => 'ಒಟ್ಟು ಉಪಕರಣಗಳು',
+        'view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ →',
+        'view_all' => 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ →',
+        
+        'renter' => 'ಬಾಡಿಗೆದಾರ',
+        'equipment' => 'ಉಪಕರಣ',
+        'from_to' => 'ದಿನಾಂಕದಿಂದ - ದಿನಾಂಕದವರೆಗೆ',
+        'amount' => 'ಮೊತ್ತ',
+        'action' => 'ಕ್ರಿಯೆ',
+        'accept' => 'ಸಮ್ಮತಿಸಿ',
+        'reject' => 'ನಿರಾಕರಿಸಿ',
+        'in_use' => 'ಬಳಕೆಯಲ್ಲಿದೆ',
+
+        'no_pending_requests' => 'ಯಾವುದೇ ಬಾಕಿ ಇರುವ ಬಾಡಿಗೆ ವಿನಂತಿಗಳಿಲ್ಲ.',
+        'no_active_rentals' => 'ಯಾವುದೇ ಸಕ್ರಿಯ ಉಪಕರಣ ಬಾಡಿಗೆಗಳಿಲ್ಲ.',
+        'Reviews' => 'ವಿಮರ್ಶೆಗಳು',
+
+        // add.items page transaltions
+        // Sidebar
+        'dashboard' => 'ಮುಖಪುಟ (Dashboard)',
+        'my_equipment' => 'ನನ್ನ ಉಪಕರಣಗಳು',
+        'add_equipment' => 'ಉಪಕರಣವನ್ನು ಸೇರಿಸಿ',
+        'rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
+        'total_earnings' => 'ಒಟ್ಟು ಗಳಿಕೆ',
+        'service_areas' => 'ಸೇವಾ ಪ್ರದೇಶಗಳು',
+        'reviews' => 'ವಿಮರ್ಶೆಗಳು',
+        'profile_settings' => 'ಪ್ರೊಫೈಲ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
+        'logout' => 'ಹೊರನಡೆ',
+        'lender' => 'ಉಪಕರಣ ಮಾಲೀಕ',
+
+        // Header & Page Titles
+        'page_title' => 'ಹೊಸ ಉಪಕರಣವನ್ನು ಸೇರಿಸಿ',
+        'home' => 'ಮುಖಪುಟ',
+        'back_dashboard' => 'ಮುಖಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ',
+        'header_badge' => 'ಉಪಕರಣ ಸೇರಿಸಿ',
+        'header_subtitle' => 'ಬಾಡಿಗೆಗೆ ಯಂತ್ರೋಪಕರಣಗಳನ್ನು ನೋಂದಾಯಿಸಲು ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ',
+
+        // Section 1: Equipment Details
+        'sec_details' => '1. ಉಪಕರಣದ ವಿವರಗಳು',
+        'eq_name' => 'ಉಪಕರಣದ ಹೆಸರು',
+        'eq_name_ph' => 'ಉಪಕರಣದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
+        'category' => 'ವರ್ಗ',
+        'select_category' => '-- ವರ್ಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ --',
+        'brand' => 'ಬ್ರ್ಯಾಂಡ್',
+        'brand_ph' => 'ಬ್ರ್ಯಾಂಡ್ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
+        'model' => 'ಮಾದರಿ',
+        'model_ph' => 'ಮಾದರಿಯನ್ನು ನಮೂದಿಸಿ',
+        'year_purchase' => 'ಖরিদಿಸಿದ ವರ್ಷ',
+        'condition' => 'ಸ್ಥಿತಿ',
+        'select_condition' => '-- ಸ್ಥಿತಿಯನ್ನು ಆಯ್ಕೆಮಾಡಿ --',
+        'description' => 'ವಿವರಣೆ',
+        'description_ph' => 'ಉಪಕರಣದ ವಿವರಣೆ, ವೈಶಿಷ್ಟ್ಯಗಳು ಮತ್ತು ವಿಶೇಷತೆಗಳನ್ನು ನಮೂದಿಸಿ...',
+
+        // Section 2: Pricing & Availability
+        'sec_pricing' => '2. ಬೆಲೆ ಮತ್ತು ಲಭ್ಯತೆ',
+        'price_per_day' => 'ದಿನದ ಬೆಲೆ (₹)',
+        'price_per_day_ph' => 'ಪ್ರತಿ ದಿನದ ಬೆಲೆಯನ್ನು ನಮೂದಿಸಿ',
+        'security_deposit' => 'ಭದ್ರತಾ ಠೇವಣಿ (₹)',
+        'security_deposit_ph' => 'ಭದ್ರತಾ ಠೇವಣಿ ನಮೂದಿಸಿ (ಐಚ್ಛಿಕ)',
+        'min_rental' => 'ಕನಿಷ್ಠ ಬಾಡಿಗೆ ದಿನಗಳು',
+        'max_rental' => 'ಗರಿಷ್ಠ ಬಾಡಿಗೆ ದಿನಗಳು',
+        'max_rental_ph' => 'ಗರಿಷ್ಠ ದಿನಗಳನ್ನು ನಮೂದಿಸಿ (ಐಚ್ಛಿಕ)',
+        'avail_status' => 'ಲಭ್ಯತೆಯ ಸ್ಥಿತಿ',
+        'available' => 'ಲಭ್ಯವಿದೆ',
+        'not_available' => 'ಲಭ್ಯವಿಲ್ಲ',
+
+        // Section 3: Equipment Images
+        'sec_images' => '3. ಉಪಕರಣದ ಚಿತ್ರಗಳು',
+        'drag_drop' => 'ಚಿತ್ರಗಳನ್ನು ಇಲ್ಲಿ ಎಳೆದು ಹಾಕಿ',
+        'or' => 'ಅಥವಾ',
+        'choose_files' => 'ಫೈಲ್‌ಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        'image_specs' => 'JPG, PNG ಅಥವಾ WEBP (ಗರಿಷ್ಠ 5MB)',
+
+        // Section 4: Service Areas
+        'sec_service_areas' => '4. ಸೇವಾ ಪ್ರದೇಶಗಳು',
+        'select_service_areas' => 'ಸೇವಾ ಪ್ರದೇಶಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        'add_custom_area' => '+ ಕಸ್ಟಮ್ ಪ್ರದೇಶವನ್ನು ಸೇರಿಸಿ',
+        'prompt_custom_area' => 'ಕಸ್ಟಮ್ ಪ್ರದೇಶದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ:',
+
+        // Section 5: Additional Information
+        'sec_additional' => '5. ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ',
+        'fuel_type' => 'ಇಂಧನ ಪ್ರಕಾರ',
+        'select_fuel' => '-- ಇಂಧನ ಪ್ರಕಾರವನ್ನು ಆಯ್ಕೆಮಾಡಿ --',
+        'power_hp' => 'ಶಕ್ತಿ (HP)',
+        'power_hp_ph' => 'HP ನಲ್ಲಿ ಶಕ್ತಿಯನ್ನು ನಮೂದಿಸಿ',
+        'working_hours' => 'ಕೆಲಸದ ಗಂಟೆಗಳು',
+        'working_hours_ph' => 'ಕೆಲಸದ ಗಂಟೆಗಳನ್ನು ನಮೂದಿಸಿ',
+        'mark_recommended' => 'ಶಿಫಾರಸು ಮಾಡಿದ ಉಪಕರಣವಾಗಿ ಗುರುತಿಸಿ',
+        'recommended_desc' => 'ಇದು ನಿಮ್ಮ ಉಪಕರಣವನ್ನು ಮುಖಪುಟದಲ್ಲಿ ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ ಎಂದು ತೋರಿಸುತ್ತದೆ.',
+
+        // Buttons
+        'reset' => 'ಮರುಹೊಂದಿಸಿ',
+        'save_equipment' => 'ಉಪಕರಣವನ್ನು ಉಳಿಸಿ',
+
+        //CATEGORIES PAGE
+         'cat_spraying' => 'ಸಿಂಪಡಣೆ ಉಪಕರಣಗಳು',
+          'desc_spraying' => 'ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸುವ ಯಂತ್ರಗಳು, ಮಿಸ್ಟ್ ಬ್ಲೋವರ್‌ಗಳು ಮತ್ತು ಬೂಮ್ ಸ್ಪ್ರೇಯರ್‌ಗಳು.',
+        'equipment_label' => 'ಉಪಕರಣಗಳು',
+          'browse_categories_desc' => 'ವರ್ಗಗಳ ಮೂಲಕ ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ನಿಮಗೆ ಬೇಕಾಗಿರುವುದನ್ನು ಹುಡುಕಿ.',
+          'app_title' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ',
+         'brand_title' => 'ಕೃಷಿ ಉಪಕರಣಗಳ ಬಾಡಿಗೆ',
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'search_equipment' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+        'categories' => 'ವರ್ಗಗಳು',
+        'featured_equipment' => 'ವಿಶೇಷ ಉಪಕರಣಗಳು',
+        'recommended' => 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಲಾಗ್ ಔಟ್',
+
+        // Categories Page Header
+        'home' => 'ಮುಖಪುಟ',
+        'equipment_categories' => 'ಉಪಕರಣಗಳ ವರ್ಗಗಳು',
+        'categories_subtitle' => 'ವರ್ಗಗಳ ಪ್ರಕಾರ ಉಪಕರಣಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ ಮತ್ತು ನಿಮಗೆ ಬೇಕಾದುದನ್ನು ಹುಡುಕಿ.',
+        'missing_item_title' => 'ನಿಮಗೆ ಬೇಕಾಗಿರುವುದು ಸಿಗುತ್ತಿಲ್ಲವೇ?',
+        'try_searching' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ಪ್ರಯತ್ನಿಸಿ',
+        'equipment' => 'ಉಪಕರಣಗಳು',
+        'view_equipment' => 'ಉಪಕರಣಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'no_categories' => 'ಡಾಟಾಬೇಸ್‌ನಲ್ಲಿ ಯಾವುದೇ ವರ್ಗಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ.',
+
+        // Category Titles & Descriptions (Kannada)
+        'cat_tractors' => 'ಟ್ರಾಕ್ಟರ್‌ಗಳು',
+        'desc_tractors' => 'ಎಲ್ಲಾ ಕೃಷಿ ಕಾರ್ಯಾಚರಣೆಗಳಿಗಾಗಿ ಹೆವಿ-ಡ್ಯೂಟಿ ಟ್ರಾಕ್ಟರ್‌ಗಳು ಮತ್ತು ಯುಟಿಲಿಟಿ ವಾಹನಗಳು.',
+        
+        'cat_harvesting' => 'ಕೊಯ್ಲು ಉಪಕರಣಗಳು',
+        'desc_harvesting' => 'ಕಂಬೈನ್ ಹಾರ್ವೆಸ್ಟರ್‌ಗಳು, ರೀಪರ್‌ಗಳು ಮತ್ತು ಬೆಳೆ ಸಂಗ್ರಹಣೆ ಯಂತ್ರೋಪಕರಣಗಳು.',
+        
+        'cat_irrigation' => 'ನೀರಾವರಿ',
+        'desc_irrigation' => 'ನೀರಿನ ಪಂಪ್‌ಗಳು, ಸ್ಪ್ರಿಂಕ್ಲರ್‌ಗಳು ಮತ್ತು ಹನಿ ನೀರಾವರಿ ವ್ಯವಸ್ಥೆಗಳು.',
+        
+        'cat_tillage' => 'ಉಳುಮೆ ಉಪಕರಣಗಳು',
+        'desc_tillage' => 'ನೇಗಿಲುಗಳು, ಕೃಷಿ ಸಲಕರಣೆಗಳು ಮತ್ತು ಮಣ್ಣು ತಯಾರಿ ಉಪಕರಣಗಳು.',
+        
+        'cat_seeding' => 'ಬಿತ್ತನೆ ಉಪಕರಣಗಳು',
+        'desc_seeding' => 'ಬೀಜ ಬಿತ್ತುವ ಡ್ರಿಲ್‌ಗಳು, ಪ್ಲಾಂಟರ್‌ಗಳು ಮತ್ತು ಬಿತ್ತನೆ ಯಂತ್ರಗಳು.',
+        
+        'cat_spraying' => 'ಸಿಂಪಡಣೆ ಉಪಕರಣಗಳು',
+        'desc_spraying' => 'ಕ್ರಿಮಿನಾಶಕ ಸ್ಪ್ರೇಯರ್‌ಗಳು, ಮಿಸ್ಟ್ ब್ಲೋವರ್‌ಗಳು ಮತ್ತು ಬೂಮ್ ಸ್ಪ್ರೇಯರ್‌ಗಳು.',
+
+        // Footer Trust Banner
+        'secure_platform' => 'ಸುರಕ್ಷಿತ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ವೇದಿಕೆ',
+        'secure_subtitle' => '100% ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್ • ಪರಿಶೀಲಿಸಿದ ಮಾಲೀಕರು',
+        'verified_equipment' => 'ಪರಿಶೀಲಿಸಿದ ಉಪಕರಣಗಳು',
+        'secure_booking' => 'ಸುರಕ್ಷಿತ ಬುಕಿಂಗ್',
+        'easy_cancellation' => 'ಸುಲಭ ರದ್ದತಿ',
+         
+        ///MYPROFILE PAGE
+        'my_profile' => 'ನನ್ನ ಖಾತೆ ಪ್ರೊಫೈಲ್',
+        'back_to_dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ',
+        'full_name' => 'ಪೂರ್ಣ ಹೆಸರು',
+        'email_address' => 'ಇಮೇಲ್ ವಿಳಾಸ',
+        'phone_number' => 'ಫೋನ್ ಸಂಖ್ಯೆ',
+        'address' => 'ವಿಳಾಸ',
+        'security_question' => 'ಭದ್ರತಾ ಪ್ರಶ್ನೆ',
+        'account_user_id' => 'ಖಾತೆ ಬಳಕೆದಾರ ಐಡಿ',
+        'change_password' => 'ಪಾಸ್‌ವರ್ಡ್ ಬದಲಾಯಿಸಿ / ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿದ್ದೀರಾ',
+        'edit_profile' => 'ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ',
+        'update_profile_info' => 'ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಮಾಹಿತಿಯನ್ನು ನವೀಕರಿಸಿ',
+        'update_profile_pic' => 'ಪ್ರೊಫೈಲ್ ಚಿತ್ರವನ್ನು ನವೀಕರಿಸಿ',
+        'leave_blank_pic' => 'ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಚಿತ್ರವನ್ನು ಹಾಗೆಯೇ ಇರಿಸಿಕೊಳ್ಳಲು ಖಾಲಿ ಬಿಡಿ.',
+        'cancel' => 'ರದ್ದುಮಾಡಿ',
+        'save_changes' => 'ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ',
+        'profile_updated_success' => 'ಪ್ರೊಫೈಲ್ ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ!',
+
+        //MYEQUIPMENT PAGE
+          'my_equipment_title' => 'ನನ್ನ ಉಪಕರಣಗಳು',
+'my_equipment_inventory' => 'ನನ್ನ ಉಪಕರಣಗಳ ಪಟ್ಟಿ',
+'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+'add_equipment' => 'ಉಪಕರಣವನ್ನು ಸೇರಿಸಿ',
+'rental_requests' => 'ಬಾಡಿಗೆ ವಿನಂತಿಗಳು',
+'active_rentals' => 'ಸಕ್ರಿಯ ಬಾಡಿಗೆಗಳು',
+'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+'logout' => 'ಹೊರನಡೆی (Logout)',
+'unnamed_equipment' => 'ಹೆಸರಿಲ್ಲದ ಉಪಕರಣ',
+'uncategorized' => 'ವರ್ಗೀಕರಿಸದ',
+'location_not_specified' => 'ಸ್ಥಳವನ್ನು ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗಿಲ್ಲ',
+'condition' => 'ಸ್ಥಿತಿ',
+'per_day' => '/ ದಿನ',
+'view' => 'ವೀಕ್ಷಿಸಿ',
+'edit' => 'ಸಂಪಾದಿಸಿ',
+'remove' => 'ತೆಗೆದುಹಾಕಿ',
+'confirm_remove_equipment' => 'ಈ ಉಪಕರಣವನ್ನು ತೆಗೆದುಹಾಕಬೇಕೇ?',
+'no_equipment_added' => 'ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಉಪಕರಣಗಳನ್ನು ಸೇರಿಸಿಲ್ಲ.',
+
+         //EDIT EQUIPMENT PAGE
+         'edit_equipment_title' => 'ಉಪಕರಣವನ್ನು ಸಂಪಾದಿಸಿ',
+'back_to_details' => 'ವಿವರಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
+'equipment_updated_success' => 'ಉಪಕರಣವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ!',
+'equipment_title_label' => 'ಉಪಕರಣದ ಶೀರ್ಷಿಕೆ',
+'status_label' => 'ಸ್ಥಿತಿ',
+'available_status' => 'ಲಭ್ಯವಿದೆ',
+'rented_status' => 'ಬಾಡಿಗೆಗೆ ನೀಡಲಾಗಿದೆ',
+'category_label' => 'ವರ್ಗ',
+'brand_model_label' => 'ಬ್ರಾಂಡ್ ಮತ್ತು ಮಾದರಿ',
+'power_hp_label' => 'ಪವರ್ (HP)',
+'drive_type_label' => 'ಡ್ರೈವ್ ಪ್ರಕಾರ',
+'model_year_label' => 'ಮಾದರಿ ವರ್ಷ',
+'fuel_type_label' => 'ಇಂಧನ ಪ್ರಕಾರ',
+'working_width_label' => 'ಕೆಲಸದ ಅಗಲ',
+'equipment_condition_label' => 'ಉಪಕರಣದ ಸ್ಥಿತಿ',
+'price_per_day_label' => 'ದಿನಕ್ಕೆ ಬೆಲೆ (₹)',
+'min_booking_days_label' => 'ಕನಿಷ್ಠ ಬುಕಿಂಗ್ ದಿನಗಳು',
+'service_location_label' => 'ಸೇವಾ ಸ್ಥಳ',
+'distance_km_label' => 'ದೂರ (ಕಿಲೋಮೀಟರ್)',
+'mark_featured_label' => 'ಶಿಫಾರಸು ಮಾಡಿದ / ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಉಪಕರಣವಾಗಿ ಗುರುತಿಸಿ',
+'mark_featured_desc' => 'ಶಿಫಾರಸು ಮಾಡಿದ ವಿಭಾಗಗಳಲ್ಲಿ ಈ ಉಪಕರಣವನ್ನು ಹೈಲೈಟ್ ಮಾಡಲು ಇದನ್ನು ಪರಿಶೀಲಿಸಿ.',
+'update_image_label' => 'ಚಿತ್ರವನ್ನು ನವೀಕರಿಸಿ (ಪ್ರಸ್ತುತ ಇರಿಸಿಕೊಳ್ಳಲು ಖಾಲಿಯಾಗಿ ಬಿಡಿ)',
+'current_file_label' => 'ಪ್ರಸ್ತುತ ಫೈಲ್: ',
+'description_label' => 'ವಿವರಣೆ',
+'cancel_btn' => 'ರದ್ದುಮಾಡಿ',
+'save_changes_btn' => 'ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ',
+
+            //equipment details page
+            'equipment_details_title' => 'ಉಪಕರಣದ ವಿವರಗಳು',
+'back_to_my_equipment' => 'ನನ್ನ ಉಪಕರಣಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
+'category_spec' => 'ವರ್ಗ',
+'brand_model_spec' => 'ಬ್ರಾಂಡ್ ಮತ್ತು ಮಾದರಿ',
+'power_hp_spec' => 'ಪವರ್ (HP)',
+'drive_type_spec' => 'ಡ್ರೈವ್ ಪ್ರಕಾರ',
+'model_year_spec' => 'ಮಾದರಿ ವರ್ಷ',
+'fuel_type_spec' => 'ಇಂಧನ ಪ್ರಕಾರ',
+'working_width_spec' => 'ಕೆಲಸದ ಅಗಲ',
+'equipment_condition_spec' => 'ಉಪಕರಣದ ಸ್ಥಿತಿ',
+'price_per_day_spec' => 'ಪ್ರತಿ ದಿನದ ಬೆಲೆ',
+'min_booking_days_spec' => 'ಕನಿಷ್ಠ ಬುಕಿಂಗ್ ದಿನಗಳು',
+'days_label' => 'ದಿನಗಳು',
+'service_location_spec' => 'ಸೇವಾ ಸ್ಥಳ',
+'status_featured_spec' => 'ಸ್ಥಿತಿ ಮತ್ತು ವೈಶಿಷ್ಟ್ಯಗಳು',
+'rating_spec' => 'ರೇಟಿಂಗ್',
+'reviews_label' => 'ವಿಮರ್ಶೆಗಳು',
+'created_date_spec' => 'ರಚಿಸಿದ ದಿನಾಂಕ',
+'description_spec' => 'ವಿವರಣೆ',
+'no_description_provided' => 'ಯಾವುದೇ ವಿವರಣೆಯನ್ನು ಒದಗಿಸಲಾಗಿಲ್ಲ.',
+'back_btn' => 'ಹಿಂದಕ್ಕೆ',
+'edit_equipment_btn' => 'ಉಪಕರಣ ಸಂಪಾದಿಸಿ',
+
+    //rent now page
+    'eq_rental_system' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+        'renter_role' => 'ಬಾಡಿಗೆದಾರ',
+        'nav_dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'nav_search' => 'ಉಪಕರಣ ಹುಡುಕಿ',
+        'nav_categories' => 'ವರ್ಗಗಳು',
+        'nav_featured' => 'ವಿಶೇಷ ಉಪಕರಣಗಳು',
+        'nav_recommended' => 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
+        'nav_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'nav_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+        'nav_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'nav_support' => 'ಬೆಂಬಲ',
+        'nav_logout' => 'ಲಾಗ್‌ಔಟ್',
+        'book_equipment_title' => 'ಉಪಕರಣವನ್ನು ಬುಕ್ ಮಾಡಿ',
+        'book_subtitle' => 'ಉಪಕರಣವನ್ನು ಬುಕ್ ಮಾಡಲು ಕೆಳಗಿನ ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ.',
+        'lbl_category' => 'ವರ್ಗ',
+        'lbl_owner' => 'ಮಾಲೀಕರು',
+        'lbl_day' => 'ದಿನ',
+        'sec_rental_details' => '1. ಬಾಡಿಗೆ ವಿವರಗಳು',
+        'lbl_start_date' => 'ಬಾಡಿಗೆ ಆರಂಭದ ದಿನಾಂಕ',
+        'lbl_end_date' => 'ಬಾಡಿಗೆ ಮುಕ್ತಾಯ ದಿನಾಂಕ',
+        'lbl_quantity' => 'ಪ್ರಮಾಣ',
+        'lbl_unit' => 'ಘಟಕ',
+        'lbl_units' => 'ಘಟಕಗಳು',
+        'lbl_total_days' => 'ಒಟ್ಟು ದಿನಗಳು',
+        'sec_delivery_address' => '2. ವಿತರಣಾ ವಿಳಾಸ',
+        'lbl_use_reg_address' => 'ನೋಂದಾಯಿತ ವಿಳಾಸವನ್ನು ಬಳಸಿ',
+        'lbl_state' => 'ರಾಜ್ಯ',
+        'lbl_district' => 'ಜಿಲ್ಲೆ',
+        'lbl_taluk' => 'ಪ್ರದೇಶ / ತಾಲೂಕು',
+        'lbl_pincode' => 'ಪಿನ್ ಕೋಡ್',
+        'lbl_full_address' => 'ಪೂರ್ಣ ವಿಳಾಸ',
+        'btn_diff_address' => 'ಬೇರೆ ವಿಳಾಸ ಬಳಸಿ',
+        'sec_identity_verification' => '3. ಗುರುತಿನ ಪರಿಶೀಲನೆ',
+        'lbl_gov_id' => 'ಸರ್ಕಾರಿ ಐಡಿ ಪುರಾವೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ',
+        'lbl_click_upload' => 'ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ',
+        'lbl_file_specs' => 'JPG, PNG ಅಥವಾ PDF (ಗರಿಷ್ಠ 5MB)',
+        'lbl_id_number' => 'ಐಡಿ ಸಂಖ್ಯೆ',
+        'lbl_phone_number' => 'ಫೋನ್ ಸಂಖ್ಯೆ',
+        'sec_payment_info' => '4. ಪಾವತಿ ಮಾಹಿತಿ',
+        'lbl_only_cash' => 'ಗಮನಿಸಿ: ಕೇವಲ ನಗದು ಪಾವತಿಗಳನ್ನು ಮಾತ್ರ ಸ್ವೀಕರಿಸಲಾಗುತ್ತದೆ (ವಿತರಣೆಯಲ್ಲಿ ನಗದು ಮತ್ತು ಮರಳಿಸುವಾಗ ನಗದು).',
+        'lbl_advance_payment' => 'ಮುಂಗಡ ಪಾವತಿ',
+        'lbl_sec_deposit_lender' => 'ಲೆಂಡರ್ ನಿಗದಿಪಡಿಸಿದ ಭದ್ರತಾ ಠೇವಣಿ',
+        'lbl_cash_at_delivery' => 'ವಿತರಣೆಯಲ್ಲಿ ನಗದು',
+        'lbl_remaining_payment' => 'ಉಳಿದ ಪಾವತಿ',
+        'lbl_total_minus_adv' => 'ಒಟ್ಟು ಬಾಡಿಗೆ - ಮುಂಗಡ ಠೇವಣಿ',
+        'lbl_cod' => 'ಮರಳಿಸುವಾಗ ನಗದು (COD)',
+        'lbl_agree_terms' => 'ನಾನು ನಿಯಮಗಳು ಮತ್ತು ನಿಬಂಧನೆಗಳು ಹಾಗೂ ಗೌಪ್ಯತಾ ನೀತಿಯನ್ನು ಒಪ್ಪುತ್ತೇನೆ',
+        'lbl_order_summary' => 'ಆರ್ಡರ್ ಸಾರಾಂಶ',
+        'lbl_price_per_day' => 'ದಿನದ ಬೆಲೆ',
+        'lbl_total_rent' => 'ಒಟ್ಟು ಬಾಡಿಗೆ',
+        'lbl_advance_dep' => 'ಮುಂಗಡ (ಭದ್ರತಾ ಠೇವಣಿ)',
+        'lbl_remaining_cod' => 'ಉಳಿದ ಮೊತ್ತ (COD)',
+        'btn_confirm_booking' => 'ಬುಕಿಂಗ್ ಖಚಿತಪಡಿಸಿ',
+        'btn_cancel' => 'ರದ್ದುಮಾಡಿ',
+        'lbl_wont_be_charged' => 'ಈಗ ನಿಮಗೆ ಶುಲ್ಕ ವಿಧಿಸಲಾಗುವುದಿಲ್ಲ',
+        'eq_not_found' => 'ಉಪಕರಣ ಕಂಡುಬಂದಿಲ್ಲ ಅಥವಾ ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲ.',
+        'err_all_fields' => 'ಎಲ್ಲಾ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಬೇಕು.',
+        'err_past_date' => 'ಬಾಡಿಗೆ ಆರಂಭದ ದಿನಾಂಕವು ಹಿಂದಿನ ದಿನಾಂಕವಾಗಿರಬಾರದು.',
+        'err_end_before_start' => 'ಬಾಡಿಗೆ ಮುಕ್ತಾಯ ದಿನಾಂಕವು ಆರಂಭದ ದಿನಾಂಕಕ್ಕಿಂತ ಮೊದಲು ಇರಬಾರದು.',
+        'err_qty' => 'ಪ್ರಮಾಣವು ಕನಿಷ್ಠ 1 ಆಗಿರಬೇಕು.',
+        'err_already_booked' => 'ಕ್ಷಮಿಸಿ, ಈ ಉಪಕರಣವನ್ನು ಈಗಾಗಲೇ ಆಯ್ಕೆಮಾಡಿದ ದಿನಾಂಕಗಳಿಗೆ ಬುಕ್ ಮಾಡಲಾಗಿದೆ.',
+        'err_id_proof' => 'ದಯವಿಟ್ಟು ನಿಮ್ಮ ಸರ್ಕಾರಿ ಐಡಿ ಪುರಾವೆ ದಾಖಲೆಯನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.',
+        'err_file_size' => 'ಫೈಲ್ ಗಾತ್ರವು 5 MB ಗರಿಷ್ಠ ಮಿತಿಯನ್ನು ಮೀರಿದೆ.',
+        'err_file_format' => 'ಅಮಾನ್ಯ ಫೈಲ್ ಸ್ವರೂಪ. ಕೇವಲ JPG, PNG ಮತ್ತು PDF ಸ್ವರೂಪಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗುತ್ತದೆ.',
+        'err_db' => 'ನಿಮ್ಮ ಬುಕಿಂಗ್ ಅನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ಡೇಟಾಬೇಸ್ ದೋಷ ಸಂಭವಿಸಿದೆ.',
+        'err_upload' => 'ಗುರುತಿನ ಪರಿಶೀಲನಾ ದಾಖಲೆಯನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.',
+
+        //search equipment page
+          'search_results_for' => 'ಹುಡುಕಾಟ ಫಲಿತಾಂಶಗಳು',
+'registered_location' => 'ನೋಂದಾಯಿತ ಸ್ಥಳ',
+'equipment_near_you' => 'ನಿಮ್ಮ ಸಮೀಪದ ಉಪಕರಣಗಳು',
+'other_equipment' => 'ಇತರ ಉಪಕರಣಗಳು',
+'available_status_label' => 'ಲಭ್ಯವಿದೆ',
+'view_equipment' => 'ಉಪಕರಣವನ್ನು ವೀಕ್ಷಿಸಿ',
+'rent_now' => 'ಈಗ ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ',
+'per_day' => 'ಪ್ರತಿ ದಿನ',
+'search' => 'ಹುಡುಕಿ',
+'search_placeholder' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ...',
+'no_equipment_found' => 'ಯಾವುದೇ ಉಪಕರಣ ಕಂಡುಬಂದಿಲ್ಲ',
+'try_different_keyword' => 'ಬೇರೆ ಕೀವರ್ಡ್ ಬಳಸಿ ಹುಡುಕಲು ಪ್ರಯತ್ನಿಸಿ.',
+'back_to_dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ',
+'enter_keyword_prompt' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಲು ದಯವಿಟ್ಟು ಕೀವರ್ಡ್ ನಮೂದಿಸಿ.',
+'specific_item_not_available' => 'ನಿರ್ದಿಷ್ಟ ಉಪಕರಣ ಲಭ್ಯವಿಲ್ಲ. ಇತರ ಲಭ್ಯವಿರುವ ಉಪಕರಣಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ',
+                    //My Bookings Page
+                    'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'ವರ್ಗಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಹೊರನಡೆي (Logout)',
+        'brand_main' => 'ಕೃಷಿ',
+        'brand_sub' => 'ಉಪಕರಣ ಬಾಡಿಗೆ',
+        
+        
+        'page_title' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'all_bookings' => 'ಎಲ್ಲಾ ಬುಕಿಂಗ್‌ಗಳು',
+        'upcoming' => 'ಮುಂಬರುವ',
+        'ongoing' => 'ನಡೆಯುತ್ತಿರುವ',
+        'completed' => 'ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'cancelled' => 'ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+        'sort_by' => 'ವಿಂಗಡಿಸಿ:',
+        'latest' => 'ಇತ್ತೀಚಿನ',
+        'oldest' => 'ಹಳೆಯದು',
+        'start_date' => 'ಪ್ರಾರಂಭ ದಿನಾಂಕ',
+        'amount' => 'ಮೊತ್ತ',
+        'category' => 'ವರ್ಗ',
+        'lender' => 'ನೀಡಿದವರು (Lender)',
+        'id' => 'ಐಡಿ',
+        'end' => 'ಮುಕ್ತಾಯ',
+        'total' => 'ಒಟ್ಟು',
+        'advance' => 'ಮುಂಗಡ',
+        'payment' => 'ಪಾವತಿ',
+        'booked_on' => 'ಬುಕ್ ಮಾಡಿದ ದಿನಾಂಕ',
+        'view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'no_bookings' => 'ಈ ವರ್ಗದಲ್ಲಿ ಯಾವುದೇ ಬುಕಿಂಗ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
+        'no_bookings_desc' => 'ಈ ಫಿಲ್ಟರ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಬುಕಿಂಗ್‌ಗಳನ್ನು ನೀವು ಮಾಡಿಲ್ಲ.',
+        'browse_equipment' => 'ಉಪಕರಣಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+
+        //Bokking details and lender dwtails page
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'ವರ್ಗಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಹೊರನಡೆ',
+        'back_to_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
+        
+        // Page Headers
+        'booking_details_title' => 'ಬುಕಿಂಗ್ ವಿವರಗಳು ಮತ್ತು ಸ್ಥಿತಿ',
+        'booking_details_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆ ಸ್ಥಿತಿ ಮತ್ತು ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.',
+        'lender_details_title' => 'ಸಾಲದಾತರ ವಿವರಗಳು',
+        'lender_details_subtitle' => 'ಉಪಕರಣ ಸಾಲದಾತರ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಮತ್ತು ಪರಿಶೀಲನೆ ಮಾಹಿತಿಯನ್ನು ವೀಕ್ಷಿಸಿ.',
+        
+        // Cards & Sections
+        'booking_info' => 'ಬುಕಿಂಗ್ ಮಾಹಿತಿ',
+        'booking_status' => 'ಬುಕಿಂಗ್ ಸ್ಥಿತಿ',
+        'rental_timeline' => 'ಬಾಡಿಗೆ ಕಾಲಾವಧಿ',
+        'important_notes' => 'ಪ್ರಮುಖ ಸೂಚನೆಗಳು',
+        'order_summary' => 'ಆರ್ಡರ್ ಸಾರಾಂಶ',
+        
+        // Specifications & Labels
+        'category' => 'ವರ್ಗ',
+        'booking_id' => 'ಬುಕಿಂಗ್ ಐಡಿ',
+        'booking_date' => 'ಬುಕಿಂಗ್ ದಿನಾಂಕ',
+        'lender_name' => 'ಸಾಲದಾತರ ಹೆಸರು',
+        'phone_number' => 'ಫೋನ್ ಸಂಖ್ಯೆ',
+        'rental_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
+        'delivery_address' => 'ವಿಳಾಸ',
+        'price_per_day' => 'ದಿನದ ಬೆಲೆ',
+        'total_days' => 'ಒಟ್ಟು ದಿನಗಳು',
+        'total_rent' => 'ಒಟ್ಟು ಬಾಡಿಗೆ',
+        'advance_paid' => 'ಪಾವತಿಸಿದ ಮುಂಗಡ',
+        'remaining_cod' => 'ಉಳಿದ ಮೊತ್ತ (ಸಿಒಡಿ)',
+        'payment_method' => 'ಪಾವತಿ ವಿಧಾನ',
+        'cash_on_delivery' => 'ಕ್ಯಾಶ್ ಆನ್ ಡೆಲಿವರಿ',
+        
+        // Timeline Status Steps
+        'submitted' => 'ಸಲ್ಲಿಸಲಾಗಿದೆ',
+        'pending_approval' => 'ಅನುಮೋದನೆ ಬಾಕಿ ಇದೆ',
+        'accepted' => 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+        'delivered' => 'ತಲುಪಿಸಲಾಗಿದೆ',
+        'returned' => 'ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+        
+        // Timeline Descriptions
+        'req_submitted_desc' => 'ನೀವು ಈ ಉಪಕರಣವನ್ನು ಬುಕ್ ಮಾಡಲು ವಿನಂತಿಸಿದ್ದೀರಿ.',
+        'lender_review_desc' => 'ಸಾಲದಾತರು ನಿಮ್ಮ ವಿನಂತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಸ್ವೀಕರಿಸಿದ್ದಾರೆ.',
+        'waiting_review_desc' => 'ಸಾಲದಾತರ ಪರಿಶೀಲನೆ ಮತ್ತು ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ.',
+        'equipment_delivered_desc' => 'ಉಪಕರಣವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ತಲುಪಿಸಲಾಗಿದೆ.',
+        'pending_delivery_desc' => 'ಸಾಲದಾತರಿಂದ ವಿತರಣೆ ಬಾಕಿ ಇದೆ.',
+        'expected_return_date' => 'ಹಿಂತಿರುಗಿಸುವ ನಿರೀಕ್ಷಿತ ದಿನಾಂಕ',
+        'return_instruction_desc' => 'ದಯವಿಟ್ಟು ಈ ದಿನಾಂಕದಂದು ಅಥವಾ ಅದಕ್ಕಿಂತ ಮೊದಲು ಉಪಕರಣವನ್ನು ಉತ್ತಮ ಸ್ಥಿತಿಯಲ್ಲಿ ಹಿಂತಿರುಗಿಸಿ.',
+        
+        // Important Notes Content
+        'note_1' => 'ಉಪಕರಣವನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ನಿರ್ವಹಿಸುವುದನ್ನು ಮತ್ತು ಉದ್ದೇಶಿತ ಕೃಷಿ ಉದ್ದೇಶಗಳಿಗಷ್ಟೇ ಬಳಸಿ.',
+        'note_2' => 'ತಡವಾದ ದಂಡ ಶುಲ್ಕವನ್ನು ತಪ್ಪಿಸಲು ಒಪ್ಪಿದ ದಿನಾಂಕದಂದು ಅಥವಾ ಮೊದಲು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿ.',
+        'note_3' => 'ವಿತರಣೆಯ ಮೇರೆಗೆ ಉಪಕರಣವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಯಾವುದೇ ಯಾಂತ್ರಿಕ ಸಮಸ್ಯೆಗಳನ್ನು ತಕ್ಷಣವೇ ವರದಿ ಮಾಡಿ.',
+        'note_4' => 'ಬಾಡಿಗೆ ಅವಧಿಯಲ್ಲಿ ಬಳಕೆಯಲ್ಲಿಲ್ಲದಿದ್ದಾಗ ಉಪಕರಣವನ್ನು ಸ್ವಚ್ಛವಾಗಿ ಮತ್ತು ಸುರಕ್ಷಿತವಾಗಿ ಸಂಗ್ರಹಿಸಿ.',
+        'note_5' => 'ನಿಮಗೆ ಯಾವುದೇ ಸಹಾಯ ಬೇಕಿದ್ದರೆ ಅಥವಾ ಕಾರ್ಯಾಚರಣೆಯ ಬಗ್ಗೆ ಪ್ರಶ್ನೆಗಳಿದ್ದರೆ ನೇರವಾಗಿ ಸಾಲದಾತರನ್ನು ಸಂಪರ್ಕಿಸಿ.',
+        
+        // Action Buttons
+        'view_lender_details' => 'ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'contact_lender' => 'ಸಾಲದಾತರನ್ನು ಸಂಪರ್ಕಿಸಿ',
+        
+
+//recommmneded
+'agriculture' => 'ಕೃಷಿ',
+        'equipment_rental_system' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'ವರ್ಗಗಳು',
+        'my_bookings' => 'ನನ್ನ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'logout' => 'ಲಾಗ್ ಔಟ್',
+
+        'renter' => 'ಬಾಡಿಗೆದಾರ',
+        'home' => 'ಮುಖಪುಟ',
+        'recommended' => 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
+
+        'recommended_equipment' => 'ಶಿಫಾರಸು ಮಾಡಲಾದ ಉಪಕರಣಗಳು',
+
+        'recommended_description' =>
+            'ನಿಮ್ಮ ಬುಕ್ಕಿಂಗ್‌ಗಳು ಮತ್ತು ಆದ್ಯತೆಗಳ ಆಧಾರದ ಮೇಲೆ ಆಯ್ಕೆ ಮಾಡಿದ ಉಪಕರಣಗಳು.',
+
+        'browse_all' => 'ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ',
+
+        'category' => 'ವರ್ಗ',
+        'day' => 'ದಿನ',
+        'reviews' => 'ವಿಮರ್ಶೆಗಳು',
+
+        'view_lender' => 'ಬಾಡಿಗೆದಾರರ ಪ್ರೊಫೈಲ್ ವೀಕ್ಷಿಸಿ',
+        'view_equipment' => 'ಉಪಕರಣ ವೀಕ್ಷಿಸಿ',
+
+        'location_not_set' => 'ಸ್ಥಳವನ್ನು ಹೊಂದಿಸಲಾಗಿಲ್ಲ',
+        'location_not_available' => 'ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ',
+
+        'no_recommended_equipment' =>
+            'ಯಾವುದೇ ಶಿಫಾರಸು ಮಾಡಲಾದ ಉಪಕರಣಗಳು ಲಭ್ಯವಿಲ್ಲ.',
+
+        // Equipment
+        'equipment_tractors' => 'ಟ್ರ್ಯಾಕ್ಟರ್‌ಗಳು',
+        'equipment_harvesting' => 'ಕೊಯ್ಲು ಉಪಕರಣಗಳು',
+        'equipment_irrigation' => 'ನೀರಾವರಿ ಉಪಕರಣಗಳು',
+        'equipment_tillage' => 'ಉಳುಮೆ ಉಪಕರಣಗಳು',
+        'equipment_seed_drill' => 'ಬಿತ್ತನೆ ಉಪಕರಣಗಳು',
+        'equipment_sprayer' => 'ಸಿಂಪಡಿಸುವ ಯಂತ್ರ',
+
+        // Categories
+        'category_tractor' => 'ಟ್ರ್ಯಾಕ್ಟರ್',
+        'category_harvesting' => 'ಕೊಯ್ಲು',
+        'category_irrigation' => 'ನೀರಾವರಿ',
+        'category_tillage' => 'ಉಳುಮೆ',
+        'category_seeding' => 'ಬಿತ್ತನೆ',
+        'category_spraying' => 'ಸಿಂಪಡಣೆ',
+
+
+
+//rental history
+    'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+
+        'categories' => 'ವರ್ಗಗಳು',
+
+        'my_bookings' => 'ನನ್ನ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+
+        'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+
+        'rental_history' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+
+        'logout' => 'ಲಾಗ್‌ಔಟ್',
+
+        'home' => 'ಮುಖಪುಟ',
+
+        'rental_history_title' => 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+
+        'rental_history_description' => 'ನಿಮ್ಮ ಹಿಂದಿನ ಬುಕ್ಕಿಂಗ್‌ಗಳು ಮತ್ತು ಬಾಡಿಗೆ ಚಟುವಟಿಕೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ.',
+
+        'all_status' => 'ಎಲ್ಲಾ ಸ್ಥಿತಿಗಳು',
+
+        'equipment' => 'ಉಪಕರಣ',
+
+        'booking_id' => 'ಬುಕ್ಕಿಂಗ್ ಐಡಿ',
+
+        'rental_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
+
+        'total_amount' => 'ಒಟ್ಟು ಮೊತ್ತ',
+
+        'status' => 'ಸ್ಥಿತಿ',
+
+        'booked_on' => 'ಬುಕ್ ಮಾಡಿದ ದಿನಾಂಕ',
+
+        'action' => 'ಕ್ರಿಯೆ',
+
+        'category' => 'ವರ್ಗ',
+
+        'tractor' => 'ಟ್ರ್ಯಾಕ್ಟರ್',
+
+        'tractors' => 'ಟ್ರ್ಯಾಕ್ಟರ್‌ಗಳು',
+
+        'tillage_equipment' => 'ಉಳುಮೆ ಉಪಕರಣ',
+
+        'irrigation' => 'ನೀರಾವರಿ',
+
+        'harvesters' => 'ಕೊಯ್ಲು ಯಂತ್ರಗಳು',
+
+        'completed' => 'ಪೂರ್ಣಗೊಂಡಿದೆ',
+
+        'cancelled' => 'ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+
+        'confirmed' => 'ದೃಢೀಕರಿಸಲಾಗಿದೆ',
+        
+        'pending' => 'ಬಾಕಿಯಿದೆ',
+
+        'approved' => 'ಅನುಮೋದಿಸಲಾಗಿದೆ',
+
+        'rejected' => 'ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
+
+        'days' => 'ದಿನಗಳು',
+
+        'day' => 'ದಿನ',
+
+        'advance' => 'ಮುಂಗಡ',
+
+        'view_details' => 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+
+        'no_rental_history' => 'ಯಾವುದೇ ಬಾಡಿಗೆ ಇತಿಹಾಸ ಕಂಡುಬಂದಿಲ್ಲ.',
+
+        'renter' => 'ಬಾಡಿಗೆದಾರ',
+
+        'english' => 'ಇಂಗ್ಲಿಷ್',
+
+        'kannada' => 'ಕನ್ನಡ',
+
+        'hindi' => 'ಹಿಂದಿ'
+
+
+],
+    'hi' => [
+        // Index / General Keys
+        'title' => 'कृषि उपकरण किराया प्रणाली',
+        'hero_title' => 'आधुनिक खेती के लिए स्मार्ट समाधान',
+        'hero_sub' => 'गुणवत्तापूर्ण कृषि उपकरण आसानी से किराए पर लें।',
+        'login' => 'लॉग इन',
+        'register' => 'पंजीकरण',
+        'trusted' => 'विश्वसनीय और सुरक्षित',
+        'trusted_desc' => 'आपका डेटा हमारे पास सुरक्षित है',
+        'quality' => 'गुणवत्ता उपकरण',
+        'quality_desc' => 'अच्छी तरह से रखरखाव और विश्वसनीय',
+        'near' => 'आपके पास',
+        'near_desc' => 'आस-पास के उपकरण खोजें',
+        // Login & Navigation Keys
+        'home'              => 'होम',
+        'how_it_works'      => 'यह कैसे काम करता है',
+        'welcome_back'      => 'वेलकम बैक!',
+        'login_sub'         => 'अपने खाते में लॉगिन करें और अपने पास के सबसे अच्छे कृषि उपकरणों को किराए पर लें।',
+        'email_or_phone'    => 'ईमेल / फ़ोन नंबर',
+        'enter_email_phone' => 'अपना ईमेल या मोबाइल नंबर दर्ज करें',
+        'password'          => 'पासवर्ड',
+        'enter_password'    => 'अपना पासवर्ड दर्ज करें',
+        'remember_me'       => 'मुझे याद रखो',
+        'forgot_password'   => 'पासवर्ड भूल गए?',
+        'dont_have_account' => 'खाता नहीं है?',
+        'register' => 'पंजीकरण',
+        'trusted' => 'विश्वसनीय और सुरक्षित',
+        'trusted_desc' => 'आपकी जानकारी हमारे पास सुरक्षित रूप से संग्रहीत है',
+        'quality' => 'गुणवत्ता उपकरण',
+        'quality_desc' => 'अच्छी तरह से रखरखाव और शीर्ष-स्तरीय स्थिति',
+        'near' => 'आपके पास',
+        'near_desc' => 'अपने स्थानीय क्षेत्र में उपकरण खोजें',
+        'terms_notice' => 'लॉगिन करके, आप हमारी <a href="#" class="text-success text-decoration-none fw-semibold">नियम और शर्तें</a> और <a href="#" class="text-success text-decoration-none fw-semibold">गोपनीयता नीति</a> से सहमत होते हैं।',
+        'popular_categories' => 'लोकप्रिय श्रेणियाँ',
+        'tractor' => 'ट्रैक्टर',
+        'harvesting' => 'फसल काटना',
+        'irrigation' => 'सिंचाई',
+        'tillage' => 'जुताई',
+        'seeding' => 'बुवाई',
+        'spraying' => 'छिड़काव',
+        'all_rights_reserved' => 'सर्वाधिकार सुरक्षित।',
+        // how it works
+        'how_it_works' => 'यह कैसे काम करता है',
+        'how_it_works_sub' => 'अपने स्थानीय क्षेत्र में कृषि उपकरण किराए पर लेने या देने के आसान चरण।',
+        'for_renters' => 'किराएदारों के लिए (किसान)',
+        'search_equipment' => 'उपकरण खोजें',
+        'search_equipment_desc' => 'अपने पास उपलब्ध ट्रैक्टर, हार्वेस्टर या जुताई के उपकरण खोजें।',
+        'book_and_pay' => 'बुक करें और भुगतान करें',
+        'book_and_pay_desc' => 'अपनी आवश्यकता अनुसार समय चुनें और सुरक्षित रूप से बुकिंग की पुष्टि करें।',
+        'start_farming' => 'खेती शुरू करें',
+        'start_farming_desc' => 'उपकरण की डिलीवरी पाएं या सीधे मालिक से प्राप्त करके काम शुरू करें।',
+        'for_lenders' => 'उपकरण मालिकों के लिए (किराए पर देने वाले)',
+       'list_equipment' => 'उपकरण जोड़ें',
+       'list_equipment_desc' => 'अपने खाली पड़े ट्रैक्टर या कृषि उपकरणों का विवरण, किराया और तस्वीरें अपलोड करें।',
+       'accept_requests' => 'अनुरोध स्वीकार करें',
+       'accept_requests_desc' => 'स्थानीय किसानों से मिलने वाले किराए के अनुरोधों की समीक्षा करें और स्वीकार करें।',
+       'earn_income' => 'कमाई करें',
+       'earn_income_desc' => 'किराए की अवधि पूरी होने पर सीधे भुगतान प्राप्त करें।',
+        'popular_categories' => 'लोकप्रिय श्रेणियाँ',
+        'tractor' => 'ट्रैक्टर',
+        'harvesting' => 'फसल काटना',
+        'irrigation' => 'सिंचाई',
+        'tillage' => 'जुताई',
+        'seeding' => 'बुवाई',
+        'spraying' => 'छिड़काव',
+        'all_rights_reserved' => 'सर्वाधिकार सुरक्षित।',
+        // renter_dashboard
+        'title' => 'कृषि उपकरण किराया प्रणाली',
+        'renter_dashboard' => 'किराएदार डैशबोर्ड',
+        'welcome_back' => 'वापसी पर आपका स्वागत है',
+        'find_and_rent' => 'अपने आस-पास सर्वोत्तम कृषि उपकरण खोजें और किराए पर लें।',
+        'active_bookings' => 'सक्रिय बुकिंग',
+        'upcoming_bookings' => 'आगामी बुकिंग',
+        'completed_rentals' => 'पूर्ण किराए',
+        'total_spent' => 'कुल खर्च',
+        'popular_categories' => 'लोकप्रिय श्रेणियां',
+        'featured_equipment' => 'प्रमुख उपकरण',
+        'recent_bookings' => 'हाल की बुकिंग',
+        'view_details' => 'विवरण देखें',
+        'view_all' => 'सभी देखें',
+        'search_placeholder' => 'उपकरण खोजें...',
+        'no_active_rentals' => 'अभी कोई सक्रिय बुकिंग नहीं है',
+        'no_categories' => 'कोई उपकरण श्रेणी उपलब्ध नहीं है',
+        'location' => 'स्थान',
+        'logout' => 'लॉग आउट',
+         'dashboard'          => 'डैशबोर्ड',
+        'search_equipment'   => 'उपकरण खोजें',
+        'categories'         => 'श्रेणियां',
+        'featured_equipment' => 'प्रमुख उपकरण',
+        'recommended'        => 'अनुशंसित',
+        'my_bookings'        => 'मेरी बुकिंग',
+        'rental_history'     => 'किराया इतिहास',
+        'my_profile'         => 'मेरी प्रोफाइल',
+        'logout'            => 'लॉग आउट',
+        'no_categories' => 'कोई उपकरण श्रेणी उपलब्ध नहीं है',
+        'browse_equipment' => 'उपकरण ब्राउज़ करें',
+        // Categories
+        'category_items_desc' => 'इस श्रेणी में उपलब्ध कृषि उपकरण खोजें और किराए पर लें।',
+        'home'                  => 'होम',
+'equipment_categories'  => 'उपकरण श्रेणियां',
+'categories_desc'       => 'श्रेणियों के अनुसार उपकरण ब्राउज़ करें और अपनी आवश्यकता पाएं।',
+'cant_find_title'       => 'क्या आपको वह नहीं मिल रहा जो आप ढूंढ रहे हैं?',
+'try_searching'         => 'उपकरण खोजने का प्रयास करें',
+'equipment_count'       => 'उपकरण',
+'view_equipment'        => 'उपकरण देखें',
+'add_category'          => 'श्रेणी जोड़ें',
+'category_name'         => 'श्रेणी का नाम',
+'category_desc'         => 'श्रेणी का विवरण',
+'category_image'        => 'श्रेणी की छवि',
+'category_icon'         => 'आइकन क्लास',
+'save'                  => 'श्रेणी सहेजें',
+'secure_platform'       => 'सुरक्षित और विश्वसनीय प्लेटफॉर्म',
+'secure_sub'            => '100% सुरक्षित बुकिंग • सत्यापित मालिक • सुरक्षित भुगतान',
+'verified_eq'           => 'सत्यापित उपकरण',
+'secure_booking'        => 'सुरक्षित बुकिंग',
+'easy_cancel'           => 'आसान रद्दीकरण',
+'support_247'           => '24/7 सहायता',
+// forgot password
+   'title' => 'खाता रिकवरी',
+        'enter_email' => 'पंजीकृत ईमेल दर्ज करें:',
+        'choose_method' => 'रीसेट तरीका चुनें:',
+        'method_otp' => 'ईमेल पर OTP भेजें',
+        'method_question' => 'सुरक्षा प्रश्न का उत्तर दें',
+        'continue' => 'आगे बढ़ें',
+        'enter_otp' => '6-अंकों का OTP कोड दर्ज करें:',
+        'verify_code' => 'कोड सत्यापित करें',
+        'security_question' => 'सुरक्षा प्रश्न:',
+        'your_answer' => 'आपका उत्तर:',
+        'verify_answer' => 'उत्तर सत्यापित करें',
+        'new_password' => 'नया पासवर्ड:',
+        'confirm_password' => 'नए पासवर्ड की पुष्टि करें:',
+        'reset_btn' => 'पासवर्ड अपडेट करें और लॉगिन करें',
+        'back_login' => 'लॉगिन पर वापस जाएं',
+        'err_no_account' => 'उस ईमेल पते के साथ कोई खाता नहीं मिला।',
+        'err_no_question' => 'कोई सुरक्षा प्रश्न सेट नहीं है। कृपया OTP का उपयोग करें।',
+        'err_invalid_otp' => 'अमान्य या समाप्त हो चुका OTP कोड।',
+        'err_wrong_answer' => 'सुरक्षा प्रश्न का उत्तर गलत है।',
+        'err_pwd_mismatch' => 'पासवर्ड मेल नहीं खाते।',
+        'err_pwd_length' => 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।',
+        'err_update_failed' => 'पासवर्ड अपडेट करने में विफल। कृपया पुनः प्रयास करें।',
+         'dashboard' => 'डैशबोर्ड',
+        'add_equipment' => 'उपकरण जोड़ें',
+        'my_equipment' => 'मेरे उपकरण',
+        'rental_requests' => 'किराए के अनुरोध',
+        'active_rentals' => 'सक्रिय किराए',
+        'total_equipment' => 'कुल उपकरण',
+        'total_earnings' => 'कुल कमाई',
+        'logout' => 'लॉगआउट',
+        'welcome' => 'वापसी पर स्वागत है',
+        // lender dashboard
+          'title' => 'कृषि उपकरण किराया प्रणाली',
+         'lender_dashboard' => 'लेंडर डैशबोर्ड',
+        'dashboard' => 'डैशबोर्ड',
+        'add_equipment' => 'उपकरण जोड़ें',
+        'my_equipment' => 'मेरे उपकरण',
+        'rental_requests' => 'किराए के अनुरोध',
+        'active_rentals' => 'सक्रिय किराए',
+        'rental_history' => 'किराया इतिहास',
+        'total_earnings' => 'कुल कमाई',
+        'my_profile' => 'मेरी प्रोफाइल',
+        'logout' => 'लॉगआउट',
+        'search_placeholder' => 'कुछ भी खोजें...',
+        
+        'welcome' => 'स्वागत है',
+        'banner_subtitle' => 'अपने उपकरणों, किराए और व्यवसाय को प्रबंधित करें।',
+        'total_equipment' => 'कुल उपकरण',
+        'view_details' => 'विवरण देखें →',
+        'view_all' => 'सभी देखें →',
+        
+        'renter' => 'किराएदार',
+        'equipment' => 'उपकरण',
+        'from_to' => 'कब से - कब तक',
+        'amount' => 'राशि',
+        'action' => 'कार्रवाई',
+        'accept' => 'स्वीकार करें',
+        'reject' => 'अस्वीकार करें',
+        'in_use' => 'उपयोग में',
+
+        'no_pending_requests' => 'कोई लंबित अनुरोध नहीं मिला।',
+        'no_active_rentals' => 'कोई सक्रिय उपकरण किराया नहीं है।',
+        'Reviews' => 'समीक्षाएँ',
+          // add_items transaalations'
+          // Sidebar
+        'dashboard' => 'डैशबोर्ड',
+        'my_equipment' => 'मेरे उपकरण',
+        'add_equipment' => 'उपकरण जोड़ें',
+        'rental_requests' => 'किराये के अनुरोध',
+        'my_bookings' => 'मेरी बुकिंग',
+        'active_rentals' => 'सक्रिय किराये',
+        'total_earnings' => 'कुल कमाई',
+        'service_areas' => 'सेवा क्षेत्र',
+        'reviews' => 'समीक्षाएँ',
+        'profile_settings' => 'प्रोफ़ाइल सेटिंग्स',
+        'logout' => 'लॉग आउट',
+        'lender' => 'ऋणदाता',
+
+        // Header & Page Titles
+        'page_title' => 'नया उपकरण जोड़ें',
+        'home' => 'होम',
+        'back_dashboard' => 'डैशबोर्ड पर वापस जाएं',
+        'header_badge' => 'उपकरण जोड़ें',
+        'header_subtitle' => 'किराए पर मशीनरी रजिस्टर करने के लिए विवरण भरें',
+
+        // Section 1: Equipment Details
+        'sec_details' => '1. उपकरण विवरण',
+        'eq_name' => 'उपकरण का नाम',
+        'eq_name_ph' => 'उपकरण का नाम दर्ज करें',
+        'category' => 'श्रेणी',
+        'select_category' => '-- श्रेणी चुनें --',
+        'brand' => 'ब्रांड',
+        'brand_ph' => 'ब्रांड का नाम दर्ज करें',
+        'model' => 'मॉडल',
+        'model_ph' => 'मॉडल दर्ज करें',
+        'year_purchase' => 'खरीद का वर्ष',
+        'condition' => 'स्थिति',
+        'select_condition' => '-- स्थिति चुनें --',
+        'description' => 'विवरण',
+        'description_ph' => 'उपकरण का विवरण, विशेषताएँ और विनिर्देश दर्ज करें...',
+
+        // Section 2: Pricing & Availability
+        'sec_pricing' => '2. मूल्य निर्धारण और उपलब्धता',
+        'price_per_day' => 'प्रति दिन मूल्य (₹)',
+        'price_per_day_ph' => 'प्रति दिन मूल्य दर्ज करें',
+        'security_deposit' => 'सुरक्षा जमा (₹)',
+        'security_deposit_ph' => 'सुरक्षा जमा दर्ज करें (वैकल्पिक)',
+        'min_rental' => 'न्यूनतम किराये के दिन',
+        'max_rental' => 'अधिकतम किराये के दिन',
+        'max_rental_ph' => 'अधिकतम दिन दर्ज करें (वैकल्पिक)',
+        'avail_status' => 'उपलब्धता की स्थिति',
+        'available' => 'उपलब्ध',
+        'not_available' => 'उपलब्ध नहीं',
+
+        // Section 3: Equipment Images
+        'sec_images' => '3. उपकरण छवियां',
+        'drag_drop' => 'यहाँ छवियाँ खींच कर डालें',
+        'or' => 'या',
+        'choose_files' => 'फ़ाइलें चुनें',
+        'image_specs' => 'JPG, PNG या WEBP (अधिकतम 5MB)',
+
+        // Section 4: Service Areas
+        'sec_service_areas' => '4. सेवा क्षेत्र',
+        'select_service_areas' => 'सेवा क्षेत्र चुनें',
+        'add_custom_area' => '+ कस्टम क्षेत्र जोड़ें',
+        'prompt_custom_area' => 'कस्टम क्षेत्र का नाम दर्ज करें:',
+
+        // Section 5: Additional Information
+        'sec_additional' => '5. अतिरिक्त जानकारी',
+        'fuel_type' => 'ईंधन का प्रकार',
+        'select_fuel' => '-- ईंधन का प्रकार चुनें --',
+        'power_hp' => 'पावर (HP)',
+        'power_hp_ph' => 'HP में पावर दर्ज करें',
+        'working_hours' => 'काम करने के घंटे',
+        'working_hours_ph' => 'काम करने के घंटे दर्ज करें',
+        'mark_recommended' => 'अनुशंसित उपकरण के रूप में चिह्नित करें',
+        'recommended_desc' => 'यह आपके उपकरण को होमपेज पर अनुशंसित के रूप में दिखाएगा।',
+
+        // Buttons
+        'reset' => 'रीसेट करें',
+        'save_equipment' => 'उपकरण सहेजें',
+
+         //CATEGORIES PAGE
+         // Sidebar Navigation
+          'cat_spraying' => 'स्प्रेइंग (छिड़काव)',
+           'desc_spraying' => 'कीटनाशक स्प्रेयर, मिस्ट ब्लोअर और बूम स्प्रेयर।',
+          'equipment_label' => 'उपकरण',
+          'browse_categories_desc' => 'श्रेणियों के आधार पर कृषि उपकरण खोजें और अपनी आवश्यकतानुसार किराए पर लें।',
+          'app_title' => 'कृषि उपकरण रेंटल',
+        'brand_title' => 'कृषि उपकरण किराया',
+        'dashboard' => 'डैशबोर्ड',
+        'search_equipment' => 'उपकरण खोजें',
+        'categories' => 'श्रेणियाँ',
+        'featured_equipment' => 'विशेष उपकरण',
+        'recommended' => 'अनुशंसित',
+        'my_bookings' => 'मेरी बुकिंग',
+        'rental_history' => 'किराए का इतिहास',
+        'my_profile' => 'मेरी प्रोफाइल',
+        'logout' => 'लॉग आउट',
+
+        // Categories Page Header
+        'home' => 'होम',
+        'equipment_categories' => 'उपकरण श्रेणियाँ',
+        'categories_subtitle' => 'श्रेणियों के अनुसार उपकरण ब्राउज़ करें और अपनी आवश्यकतानुसार खोजें।',
+        'missing_item_title' => 'जो आप ढूंढ रहे हैं वह नहीं मिला?',
+        'try_searching' => 'उपकरण खोजने का प्रयास करें',
+        'equipment' => 'उपकरण',
+        'view_equipment' => 'उपकरण देखें',
+        'no_categories' => 'डेटाबेस में कोई श्रेणी कॉन्फ़िगर नहीं की गई है।',
+
+        // Category Titles & Descriptions (Hindi)
+        'cat_tractors' => 'ट्रैक्टर',
+        'desc_tractors' => 'सभी कृषि कार्यों के लिए भारी-भरकम ट्रैक्टर और उपयोगिता वाहन।',
+        
+        'cat_harvesting' => 'कटाई उपकरण',
+        'desc_harvesting' => 'कंबाइन, रीपर और फसल कटाई की मशीनरी।',
+        
+        'cat_irrigation' => 'सिंचाई',
+        'desc_irrigation' => 'वाटर पंप, छिड़काव यंत्र (sprinklers) और ड्रिप सिंचाई प्रणाली।',
+        
+        'cat_tillage' => 'जुताई उपकरण',
+        'desc_tillage' => 'हल, कल्टीवेटर और मिट्टी की तैयारी के उपकरण।',
+        
+        'cat_seeding' => 'बुआई उपकरण',
+        'desc_seeding' => 'बीज ड्रिल, प्लांटर्स और बुआई मशीनरी।',
+        
+        'cat_spraying' => 'छिड़काव उपकरण',
+        'desc_spraying' => 'कीटनाशक स्प्रेयर, मिस्ट ब्लोअर और बूम स्प्रेयर।',
+
+        // Footer Trust Banner
+        'secure_platform' => 'सुरक्षित और विश्वसनीय प्लेटफ़ॉर्म',
+        'secure_subtitle' => '100% सुरक्षित बुकिंग • सत्यापित मालिक',
+        'verified_equipment' => 'सत्यापित उपकरण',
+        'secure_booking' => 'सुरक्षित बुकिंग',
+        'easy_cancellation' => 'आसान रद्दीकरण',
+
+        ///MYPROFILE PAGE
+        'my_profile' => 'मेरा खाता प्रोफ़ाइल',
+        'back_to_dashboard' => 'डैशबोर्ड पर वापस जाएं',
+        'full_name' => 'पूरा नाम',
+        'email_address' => 'ईमेल पता',
+        'phone_number' => 'फ़ोन नंबर',
+        'address' => 'पता',
+        'security_question' => 'सुरक्षा प्रश्न',
+        'account_user_id' => 'खाता उपयोगकर्ता आईडी',
+        'change_password' => 'पासवर्ड बदलें / पासवर्ड भूल गए',
+        'edit_profile' => 'प्रोफ़ाइल संपादित करें',
+        'update_profile_info' => 'अपनी प्रोफ़ाइल जानकारी अपडेट करें',
+        'update_profile_pic' => 'प्रोफ़ाइल चित्र अपडेट करें',
+        'leave_blank_pic' => 'अपनी वर्तमान तस्वीर रखने के लिए इसे खाली छोड़ दें।',
+        'cancel' => 'रद्द करें',
+        'save_changes' => 'परिवर्तन सहेजें',
+        'profile_updated_success' => 'प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई!',
+
+        //MYEQUIPMENT PAGE
+           'my_equipment_title' => 'मेरे उपकरण',
+'my_equipment_inventory' => 'मेरी उपकरण सूची',
+'dashboard' => 'डैशबोर्ड',
+'add_equipment' => 'उपकरण जोड़ें',
+'rental_requests' => 'किराए के अनुरोध',
+'active_rentals' => 'सक्रिय किराए',
+'my_profile' => 'मेरी प्रोफ़ाइल',
+'logout' => 'लॉग आउट',
+'unnamed_equipment' => 'बिना नाम का उपकरण',
+'uncategorized' => 'अवर्गीकृत',
+'location_not_specified' => 'स्थान निर्दिष्ट नहीं है',
+'condition' => 'स्थिति',
+'per_day' => '/ दिन',
+'view' => 'देखें',
+'edit' => 'संपादित करें',
+'remove' => 'हटाएं',
+'confirm_remove_equipment' => 'क्या आप इस उपकरण को हटाना चाहते हैं?',
+'no_equipment_added' => 'आपने अभी तक कोई उपकरण नहीं जोड़ा है।',
+           //EDIT EQUIPMENT PAGE
+           'edit_equipment_title' => 'उपकरण संपादित करें',
+'back_to_details' => 'विवरण पर वापस जाएं',
+'equipment_updated_success' => 'उपकरण सफलतापूर्वक अपडेट किया गया!',
+'equipment_title_label' => 'उपकरण का शीर्षक',
+'status_label' => 'स्थिति',
+'available_status' => 'उपलब्ध',
+'rented_status' => 'किराये पर',
+'category_label' => 'श्रेणी',
+'brand_model_label' => 'ब्रांड और मॉडल',
+'power_hp_label' => 'पावर (एचपी)',
+'drive_type_label' => 'ड्राइव प्रकार',
+'model_year_label' => 'मॉडल वर्ष',
+'fuel_type_label' => 'ईंधन प्रकार',
+'working_width_label' => 'कार्य चौड़ाई',
+'equipment_condition_label' => 'उपकरण की स्थिति',
+'price_per_day_label' => 'प्रति दिन मूल्य (₹)',
+'min_booking_days_label' => 'न्यूनतम बुकिंग दिन',
+'service_location_label' => 'सेवा स्थान',
+'distance_km_label' => 'दूरी (किलोमीटर)',
+'mark_featured_label' => 'अनुशंसित / विशेष उपकरण के रूप में चिह्नित करें',
+'mark_featured_desc' => 'इस उपकरण को अनुशंसित अनुभागों में हाइलाइट करने के लिए इस बॉक्स को चेक करें।',
+'update_image_label' => 'छवि अपडेट करें (वर्तमान रखने के लिए खाली छोड़ें)',
+'current_file_label' => 'वर्तमान फ़ाइल: ',
+'description_label' => 'विवरण',
+'cancel_btn' => 'रद्द करें',
+'save_changes_btn' => 'परिवर्तन सहेजें',
+
+  
+
+//equipment deatils page
+'equipment_details_title' => 'उपकरण विवरण',
+'back_to_my_equipment' => 'मेरे उपकरणों पर वापस जाएं',
+'category_spec' => 'श्रेणी',
+'brand_model_spec' => 'ब्रांड और मॉडल',
+'power_hp_spec' => 'पावर (एचपी)',
+'drive_type_spec' => 'ड्राइव प्रकार',
+'model_year_spec' => 'मॉडल वर्ष',
+'fuel_type_spec' => 'ईंधन प्रकार',
+'working_width_spec' => 'कार्य चौड़ाई',
+'equipment_condition_spec' => 'उपकरण की स्थिति',
+'price_per_day_spec' => 'प्रति दिन मूल्य',
+'min_booking_days_spec' => 'न्यूनतम बुकिंग दिन',
+'days_label' => 'दिन',
+'service_location_spec' => 'सेवा स्थान',
+'status_featured_spec' => 'स्थिति और विशेषताएं',
+'rating_spec' => 'रेटिंग',
+'reviews_label' => 'समीक्षाएं',
+'created_date_spec' => 'बनाने की तिथि',
+'description_spec' => 'विवरण',
+'no_description_provided' => 'कोई विवरण प्रदान नहीं किया गया है।',
+'back_btn' => 'वापस',
+'edit_equipment_btn' => 'उपकरण संपादित करें',
+   
+ //Rent Now Page
+    'eq_rental_system' => 'कृषि उपकरण किराया प्रणाली',
+        'renter_role' => 'किरायेदार',
+        'nav_dashboard' => 'डैशबोर्ड',
+        'nav_search' => 'उपकरण खोजें',
+        'nav_categories' => 'श्रेणियाँ',
+        'nav_featured' => 'विशेष उपकरण',
+        'nav_recommended' => 'अनुशंसित',
+        'nav_bookings' => 'मेरी बुकिंग',
+        'nav_history' => 'किराये का इतिहास',
+        'nav_profile' => 'मेरी प्रोफ़ाइल',
+        'nav_support' => 'सहायता',
+        'nav_logout' => 'लॉग आउट',
+        'book_equipment_title' => 'उपकरण बुक करें',
+        'book_subtitle' => 'उपकरण बुक करने के लिए नीचे दिए गए विवरण भरें।',
+        'lbl_category' => 'श्रेणी',
+        'lbl_owner' => 'مالک / मालिक',
+        'lbl_day' => 'दिन',
+        'sec_rental_details' => '1. किराये का विवरण',
+        'lbl_start_date' => 'किराये की शुरुआत की तारीख',
+        'lbl_end_date' => 'किराये की समाप्ति की तारीख',
+        'lbl_quantity' => 'मात्रा',
+        'lbl_unit' => 'इकाई',
+        'lbl_units' => 'इकाइयां',
+        'lbl_total_days' => 'कुल दिन',
+        'sec_delivery_address' => '2. डिलीवरी का पता',
+        'lbl_use_reg_address' => 'पंजीकृत पते का उपयोग करें',
+        'lbl_state' => 'राज्य',
+        'lbl_district' => 'जिला',
+        'lbl_taluk' => 'क्षेत्र / तालुक',
+        'lbl_pincode' => 'पिन कोड',
+        'lbl_full_address' => 'पूरा पता',
+        'btn_diff_address' => 'अलग पते का उपयोग करें',
+        'sec_identity_verification' => '3. पहचान सत्यापन',
+        'lbl_gov_id' => 'सरकारी आईडी प्रमाण अपलोड करें',
+        'lbl_click_upload' => 'अपलोड करने के लिए क्लिक करें',
+        'lbl_file_specs' => 'JPG, PNG या PDF (अधिकतम 5MB)',
+        'lbl_id_number' => 'आईडी नंबर',
+        'lbl_phone_number' => 'फ़ोन नंबर',
+        'sec_payment_info' => '4. भुगतान की जानकारी',
+        'lbl_only_cash' => 'नोट: केवल नकद भुगतान स्वीकार किए जाते हैं (डिलीवरी के समय नकद और वापसी पर नकद)।',
+        'lbl_advance_payment' => 'अग्रिम भुगतान',
+        'lbl_sec_deposit_lender' => 'ऋणदाता द्वारा निर्धारित सुरक्षा जमा',
+        'lbl_cash_at_delivery' => 'डिलीवरी पर नकद',
+        'lbl_remaining_payment' => 'शेष भुगतान',
+        'lbl_total_minus_adv' => 'कुल किराया - अग्रिम जमा',
+        'lbl_cod' => 'वापसी पर नकद (COD)',
+        'lbl_agree_terms' => 'मैं नियम और शर्तें तथा गोपनीयता नीति से सहमत हूँ',
+        'lbl_order_summary' => 'ऑर्डर सारांश',
+        'lbl_price_per_day' => 'प्रति दिन मूल्य',
+        'lbl_total_rent' => 'कुल किराया',
+        'lbl_advance_dep' => 'अग्रिम (सुरक्षा जमा)',
+        'lbl_remaining_cod' => 'शेष राशि (COD)',
+        'btn_confirm_booking' => 'बुकिंग की पुष्टि करें',
+        'btn_cancel' => 'रद्द करें',
+        'lbl_wont_be_charged' => 'अभी आपसे कोई शुल्क नहीं लिया जाएगा',
+        'eq_not_found' => 'उपकरण नहीं मिला या वर्तमान में अनुपलब्ध है।',
+        'err_all_fields' => 'सभी आवश्यक फ़ील्ड भरना अनिवार्य है।',
+        'err_past_date' => 'किराये की शुरुआत की तारीख पिछली तिथि नहीं हो सकती।',
+        'err_end_before_start' => 'किराये की समाप्ति की तारीख शुरुआत की तारीख से पहले नहीं हो सकती।',
+        'err_qty' => 'मात्रा कम से कम 1 होनी चाहिए।',
+        'err_already_booked' => 'क्षमा करें, यह उपकरण चुनी गई तारीखों के लिए पहले ही बुक किया जा चुका है।',
+        'err_id_proof' => 'कृपया अपना सरकारी आईडी प्रमाण दस्तावेज अपलोड करें।',
+        'err_file_size' => 'फाइल का आकार 5 एमबी की अधिकतम सीमा से अधिक है।',
+        'err_file_format' => 'अमान्य फ़ाइल स्वरूप। केवल JPG, PNG और PDF स्वरूप स्वीकार किए जाते हैं।',
+        'err_db' => 'आपकी बुकिंग को प्रोसेस करते समय डेटाबेस त्रुटि हुई।',
+        'err_upload' => 'पहचान सत्यापन दस्तावेज़ अपलोड करने में विफल।',
+
+        //search equipment page
+          'search_results_for' => 'खोज परिणाम',
+          'search_results_for' => 'खोज परिणाम',
+'registered_location' => 'पंजीकृत स्थान',
+'equipment_near_you' => 'आपके पास के उपकरण',
+'other_equipment' => 'अन्य उपकरण',
+'available_status_label' => 'उपलब्ध',
+'view_equipment' => 'उपकरण देखें',
+'rent_now' => 'अभी किराए पर लें',
+'per_day' => 'प्रति दिन',
+'search' => 'खोजें',
+'search_placeholder' => 'उपकरण खोजें...',
+'no_equipment_found' => 'के लिए कोई उपकरण नहीं मिला',
+'try_different_keyword' => 'कृपया कोई दूसरा कीवर्ड खोजें।',
+'back_to_dashboard' => 'डैशबोर्ड पर वापस जाएँ',
+'enter_keyword_prompt' => 'उपकरण खोजने के लिए कृपया कोई कीवर्ड दर्ज करें।',
+'specific_item_not_available' => 'विशिष्ट उपकरण उपलब्ध नहीं है। अन्य उपलब्ध उपकरण दिखाए जा रहे हैं',
+        //My Bookings Page
+        'dashboard' => 'डैशबोर्ड',
+        'categories' => 'श्रेणियाँ',
+        'my_bookings' => 'मेरी बुकिंग',
+        'notifications' => 'सूचनाएं',
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+        'logout' => 'लॉग आउट',
+        'brand_main' => 'कृषि',
+        'brand_sub' => 'उपकरण किराया',
+        
+        
+        'page_title' => 'मेरी बुकिंग',
+        'all_bookings' => 'सभी बुकिंग',
+        'upcoming' => 'आगामी',
+        'ongoing' => 'चालू',
+        'completed' => 'पूर्ण',
+        'cancelled' => 'रद्द',
+        'sort_by' => 'क्रमबद्ध करें:',
+        'latest' => 'नवीनतम',
+        'oldest' => 'सबसे पुराना',
+        'start_date' => 'प्रारंभ तिथि',
+        'amount' => 'राशि',
+        'category' => 'श्रेणी',
+        'lender' => 'प्रदाता (लेंडर)',
+        'id' => 'आईडी',
+        'end' => 'समाप्त',
+        'total' => 'कुल',
+        'advance' => 'अग्रिम',
+        'payment' => 'भुगतान',
+        'booked_on' => 'बुकिंग की तारीख',
+        'view_details' => 'विवरण देखें',
+        'no_bookings' => 'इस श्रेणी में कोई बुकिंग नहीं मिली।',
+        'no_bookings_desc' => 'आपने इस फ़िल्टर से मेल खाती कोई बुकिंग नहीं की है।',
+        'browse_equipment' => 'उपकरण ब्राउज़ करें',
+
+        //Booking details and lender details page
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'categories' => 'श्रेणियाँ',
+        'my_bookings' => 'मेरी बुकिंग',
+        'notifications' => 'सूचनाएं',
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+        'logout' => 'लॉग आउट',
+        'back_to_bookings' => 'मेरी बुकिंग पर वापस जाएं',
+        
+        // Page Headers
+        'booking_details_title' => 'बुकिंग विवरण और स्थिति',
+        'booking_details_subtitle' => 'अपनी उपकरण किराये की स्थिति और ऋणदाता विवरण को ट्रैक करें।',
+        'lender_details_title' => 'ऋणदाता विवरण',
+        'lender_details_subtitle' => 'उपकरण ऋणदाता के लिए पूर्ण संपर्क और सत्यापन जानकारी देखें।',
+        
+        // Cards & Sections
+        'booking_info' => 'बुकिंग की जानकारी',
+        'booking_status' => 'बुकिंग की स्थिति',
+        'rental_timeline' => 'किराये की समय-सारणी',
+        'important_notes' => 'महत्वपूर्ण नोट्स',
+        'order_summary' => 'ऑर्डर सारांश',
+        
+        // Specifications & Labels
+        'category' => 'श्रेणी',
+        'booking_id' => 'बुकिंग आईडी',
+        'booking_date' => 'बुकिंग की तारीख',
+        'lender_name' => 'ऋणदाता का नाम',
+        'phone_number' => 'फ़ोन नंबर',
+        'rental_period' => 'किराये की अवधि',
+        'delivery_address' => 'डिलीवरी का पता',
+        'price_per_day' => 'प्रति दिन मूल्य',
+        'total_days' => 'कुल दिन',
+        'total_rent' => 'कुल किराया',
+        'advance_paid' => 'भुगतान किया गया अग्रिम',
+        'remaining_cod' => 'शेष राशि (कैश ऑन डिलीवरी)',
+        'payment_method' => 'भुगतान का तरीका',
+        'cash_on_delivery' => 'कैश ऑन डिलीवरी',
+        
+        // Timeline Status Steps
+        'submitted' => 'सबमिट किया गया',
+        'pending_approval' => 'अनुमोदन बाकी है',
+        'accepted' => 'स्वीकृत',
+        'delivered' => 'डिलीवर किया गया',
+        'returned' => 'वापस किया गया',
+        
+        // Timeline Descriptions
+        'req_submitted_desc' => 'आपने इस उपकरण को बुक करने का अनुरोध किया है।',
+        'lender_review_desc' => 'ऋणदाता ने आपके अनुरोध की समीक्षा कर ली है और स्वीकार कर लिया है।',
+        'waiting_review_desc' => 'ऋणदाता की समीक्षा और पुष्टि की प्रतीक्षा है।',
+        'equipment_delivered_desc' => 'उपकरण सफलतापूर्वक डिलीवर कर दिया गया है।',
+        'pending_delivery_desc' => 'ऋणदाता द्वारा डिलीवरी निष्पादित होना बाकी है।',
+        'expected_return_date' => 'अपेक्षित वापसी की तारीख',
+        'return_instruction_desc' => 'कृपया इस तारीख को या इससे पहले अच्छी स्थिति में उपकरण वापस करें।',
+        
+        // Important Notes Content
+        'note_1' => 'सुनिश्चित करें कि उपकरण को सावधानी से संचालित किया जाता है और केवल इच्छित कृषि उद्देश्यों के लिए उपयोग किया जाता है।',
+        'note_2' => 'अतिरिक्त पेनल्टी शुल्क से बचने के लिए सहमत अंतिम तिथि पर या उससे पहले उपकरण वापस करें।',
+        'note_3' => 'डिलीवरी पर उपकरण का निरीक्षण करें और किसी भी यांत्रिक समस्या की तुरंत रिपोर्ट करें।',
+        'note_4' => 'किराये की अवधि के दौरान उपयोग में न होने पर उपकरण को साफ और सुरक्षित रूप से स्टोर करें।',
+        'note_5' => 'यदि आपको किसी सहायता की आवश्यकता है या संचालन के बारे में प्रश्न हैं, तो सीधे ऋणदाता से संपर्क करें।',
+        
+        // Action Buttons
+        'view_lender_details' => 'ऋणदाता का विवरण देखें',
+        'contact_lender' => 'ऋणदाता से संपर्क करें',
+
+        // recommended
+'agriculture' => 'कृषि',
+        'equipment_rental_system' => 'कृषि उपकरण किराया प्रणाली',
+
+        'dashboard' => 'डैशबोर्ड',
+        'categories' => 'श्रेणियाँ',
+        'my_bookings' => 'मेरी बुकिंग',
+        'notifications' => 'सूचनाएँ',
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+        'logout' => 'लॉग आउट',
+
+        'renter' => 'किरायेदार',
+        'home' => 'होम',
+        'recommended' => 'अनुशंसित',
+
+        'recommended_equipment' => 'अनुशंसित उपकरण',
+
+        'recommended_description' =>
+            'आपकी बुकिंग और प्राथमिकताओं के आधार पर चुने गए उपकरण।',
+
+        'browse_all' => 'सभी देखें',
+
+        'category' => 'श्रेणी',
+        'day' => 'दिन',
+        'reviews' => 'समीक्षाएँ',
+
+        'view_lender' => 'उपकरण मालिक की प्रोफ़ाइल देखें',
+        'view_equipment' => 'उपकरण देखें',
+
+        'location_not_set' => 'स्थान निर्धारित नहीं है',
+        'location_not_available' => 'स्थान उपलब्ध नहीं है',
+
+        'no_recommended_equipment' =>
+            'कोई अनुशंसित उपकरण उपलब्ध नहीं है।',
+
+        // Equipment
+        'equipment_tractors' => 'ट्रैक्टर',
+        'equipment_harvesting' => 'कटाई उपकरण',
+        'equipment_irrigation' => 'सिंचाई उपकरण',
+        'equipment_tillage' => 'जुताई उपकरण',
+        'equipment_seed_drill' => 'बीज ड्रिल',
+        'equipment_sprayer' => 'स्प्रेयर',
+
+        // Categories
+        'category_tractor' => 'ट्रैक्टर',
+        'category_harvesting' => 'कटाई',
+        'category_irrigation' => 'सिंचाई',
+        'category_tillage' => 'जुताई',
+        'category_seeding' => 'बुवाई',
+        'category_spraying' => 'छिड़काव',
+
+// rental history
+
+
+        'dashboard' => 'डैशबोर्ड',
+
+        'categories' => 'श्रेणियाँ',
+
+        'my_bookings' => 'मेरी बुकिंग',
+
+        'notifications' => 'सूचनाएँ',
+
+        'my_profile' => 'मेरी प्रोफ़ाइल',
+
+        'rental_history' => 'किराया इतिहास',
+
+        'logout' => 'लॉगआउट',
+
+        'home' => 'होम',
+
+        'rental_history_title' => 'किराया इतिहास',
+
+        'rental_history_description' => 'अपनी पिछली बुकिंग और किराये की गतिविधियाँ देखें।',
+
+        'all_status' => 'सभी स्थिति',
+
+        'equipment' => 'उपकरण',
+
+        'booking_id' => 'बुकिंग आईडी',
+
+        'rental_period' => 'किराये की अवधि',
+
+        'total_amount' => 'कुल राशि',
+
+        'status' => 'स्थिति',
+
+        'booked_on' => 'बुकिंग की तारीख',
+
+        'action' => 'कार्रवाई',
+
+        'category' => 'श्रेणी',
+
+        'tractor' => 'ट्रैक्टर',
+
+        'tractors' => 'ट्रैक्टर',
+
+        'tillage_equipment' => 'जुताई उपकरण',
+
+        'irrigation' => 'सिंचाई',
+
+        'harvesters' => 'हार्वेस्टर',
+
+        'completed' => 'पूर्ण',
+
+        'cancelled' => 'रद्द',
+
+        'pending' => 'लंबित',
+        
+        'confirmed' => 'पुष्टि की गई',
+
+        'approved' => 'स्वीकृत',
+
+        'rejected' => 'अस्वीकृत',
+
+        'days' => 'दिन',
+
+        'day' => 'दिन',
+
+        'advance' => 'अग्रिम',
+
+        'view_details' => 'विवरण देखें',
+
+        'no_rental_history' => 'कोई किराया इतिहास नहीं मिला।',
+
+        'renter' => 'किरायेदार',
+
+        'english' => 'अंग्रेज़ी',
+
+        'kannada' => 'कन्नड़',
+
+        'hindi' => 'हिंदी'
+
+
+
+        
+    ]
+];
+
+// Translation helper function
+function __($key) {
+    global $translations, $current_lang;
+    return $translations[$current_lang][$key] ?? $translations['en'][$key] ?? $key;
+}
+?>
