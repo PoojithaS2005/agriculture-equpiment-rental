@@ -260,7 +260,9 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
                                         <a href="rental_request.php?action=accept&id=<?php echo $row['booking_id']; ?>" class="btn-action btn-accept"><i class="fa-solid fa-check"></i></a>
                                         <a href="rental_request.php?action=reject&id=<?php echo $row['booking_id']; ?>" class="btn-action btn-reject"><i class="fa-solid fa-xmark"></i></a>
                                     <?php endif; ?>
-                                    <a href="booking_details.php?booking_id=<?php echo $row['booking_id']; ?>" class="btn-action btn-view"><i class="fa-regular fa-eye"></i></a>
+                                   <a href="lender_booking_details.php?booking_id=<?php echo $row['booking_id']; ?>" class="btn-action btn-view">
+    <i class="fa-regular fa-eye"></i>
+</a>
                                 </div>
                             </td>
                         </tr>

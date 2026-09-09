@@ -176,7 +176,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                 <li><a href="lender_dashboard.php"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="menu_dashboard">Dashboard</span></a></li>
                 <li><a href="add_item.php"><i class="fa-solid fa-plus"></i> <span data-i18n="menu_add_equipment">Add Equipment</span></a></li>
                 <li><a href="my_equipment.php"><i class="fa-solid fa-tractor"></i> <span data-i18n="menu_my_equipment">My Equipment</span></a></li>
-                <li><a href="rental_requests.php"><i class="fa-solid fa-star"></i> <span data-i18n="menu_rental_requests">Rental Requests</span></a></li>
+                <li><a href="rental_request.php"><i class="fa-solid fa-star"></i> <span data-i18n="menu_rental_requests">Rental Request</span></a></li>
                 <li class="active"><a href="active_rentals.php"><i class="fa-solid fa-calendar-check"></i> <span data-i18n="menu_active_rentals">Active Rentals</span></a></li>
                 <li><a href="rental_history.php"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="menu_rental_history">Rental History</span></a></li>
                 <li><a href="profile.php"><i class="fa-solid fa-user"></i> <span data-i18n="menu_profile">Profile</span></a></li>
@@ -367,7 +367,8 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
    <script>
         function viewDetails(bookingId) {
-            window.location.href = `booking_details.php?booking_id=${bookingId}`;
+    window.location.href = `lender_booking_details.php?booking_id=${bookingId}`;
+
         }
         function trackEquipment(bookingId) {
             alert("Tracking feature for booking session #" + bookingId + " is initialized through map services.");

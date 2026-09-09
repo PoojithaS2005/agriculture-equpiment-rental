@@ -724,7 +724,93 @@ $translations = [
 
         'kannada' => 'Kannada',
 
-        'hindi' => 'Hindi'
+        'hindi' => 'Hindi',
+
+        // Lender Booking Details Page
+
+        'lbd_page_title' => 'Booking Details',
+        'lbd_page_subtitle' => 'View renter details and manage this equipment rental.',
+'lbd_back' => 'Back',
+'lbd_rentals' => 'Rentals',
+'lbd_booking_details' => 'Booking Details',
+
+'lbd_booking_information' => 'Booking Information',
+'lbd_category' => 'Category',
+'lbd_booking_id' => 'Booking ID',
+'lbd_booking_date' => 'Booking Date',
+'lbd_renter_name' => 'Renter Name',
+'lbd_phone' => 'Phone Number',
+'lbd_quantity' => 'Quantity',
+'lbd_status' => 'Status',
+'lbd_rental_period' => 'Rental Period',
+'lbd_days' => 'Days',
+'lbd_delivery_address' => 'Delivery Address',
+
+'lbd_renter_information' => 'Renter Information',
+'lbd_contact_renter' => 'Contact Renter',
+'lbd_id_number' => 'ID Number',
+
+'lbd_booking_status' => 'Booking Status',
+'lbd_submitted' => 'Submitted',
+'lbd_pending_approval' => 'Pending Approval',
+'lbd_accepted' => 'Accepted',
+'lbd_delivered' => 'Delivered',
+'lbd_returned' => 'Returned',
+
+'lbd_order_summary' => 'Order Summary',
+'lbd_price_per_day' => 'Price per Day',
+'lbd_total_days' => 'Total Days',
+'lbd_total_rent' => 'Total Rent',
+'lbd_advance' => 'Advance Paid',
+'lbd_remaining' => 'Remaining Amount (COD)',
+'lbd_payment_method' => 'Payment Method',
+'lbd_cash' => 'Cash on Delivery',
+
+'lbd_actions' => 'Rental Actions',
+
+'lbd_accept' => 'Accept Request',
+'lbd_reject' => 'Reject Request',
+'lbd_mark_delivered' => 'Mark as Delivered',
+'lbd_mark_returned' => 'Mark as Returned',
+
+'lbd_delivery_instruction' =>
+    'After physically delivering the equipment to the renter, click "Mark as Delivered".',
+
+'lbd_return_instruction' =>
+    'After physically collecting the equipment back from the renter, click "Mark as Returned".',
+
+'lbd_completed' =>
+    'This rental has been completed successfully.',
+
+'lbd_rejected_message' =>
+    'This rental request was rejected.',
+
+'lbd_confirm_accept' =>
+    'Are you sure you want to accept this rental request?',
+
+'lbd_confirm_reject' =>
+    'Are you sure you want to reject this rental request?',
+
+'lbd_confirm_delivered' =>
+    'Confirm that you have physically delivered the equipment to the renter.',
+
+'lbd_confirm_returned' =>
+    'Confirm that you have physically collected the equipment back from the renter.',
+
+'lbd_status_updated' =>
+    'Booking status updated successfully.',
+
+'lbd_update_failed' =>
+    'Unable to update the booking status.',
+
+'lbd_database_error' =>
+    'A database error occurred.',
+
+'lbd_invalid_action' =>
+    'Invalid action.',
+
+'lbd_invalid_request' =>
+    'Invalid request. Please try again.'
 
 
         
@@ -1443,8 +1529,93 @@ $translations = [
 
         'kannada' => 'ಕನ್ನಡ',
 
-        'hindi' => 'ಹಿಂದಿ'
+        'hindi' => 'ಹಿಂದಿ',
 
+        // Lender Booking Details Page
+
+        'lbd_page_title' => 'ಬುಕಿಂಗ್ ವಿವರಗಳು',
+'lbd_page_subtitle' => 'ಬಾಡಿಗೆದಾರರ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ ಮತ್ತು ಈ ಉಪಕರಣ ಬಾಡಿಗೆಯನ್ನು ನಿರ್ವಹಿಸಿ.',
+'lbd_back' => 'ಹಿಂದಕ್ಕೆ',
+'lbd_rentals' => 'ಬಾಡಿಗೆಗಳು',
+'lbd_booking_details' => 'ಬುಕಿಂಗ್ ವಿವರಗಳು',
+
+'lbd_booking_information' => 'ಬುಕಿಂಗ್ ಮಾಹಿತಿ',
+'lbd_category' => 'ವರ್ಗ',
+'lbd_booking_id' => 'ಬುಕಿಂಗ್ ಐಡಿ',
+'lbd_booking_date' => 'ಬುಕಿಂಗ್ ದಿನಾಂಕ',
+'lbd_renter_name' => 'ಬಾಡಿಗೆದಾರರ ಹೆಸರು',
+'lbd_phone' => 'ಫೋನ್ ಸಂಖ್ಯೆ',
+'lbd_quantity' => 'ಪ್ರಮಾಣ',
+'lbd_status' => 'ಸ್ಥಿತಿ',
+'lbd_rental_period' => 'ಬಾಡಿಗೆ ಅವಧಿ',
+'lbd_days' => 'ದಿನಗಳು',
+'lbd_delivery_address' => 'ವಿತರಣಾ ವಿಳಾಸ',
+
+'lbd_renter_information' => 'ಬಾಡಿಗೆದಾರರ ಮಾಹಿತಿ',
+'lbd_contact_renter' => 'ಬಾಡಿಗೆದಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ',
+'lbd_id_number' => 'ಐಡಿ ಸಂಖ್ಯೆ',
+
+'lbd_booking_status' => 'ಬುಕಿಂಗ್ ಸ್ಥಿತಿ',
+'lbd_submitted' => 'ಸಲ್ಲಿಸಲಾಗಿದೆ',
+'lbd_pending_approval' => 'ಅನುಮೋದನೆ ಬಾಕಿ ಇದೆ',
+'lbd_accepted' => 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+'lbd_delivered' => 'ತಲುಪಿಸಲಾಗಿದೆ',
+'lbd_returned' => 'ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+
+'lbd_order_summary' => 'ಆರ್ಡರ್ ಸಾರಾಂಶ',
+'lbd_price_per_day' => 'ದಿನದ ಬೆಲೆ',
+'lbd_total_days' => 'ಒಟ್ಟು ದಿನಗಳು',
+'lbd_total_rent' => 'ಒಟ್ಟು ಬಾಡಿಗೆ',
+'lbd_advance' => 'ಪಾವತಿಸಿದ ಮುಂಗಡ',
+'lbd_remaining' => 'ಉಳಿದ ಮೊತ್ತ (COD)',
+'lbd_payment_method' => 'ಪಾವತಿ ವಿಧಾನ',
+'lbd_cash' => 'ಕ್ಯಾಶ್ ಆನ್ ಡೆಲಿವರಿ',
+
+'lbd_actions' => 'ಬಾಡಿಗೆ ಕ್ರಿಯೆಗಳು',
+
+'lbd_accept' => 'ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಿ',
+'lbd_reject' => 'ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಿ',
+'lbd_mark_delivered' => 'ತಲುಪಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
+'lbd_mark_returned' => 'ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
+
+'lbd_delivery_instruction' =>
+    'ಉಪಕರಣವನ್ನು ಬಾಡಿಗೆದಾರರಿಗೆ ಭೌತಿಕವಾಗಿ ತಲುಪಿಸಿದ ನಂತರ "ತಲುಪಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ" ಕ್ಲಿಕ್ ಮಾಡಿ.',
+
+'lbd_return_instruction' =>
+    'ಉಪಕರಣವನ್ನು ಬಾಡಿಗೆದಾರರಿಂದ ಭೌತಿಕವಾಗಿ ಮರಳಿ ಪಡೆದ ನಂತರ "ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ" ಕ್ಲಿಕ್ ಮಾಡಿ.',
+
+'lbd_completed' =>
+    'ಈ ಬಾಡಿಗೆ ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ.',
+
+'lbd_rejected_message' =>
+    'ಈ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.',
+
+'lbd_confirm_accept' =>
+    'ಈ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಲು ನೀವು ಖಚಿತವಾಗಿದ್ದೀರಾ?',
+
+'lbd_confirm_reject' =>
+    'ಈ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲು ನೀವು ಖಚಿತವಾಗಿದ್ದೀರಾ?',
+
+'lbd_confirm_delivered' =>
+    'ನೀವು ಉಪಕರಣವನ್ನು ಬಾಡಿಗೆದಾರರಿಗೆ ಭೌತಿಕವಾಗಿ ತಲುಪಿಸಿದ್ದೀರಿ ಎಂದು ದೃಢೀಕರಿಸಿ.',
+
+'lbd_confirm_returned' =>
+    'ನೀವು ಉಪಕರಣವನ್ನು ಬಾಡಿಗೆದಾರರಿಂದ ಭೌತಿಕವಾಗಿ ಮರಳಿ ಪಡೆದಿದ್ದೀರಿ ಎಂದು ದೃಢೀಕರಿಸಿ.',
+
+'lbd_status_updated' =>
+    'ಬುಕಿಂಗ್ ಸ್ಥಿತಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ.',
+
+'lbd_update_failed' =>
+    'ಬುಕಿಂಗ್ ಸ್ಥಿತಿಯನ್ನು ನವೀಕರಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.',
+
+'lbd_database_error' =>
+    'ಡೇಟಾಬೇಸ್ ದೋಷ ಸಂಭವಿಸಿದೆ.',
+
+'lbd_invalid_action' =>
+    'ಅಮಾನ್ಯ ಕ್ರಿಯೆ.',
+
+'lbd_invalid_request' =>
+    'ಅಮಾನ್ಯ ವಿನಂತಿ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
 
 ],
     'hi' => [
@@ -2167,8 +2338,93 @@ $translations = [
 
         'kannada' => 'कन्नड़',
 
-        'hindi' => 'हिंदी'
+        'hindi' => 'हिंदी',
 
+          // Lender Booking Details Page
+
+'lbd_page_title' => 'बुकिंग विवरण',
+'lbd_page_subtitle' => 'किराएदार की जानकारी देखें और इस उपकरण किराए का प्रबंधन करें।',
+'lbd_back' => 'वापस',
+'lbd_rentals' => 'किराए',
+'lbd_booking_details' => 'बुकिंग विवरण',
+
+'lbd_booking_information' => 'बुकिंग जानकारी',
+'lbd_category' => 'श्रेणी',
+'lbd_booking_id' => 'बुकिंग आईडी',
+'lbd_booking_date' => 'बुकिंग की तारीख',
+'lbd_renter_name' => 'किराएदार का नाम',
+'lbd_phone' => 'फ़ोन नंबर',
+'lbd_quantity' => 'मात्रा',
+'lbd_status' => 'स्थिति',
+'lbd_rental_period' => 'किराये की अवधि',
+'lbd_days' => 'दिन',
+'lbd_delivery_address' => 'डिलीवरी का पता',
+
+'lbd_renter_information' => 'किराएदार की जानकारी',
+'lbd_contact_renter' => 'किराएदार से संपर्क करें',
+'lbd_id_number' => 'आईडी नंबर',
+
+'lbd_booking_status' => 'बुकिंग स्थिति',
+'lbd_submitted' => 'सबमिट किया गया',
+'lbd_pending_approval' => 'अनुमोदन बाकी है',
+'lbd_accepted' => 'स्वीकृत',
+'lbd_delivered' => 'डिलीवर किया गया',
+'lbd_returned' => 'वापस किया गया',
+
+'lbd_order_summary' => 'ऑर्डर सारांश',
+'lbd_price_per_day' => 'प्रति दिन मूल्य',
+'lbd_total_days' => 'कुल दिन',
+'lbd_total_rent' => 'कुल किराया',
+'lbd_advance' => 'अग्रिम भुगतान',
+'lbd_remaining' => 'शेष राशि (COD)',
+'lbd_payment_method' => 'भुगतान का तरीका',
+'lbd_cash' => 'कैश ऑन डिलीवरी',
+
+'lbd_actions' => 'किराया कार्रवाई',
+
+'lbd_accept' => 'अनुरोध स्वीकार करें',
+'lbd_reject' => 'अनुरोध अस्वीकार करें',
+'lbd_mark_delivered' => 'डिलीवर किया गया चिह्नित करें',
+'lbd_mark_returned' => 'वापस किया गया चिह्नित करें',
+
+'lbd_delivery_instruction' =>
+    'उपकरण को किराएदार को भौतिक रूप से डिलीवर करने के बाद "डिलीवर किया गया चिह्नित करें" पर क्लिक करें।',
+
+'lbd_return_instruction' =>
+    'उपकरण को किराएदार से भौतिक रूप से वापस लेने के बाद "वापस किया गया चिह्नित करें" पर क्लिक करें।',
+
+'lbd_completed' =>
+    'यह किराया सफलतापूर्वक पूरा हो गया है।',
+
+'lbd_rejected_message' =>
+    'यह किराया अनुरोध अस्वीकार कर दिया गया है।',
+
+'lbd_confirm_accept' =>
+    'क्या आप इस किराया अनुरोध को स्वीकार करना चाहते हैं?',
+
+'lbd_confirm_reject' =>
+    'क्या आप इस किराया अनुरोध को अस्वीकार करना चाहते हैं?',
+
+'lbd_confirm_delivered' =>
+    'पुष्टि करें कि आपने उपकरण को किराएदार को भौतिक रूप से डिलीवर कर दिया है।',
+
+'lbd_confirm_returned' =>
+    'पुष्टि करें कि आपने उपकरण को किराएदार से भौतिक रूप से वापस ले लिया है।',
+
+'lbd_status_updated' =>
+    'बुकिंग स्थिति सफलतापूर्वक अपडेट हो गई।',
+
+'lbd_update_failed' =>
+    'बुकिंग स्थिति अपडेट नहीं की जा सकी।',
+
+'lbd_database_error' =>
+    'डेटाबेस त्रुटि हुई।',
+
+'lbd_invalid_action' =>
+    'अमान्य कार्रवाई।',
+
+'lbd_invalid_request' =>
+    'अमान्य अनुरोध। कृपया पुनः प्रयास करें.',
 
 
         
