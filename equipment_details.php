@@ -20,12 +20,31 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    header("Location: my_equipment.php");
+    /*
+     * Renter -> renter dashboard
+     * Lender -> My Equipment
+     */
+    if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'renter') {
+        header("Location: renter_dashboard.php");
+    } else {
+        header("Location: my_equipment.php");
+    }
     exit();
 }
 
 $eq = $result->fetch_assoc();
 $is_owner = ($eq['lender_id'] == $user_id);
+
+/*
+ * Renter -> renter dashboard
+ * Lender -> My Equipment
+ */
+$back_page = (
+    isset($_SESSION['user_type']) &&
+    $_SESSION['user_type'] === 'renter'
+)
+    ? 'renter_dashboard.php'
+    : 'my_equipment.php';
 ?>
 
 <!DOCTYPE html>
@@ -75,7 +94,7 @@ $is_owner = ($eq['lender_id'] == $user_id);
                     <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&lang=hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>🌐 हिन्दी</option>
                     <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&lang=kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>🌐 ಕನ್ನಡ</option>
                 </select>
-                <a href="my_equipment.php" class="btn btn-sm btn-light fw-bold text-dark"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo __('back_to_my_equipment'); ?></a>
+                <a href="<?php echo $back_page; ?>" class="btn btn-sm btn-light fw-bold text-dark"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo __('back_to_my_equipment'); ?></a>
             </div>
         </div>
 
@@ -129,7 +148,7 @@ $is_owner = ($eq['lender_id'] == $user_id);
 
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('working_width_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['wrorking_width'] ?? 'N/A'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars($eq['working_width'] ?? 'N/A'); ?></div>
                 </div>
 
                 <div class="spec-box">
@@ -187,7 +206,7 @@ $is_owner = ($eq['lender_id'] == $user_id);
         </div>
 
         <div class="action-footer">
-            <a href="my_equipment.php" class="btn btn-secondary btn-sm px-4"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo __('back_btn'); ?></a>
+            <a href="<?php echo $back_page; ?>" class="btn btn-secondary btn-sm px-4"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo __('back_btn'); ?></a>
             <?php if ($is_owner): ?>
                 <a href="edit_equipment.php?id=<?php echo $eq['equipment_id']; ?>" class="btn btn-warning btn-sm px-4 fw-bold text-dark" style="background-color: #f59e0b; border-color: #d97706;"><i class="fa-solid fa-pen-to-square me-1"></i> <?php echo __('edit_equipment_btn'); ?></a>
             <?php endif; ?>

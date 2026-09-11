@@ -104,7 +104,7 @@ $booking_sql = "
     FROM bookings b
     LEFT JOIN equipment e
         ON b.equipment_id = e.equipment_id
-    WHERE b.user_id = ?
+    WHERE b.renter_id = ?
     ORDER BY b.booking_id DESC
 ";
 

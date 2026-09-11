@@ -251,10 +251,30 @@ if ($wishlist_check_stmt) {
     );
 }
 
+/*
+ * Read recommended equipment from the real equipment table.
+ *
+ * When a lender checks "Recommended" in add_equipment.php,
+ * equipment.badge is saved as RECOMMENDED. The new equipment therefore
+ * appears here automatically with its real equipment_id.
+ *
+ * The LEFT JOIN also keeps older valid recommendation records.
+ * Old records with equipment_id = 0 are ignored.
+ */
 $sql = "
-    SELECT *
-    FROM recommended_equipment
-    ORDER BY recommendation_id DESC
+    SELECT
+        e.*,
+        re.recommendation_id
+    FROM equipment e
+    LEFT JOIN recommended_equipment re
+        ON re.equipment_id = e.equipment_id
+    WHERE
+        e.status = 'Available'
+        AND (
+            e.badge = 'RECOMMENDED'
+            OR re.equipment_id IS NOT NULL
+        )
+    ORDER BY e.created_at DESC, e.equipment_id DESC
 ";
 
 $result = mysqli_query(
@@ -1425,17 +1445,25 @@ body {
                             </span>
 
                         </div>
-
+                        <?php if ($equipment_id > 0): ?>
                         <a
                             href="equipment_details.php?id=<?= urlencode($equipment_id) ?>"
                             class="view-btn"
                         >
-
                             <?= htmlspecialchars(
                                 __('view_equipment')
                             ) ?>
-
                         </a>
+                        <?php else: ?>
+                        <span
+                            class="view-btn"
+                            style="opacity:0.6; cursor:not-allowed;"
+                        >
+                            <?= htmlspecialchars(
+                                __('view_equipment')
+                            ) ?>
+                        </span>
+                        <?php endif; ?>
 
                     </div>
 

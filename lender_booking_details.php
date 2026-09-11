@@ -100,7 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 UPDATE bookings b
                 INNER JOIN equipment e
                     ON b.equipment_id = e.equipment_id
-                SET b.status = ?
+                SET b.status = ?,
+                    b.delivery_confirmed = CASE WHEN ? = 'Delivered' THEN 0 ELSE b.delivery_confirmed END,
+                    b.return_confirmed = CASE WHEN ? = 'Returned' THEN 0 ELSE b.return_confirmed END,
+                    b.delivery_confirmed_at = CASE WHEN ? = 'Delivered' THEN NULL ELSE b.delivery_confirmed_at END,
+                    b.return_confirmed_at = CASE WHEN ? = 'Returned' THEN NULL ELSE b.return_confirmed_at END
                 WHERE b.booking_id = ?
                   AND e.lender_id = ?
             ";
@@ -110,7 +114,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($update_stmt) {
 
                 $update_stmt->bind_param(
-                    "sii",
+                    "ssssii",
+                    $new_status,
+                    $new_status,
+                    $new_status,
+                    $new_status,
                     $new_status,
                     $booking_id,
                     $lender_id
@@ -119,6 +127,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($update_stmt->execute()) {
 
                     if ($update_stmt->affected_rows > 0) {
+
+                        /*
+                         * Notify the renter when the lender performs a
+                         * physical delivery or return action.
+                         */
+                        if ($new_status === 'Delivered' || $new_status === 'Returned') {
+                            $notify_stmt = $conn->prepare("
+                                SELECT renter_id, request_code
+                                FROM bookings
+                                WHERE booking_id = ?
+                                LIMIT 1
+                            ");
+                            if ($notify_stmt) {
+                                $notify_stmt->bind_param('i', $booking_id);
+                                $notify_stmt->execute();
+                                $notify_data = $notify_stmt->get_result()->fetch_assoc();
+                                $notify_stmt->close();
+
+                                if ($notify_data) {
+                                    $renter_id_for_notification = intval($notify_data['renter_id']);
+                                    $request_code_for_notification = $notify_data['request_code'] ?? ('#' . $booking_id);
+
+                                    if ($new_status === 'Delivered') {
+                                        $notification_title = 'Equipment Delivered';
+                                        $notification_message = 'The lender has marked your equipment as delivered for booking ' . $request_code_for_notification . '. Please open your booking details and confirm delivery.';
+                                    } else {
+                                        $notification_title = 'Equipment Returned';
+                                        $notification_message = 'The lender has marked your equipment as returned for booking ' . $request_code_for_notification . '. Please open your booking details and confirm the return.';
+                                    }
+
+                                    $insert_notification = $conn->prepare("
+                                        INSERT INTO notifications (user_id, title, message, is_read)
+                                        VALUES (?, ?, ?, 0)
+                                    ");
+                                    if ($insert_notification) {
+                                        $insert_notification->bind_param(
+                                            'iss',
+                                            $renter_id_for_notification,
+                                            $notification_title,
+                                            $notification_message
+                                        );
+                                        $insert_notification->execute();
+                                        $insert_notification->close();
+                                    }
+                                }
+                            }
+                        }
 
                         /*
                          * Update equipment availability
@@ -361,6 +416,11 @@ if ($status === 'Accepted') {
     $status_icon = 'fa-truck';
 
 } elseif ($status === 'Returned') {
+
+    $status_class = 'status-returned';
+    $status_icon = 'fa-circle-check';
+
+} elseif ($status === 'Completed') {
 
     $status_class = 'status-returned';
     $status_icon = 'fa-circle-check';
@@ -2022,6 +2082,9 @@ if ($status === 'Pending') {
                 $returned =
                     ($status === 'Returned');
 
+                $completed =
+                    ($status === 'Completed');
+
                 ?>
 
 
@@ -2126,7 +2189,7 @@ if ($status === 'Pending') {
                     <div
                         class="timeline-step
                         <?php
-                        echo $returned
+                        echo ($returned || $completed)
                             ? 'completed'
                             : (
                                 $delivered
@@ -2162,7 +2225,7 @@ if ($status === 'Pending') {
                     <div
                         class="timeline-step
                         <?php
-                        echo $returned
+                        echo ($returned || $completed)
                             ? 'completed'
                             : '';
                         ?>"
@@ -2170,7 +2233,7 @@ if ($status === 'Pending') {
 
                         <div class="step-icon">
 
-                            <?php if ($returned): ?>
+                            <?php if ($returned || $completed): ?>
 
                                 <i class="fa-solid fa-check"></i>
 
@@ -2188,6 +2251,17 @@ if ($status === 'Pending') {
 
                         </div>
 
+                    </div>
+
+                    <div class="timeline-step <?php echo $completed ? 'completed' : ''; ?>">
+                        <div class="step-icon">
+                            <?php if ($completed): ?>
+                                <i class="fa-solid fa-check"></i>
+                            <?php else: ?>
+                                6
+                            <?php endif; ?>
+                        </div>
+                        <div class="step-title">Completed</div>
                     </div>
 
                 </div>
@@ -2585,6 +2659,15 @@ if ($status === 'Pending') {
 
                             </div>
 
+
+                        <!-- COMPLETED -->
+
+                        <?php elseif ($status === 'Completed'): ?>
+
+                            <div class="completed-message">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                Rental completed. The renter has confirmed the return.
+                            </div>
 
                         <!-- REJECTED -->
 

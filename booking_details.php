@@ -14,6 +14,11 @@ if (!isset($_SESSION['user_id'])) {
 
 $renter_id = $_SESSION['user_id'];
 $current_lang = $_SESSION['lang'] ?? 'en';
+
+// CSRF protection for renter confirmation actions
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 $lang_param = '?lang=' . urlencode($current_lang);
 
 $booking_id = isset($_GET['booking_id']) ? intval($_GET['booking_id']) : 0;
@@ -54,6 +59,72 @@ if ($result->num_rows === 0) {
 }
 $booking = $result->fetch_assoc();
 $stmt->close();
+
+/* =========================================================
+   RENTER CONFIRMATION ACTIONS
+   ========================================================= */
+$action_message = '';
+$action_error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $csrf = $_POST['csrf_token'] ?? '';
+
+    if (!hash_equals($_SESSION['csrf_token'], $csrf)) {
+        $action_error = 'Invalid request. Please try again.';
+    } elseif ($action === 'confirm_delivery') {
+        if (($booking['status'] ?? '') !== 'Delivered') {
+            $action_error = 'Delivery can be confirmed only after the lender marks it as delivered.';
+        } elseif (!empty($booking['delivery_confirmed'])) {
+            $action_error = 'Delivery is already confirmed.';
+        } else {
+            $confirm_stmt = $conn->prepare("
+                UPDATE bookings
+                SET delivery_confirmed = 1, delivery_confirmed_at = NOW()
+                WHERE booking_id = ? AND renter_id = ? AND status = 'Delivered'
+            ");
+            if ($confirm_stmt) {
+                $confirm_stmt->bind_param('ii', $booking_id, $renter_id);
+                if ($confirm_stmt->execute() && $confirm_stmt->affected_rows > 0) {
+                    $action_message = 'Delivery confirmed successfully.';
+                    $booking['delivery_confirmed'] = 1;
+                    $booking['delivery_confirmed_at'] = date('Y-m-d H:i:s');
+                } else {
+                    $action_error = 'Unable to confirm delivery. Please try again.';
+                }
+                $confirm_stmt->close();
+            } else {
+                $action_error = 'Unable to process delivery confirmation.';
+            }
+        }
+    } elseif ($action === 'confirm_return') {
+        if (($booking['status'] ?? '') !== 'Returned') {
+            $action_error = 'Return can be confirmed only after the lender marks it as returned.';
+        } elseif (!empty($booking['return_confirmed'])) {
+            $action_error = 'Return is already confirmed.';
+        } else {
+            $confirm_stmt = $conn->prepare("
+                UPDATE bookings
+                SET return_confirmed = 1, return_confirmed_at = NOW(), status = 'Completed'
+                WHERE booking_id = ? AND renter_id = ? AND status = 'Returned'
+            ");
+            if ($confirm_stmt) {
+                $confirm_stmt->bind_param('ii', $booking_id, $renter_id);
+                if ($confirm_stmt->execute() && $confirm_stmt->affected_rows > 0) {
+                    $action_message = 'Return confirmed successfully. Rental completed.';
+                    $booking['return_confirmed'] = 1;
+                    $booking['return_confirmed_at'] = date('Y-m-d H:i:s');
+                    $booking['status'] = 'Completed';
+                } else {
+                    $action_error = 'Unable to confirm return. Please try again.';
+                }
+                $confirm_stmt->close();
+            } else {
+                $action_error = 'Unable to process return confirmation.';
+            }
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($current_lang); ?>">
@@ -142,6 +213,13 @@ $stmt->close();
         .summary-row .amount { font-weight: 800; color: #198754; }
 
         .action-btns-box { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .confirmation-box { margin-top: 18px; padding: 16px; border-radius: 12px; border: 1px solid #dbeafe; background: #eff6ff; }
+        .confirmation-box.confirmed { border-color: #bbf7d0; background: #f0fdf4; }
+        .confirmation-title { font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+        .confirmation-text { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 12px; }
+        .btn-confirm-rental { width: 100%; border: 0; border-radius: 9px; padding: 10px 12px; background: #198754; color: #fff; font-size: 13px; font-weight: 800; }
+        .btn-confirm-rental:hover { background: #157347; }
+        .alert-action { margin-bottom: 18px; font-size: 13px; font-weight: 700; }
         .btn-action-custom { width: 100%; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
         .btn-lender-details { background: #f8fafc; color: #334155; border: 1.5px solid #cbd5e1; }
         .btn-lender-details:hover { background: #e2e8f0; color: #0f172a; }
@@ -251,8 +329,16 @@ $stmt->close();
             if ($st === 'Accepted') { $badge_class = 'status-upcoming'; $status_icon = 'fa-calendar-check'; }
             elseif ($st === 'Delivered') { $badge_class = 'status-ongoing'; $status_icon = 'fa-spinner fa-spin'; }
             elseif ($st === 'Returned') { $badge_class = 'status-completed'; $status_icon = 'fa-circle-check'; }
+            elseif ($st === 'Completed') { $badge_class = 'status-completed'; $status_icon = 'fa-circle-check'; }
             elseif ($st === 'Rejected' || $st === 'Overdue') { $badge_class = 'status-cancelled'; $status_icon = 'fa-circle-xmark'; }
         ?>
+
+        <?php if ($action_message): ?>
+            <div class="alert alert-success alert-action"><i class="fa-solid fa-circle-check me-1"></i><?php echo htmlspecialchars($action_message); ?></div>
+        <?php endif; ?>
+        <?php if ($action_error): ?>
+            <div class="alert alert-danger alert-action"><i class="fa-solid fa-circle-exclamation me-1"></i><?php echo htmlspecialchars($action_error); ?></div>
+        <?php endif; ?>
 
         <div class="details-grid">
             
@@ -354,6 +440,10 @@ $stmt->close();
                             <div class="step-icon"><?php echo $is_returned ? '<i class="fa-solid fa-check"></i>' : '5'; ?></div>
                             <div class="step-title">Returned</div>
                         </div>
+                        <div class="timeline-step <?php echo ($st === 'Completed') ? 'completed' : ''; ?>">
+                            <div class="step-icon"><?php echo ($st === 'Completed') ? '<i class="fa-solid fa-check"></i>' : '6'; ?></div>
+                            <div class="step-title">Completed</div>
+                        </div>
                     </div>
                 </div>
 
@@ -380,19 +470,27 @@ $stmt->close();
                             </div>
                         </div>
 
-                        <div class="timeline-item <?php echo ($is_delivered || $is_returned) ? 'completed' : ''; ?>">
+                        <div class="timeline-item <?php echo ($is_delivered || $is_returned || $st === 'Completed') ? 'completed' : ''; ?>">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content">
                                 <h6>Equipment Delivery</h6>
-                                <p><?php echo ($is_delivered || $is_returned) ? 'Equipment has been delivered successfully.' : 'Pending delivery execution by the lender.'; ?></p>
+                                <p><?php echo ($is_delivered || $is_returned || $st === 'Completed') ? 'Equipment has been delivered successfully.' : 'Pending delivery execution by the lender.'; ?></p>
                             </div>
                         </div>
 
-                        <div class="timeline-item <?php echo $is_returned ? 'completed' : ''; ?>">
+                        <div class="timeline-item <?php echo ($is_returned || $st === 'Completed') ? 'completed' : ''; ?>">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content">
-                                <h6>Expected Return Date: <?php echo date('d M Y', strtotime($booking['end_date'])); ?></h6>
-                                <p>Please return the equipment on or before this date in good condition.</p>
+                                <h6>Equipment Return</h6>
+                                <p><?php echo ($is_returned || $st === 'Completed') ? 'The lender has collected the equipment.' : 'Return will be recorded after the lender collects the equipment.'; ?></p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item <?php echo ($st === 'Completed') ? 'completed' : ''; ?>">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h6>Rental Completed</h6>
+                                <p><?php echo ($st === 'Completed') ? 'You confirmed the return. This rental is completed.' : 'Waiting for return confirmation.'; ?></p>
                             </div>
                         </div>
                     </div>
@@ -453,6 +551,41 @@ $stmt->close();
                         <a href="tel:<?php echo htmlspecialchars($booking['lender_phone']); ?>" class="btn-action-custom btn-contact-lender">
                             <i class="fa-solid fa-phone"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?>
                         </a>
+
+                    <?php if ($st === 'Delivered'): ?>
+                        <div class="confirmation-box <?php echo !empty($booking['delivery_confirmed']) ? 'confirmed' : ''; ?>">
+                            <div class="confirmation-title"><i class="fa-solid fa-truck me-1"></i> Delivery Confirmation</div>
+                            <?php if (!empty($booking['delivery_confirmed'])): ?>
+                                <div class="confirmation-text mb-0"><i class="fa-solid fa-circle-check text-success me-1"></i>You have confirmed that the equipment was delivered.</div>
+                            <?php else: ?>
+                                <div class="confirmation-text">The lender has marked this equipment as delivered. Please confirm that you received it.</div>
+                                <form method="POST" onsubmit="return confirm('Confirm that you received the equipment?');">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                    <input type="hidden" name="action" value="confirm_delivery">
+                                    <button type="submit" class="btn-confirm-rental"><i class="fa-solid fa-circle-check me-1"></i> Confirm Delivery</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif ($st === 'Returned'): ?>
+                        <div class="confirmation-box <?php echo !empty($booking['return_confirmed']) ? 'confirmed' : ''; ?>">
+                            <div class="confirmation-title"><i class="fa-solid fa-rotate-left me-1"></i> Return Confirmation</div>
+                            <?php if (!empty($booking['return_confirmed'])): ?>
+                                <div class="confirmation-text mb-0"><i class="fa-solid fa-circle-check text-success me-1"></i>You have confirmed that the equipment was returned.</div>
+                            <?php else: ?>
+                                <div class="confirmation-text">The lender has marked this equipment as returned. Please confirm that the equipment was collected.</div>
+                                <form method="POST" onsubmit="return confirm('Confirm that the equipment was collected by the lender?');">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                    <input type="hidden" name="action" value="confirm_return">
+                                    <button type="submit" class="btn-confirm-rental"><i class="fa-solid fa-circle-check me-1"></i> Confirm Return</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif ($st === 'Completed'): ?>
+                        <div class="confirmation-box confirmed">
+                            <div class="confirmation-title"><i class="fa-solid fa-circle-check me-1 text-success"></i> Rental Completed</div>
+                            <div class="confirmation-text mb-0">Delivery and return have both been confirmed. This rental is completed.</div>
+                        </div>
+                    <?php endif; ?>
                     </div>
                 </div>
             </div>

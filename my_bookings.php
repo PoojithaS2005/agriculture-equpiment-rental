@@ -67,7 +67,7 @@ if ($active_tab === 'upcoming') {
 } elseif ($active_tab === 'ongoing') {
     $sql .= " AND (b.status = 'Delivered' OR (b.status = 'Accepted' AND '$today' BETWEEN b.start_date AND b.end_date))";
 } elseif ($active_tab === 'completed') {
-    $sql .= " AND b.status = 'Returned'";
+    $sql .= " AND (b.status = 'Returned' OR b.status = 'Completed')";
 } elseif ($active_tab === 'cancelled') {
     $sql .= " AND (b.status = 'Rejected' OR b.status = 'Overdue')";
 }
@@ -297,6 +297,7 @@ $stmt->close();
                     if ($st === 'Accepted') { $badge_class = 'status-upcoming'; $status_icon = 'fa-calendar-check'; }
                     elseif ($st === 'Delivered') { $badge_class = 'status-ongoing'; $status_icon = 'fa-spinner fa-spin'; }
                     elseif ($st === 'Returned') { $badge_class = 'status-completed'; $status_icon = 'fa-circle-check'; }
+                    elseif ($st === 'Completed') { $badge_class = 'status-completed'; $status_icon = 'fa-circle-check'; }
                     elseif ($st === 'Rejected' || $st === 'Overdue') { $badge_class = 'status-cancelled'; $status_icon = 'fa-circle-xmark'; }
 
                     // Translate status if translation key exists, otherwise use database value
