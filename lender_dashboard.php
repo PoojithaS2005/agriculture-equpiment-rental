@@ -19,6 +19,14 @@ $user_query = mysqli_query($conn, "SELECT profile_pic FROM users WHERE user_id =
 $user_data = mysqli_fetch_assoc($user_query);
 $profile_pic = !empty($user_data['profile_pic']) ? $user_data['profile_pic'] : 'default_avatar.png';
 
+// Notification bell: count unread notifications for this lender
+$unread_notifications = 0;
+$notif_count_query = mysqli_query($conn, "SELECT COUNT(*) AS total FROM notifications WHERE user_id = '$lender_id' AND is_read = 0");
+if ($notif_count_query) {
+    $notif_count_data = mysqli_fetch_assoc($notif_count_query);
+    $unread_notifications = (int)($notif_count_data['total'] ?? 0);
+}
+
 // 3. Real-Time Database Queries
 $total_equip_res = mysqli_query($conn, "SELECT COUNT(*) AS total FROM items WHERE lender_id = '$lender_id'");
 $total_equipment = mysqli_fetch_assoc($total_equip_res)['total'] ?? 0;
@@ -84,6 +92,49 @@ $active_result = mysqli_query($conn, $active_query);
 
         .user-menu { display: flex; align-items: center; gap: 12px; }
         .user-profile-img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #0f4c5c; }
+
+        /* Responsive notification bell */
+        .notification-link {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f4c5c;
+            text-decoration: none;
+            border-radius: 50%;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .notification-link:hover {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+        .notification-link i { font-size: 19px; }
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -1px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+            line-height: 1;
+        }
+        @media (max-width: 700px) {
+            .notification-link { width: 34px; height: 34px; }
+            .notification-link i { font-size: 18px; }
+            .notification-badge { min-width: 17px; height: 17px; font-size: 9px; }
+        }
 
         .lang-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; outline: none; background: #fff; cursor: pointer; }
 
@@ -225,7 +276,12 @@ $active_result = mysqli_query($conn, $active_query);
                     <option value="?lang=kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>🌐 ಕನ್ನಡ (Kannada)</option>
                 </select>
 
-                <i class="fa-regular fa-bell" style="font-size: 18px; color: #64748b;"></i>
+                <a href="lender_notifications.php?lang=<?php echo urlencode($current_lang); ?>" class="notification-link" aria-label="Notifications" title="Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <?php if ($unread_notifications > 0): ?>
+                        <span class="notification-badge"><?php echo $unread_notifications > 99 ? '99+' : $unread_notifications; ?></span>
+                    <?php endif; ?>
+                </a>
                 
                 <!-- Profile Pic Next to Name -->
                 <span style="font-size: 14px; font-weight: bold;"><?php echo htmlspecialchars($lender_name); ?></span>

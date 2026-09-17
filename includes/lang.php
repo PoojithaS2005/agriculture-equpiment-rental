@@ -810,7 +810,30 @@ $translations = [
     'Invalid action.',
 
 'lbd_invalid_request' =>
-    'Invalid request. Please try again.'
+    'Invalid request. Please try again.',
+
+               // Notifications Page
+        'notifications' => 'Notifications',
+        'notifications_title' => 'Notifications',
+        'mark_all_read' => 'Mark all as read',
+        'mark_read' => 'Mark as read',
+        'unread' => 'Unread',
+        'no_notifications' => 'No notifications yet',
+        'equipment_delivered' => 'Equipment Delivered',
+        'equipment_returned' => 'Equipment Returned',
+        'rental_accepted' => 'Rental Request Accepted',
+        'rental_rejected' => 'Rental Request Rejected',
+        'rental_completed' => 'Rental Completed',
+        'rental_overdue' => 'Rental Overdue',
+        'new_rental_request' => 'New Rental Request',
+        'delivery_confirmation_required' => 'Please confirm that you received the equipment.',
+        'return_confirmation_required' => 'Please confirm that the equipment was collected.',
+        'booking_request_accepted' => 'Your rental request has been accepted.',
+        'booking_request_rejected' => 'Your rental request has been rejected.',
+        'booking_completed_message' => 'Delivery and return have both been confirmed. This rental is completed.',
+        'notification_default' => 'You have a new notification.',
+        'notification_request' => 'Request',
+
 
 
         
@@ -1616,6 +1639,29 @@ $translations = [
 
 'lbd_invalid_request' =>
     'ಅಮಾನ್ಯ ವಿನಂತಿ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+
+           // Notifications Page
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'notifications_title' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'mark_all_read' => 'ಎಲ್ಲವನ್ನೂ ಓದಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
+        'mark_read' => 'ಓದಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
+        'unread' => 'ಓದದಿರುವುದು',
+        'no_notifications' => 'ಇನ್ನೂ ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ',
+        'equipment_delivered' => 'ಉಪಕರಣವನ್ನು ತಲುಪಿಸಲಾಗಿದೆ',
+        'equipment_returned' => 'ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+        'rental_accepted' => 'ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+        'rental_rejected' => 'ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
+        'rental_completed' => 'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'rental_overdue' => 'ಬಾಡಿಗೆ ಅವಧಿ ಮೀರಿದೆ',
+        'new_rental_request' => 'ಹೊಸ ಬಾಡಿಗೆ ವಿನಂತಿ',
+        'delivery_confirmation_required' => 'ನೀವು ಉಪಕರಣವನ್ನು ಸ್ವೀಕರಿಸಿದ್ದೀರಿ ಎಂದು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
+        'return_confirmation_required' => 'ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ ಎಂದು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
+        'booking_request_accepted' => 'ನಿಮ್ಮ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ.',
+        'booking_request_rejected' => 'ನಿಮ್ಮ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.',
+        'booking_completed_message' => 'ವಿತರಣೆ ಮತ್ತು ಹಿಂತಿರುಗಿಸುವಿಕೆ ಎರಡನ್ನೂ ದೃಢೀಕರಿಸಲಾಗಿದೆ. ಈ ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ.',
+        'notification_default' => 'ನಿಮಗೆ ಹೊಸ ಅಧಿಸೂಚನೆ ಇದೆ.',
+        'notification_request' => 'ವಿನಂತಿ',
+
 
 ],
     'hi' => [
@@ -2425,6 +2471,30 @@ $translations = [
 
 'lbd_invalid_request' =>
     'अमान्य अनुरोध। कृपया पुनः प्रयास करें.',
+
+              // Notifications Page
+        'notifications' => 'सूचनाएं',
+        'notifications_title' => 'सूचनाएं',
+        'mark_all_read' => 'सभी को पढ़ा हुआ चिह्नित करें',
+        'mark_read' => 'पढ़ा हुआ चिह्नित करें',
+        'unread' => 'अपठित',
+        'no_notifications' => 'अभी कोई सूचना नहीं है',
+        'equipment_delivered' => 'उपकरण पहुंचा दिया गया',
+        'equipment_returned' => 'उपकरण वापस कर दिया गया',
+        'rental_accepted' => 'किराये का अनुरोध स्वीकार किया गया',
+        'rental_rejected' => 'किराये का अनुरोध अस्वीकार किया गया',
+        'rental_completed' => 'किराया पूरा हुआ',
+        'rental_overdue' => 'किराया अतिदेय है',
+        'new_rental_request' => 'नया किराया अनुरोध',
+        'delivery_confirmation_required' => 'कृपया पुष्टि करें कि आपको उपकरण प्राप्त हो गया है।',
+        'return_confirmation_required' => 'कृपया पुष्टि करें कि उपकरण वापस ले लिया गया है।',
+        'booking_request_accepted' => 'आपका किराये का अनुरोध स्वीकार कर लिया गया है।',
+        'booking_request_rejected' => 'आपका किराये का अनुरोध अस्वीकार कर दिया गया है।',
+        'booking_completed_message' => 'डिलीवरी और वापसी दोनों की पुष्टि हो गई है। यह किराया पूरा हो गया है।',
+        'notification_default' => 'आपके पास एक नई सूचना है।',
+        'notification_request' => 'अनुरोध',
+    
+
 
 
         
