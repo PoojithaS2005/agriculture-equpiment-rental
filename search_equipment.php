@@ -43,7 +43,13 @@ $search_mode = 'specific';
 if (!empty($search_query)) {
     // Step A: Attempt a specific search using the full query phrase first
     $like_term = "%" . $search_query . "%";
-    $eq_stmt = $conn->prepare("SELECT * FROM equipment WHERE status = 'Available' AND (title LIKE ? OR category LIKE ? OR brand_model LIKE ? OR description LIKE ?) ORDER BY distance_km ASC, equipment_id DESC");
+    $eq_stmt = $conn->prepare("SELECT e.*, COALESCE(r.avg_rating, 0) AS rating, COALESCE(r.review_count, 0) AS rating_count
+        FROM equipment e
+        LEFT JOIN (
+            SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+            FROM reviews GROUP BY equipment_id
+        ) r ON r.equipment_id = e.equipment_id
+        WHERE e.status = 'Available' AND (title LIKE ? OR category LIKE ? OR brand_model LIKE ? OR description LIKE ?) ORDER BY distance_km ASC, equipment_id DESC");
     $eq_stmt->bind_param("ssss", $like_term, $like_term, $like_term, $like_term);
     $eq_stmt->execute();
     $eq_result = $eq_stmt->get_result();
@@ -71,7 +77,13 @@ if (!empty($search_query)) {
             }
 
             if (!empty($conditions)) {
-                $multi_sql = "SELECT * FROM equipment WHERE status = 'Available' AND (" . implode(' OR ', $conditions) . ") ORDER BY distance_km ASC, equipment_id DESC";
+                $multi_sql = "SELECT e.*, COALESCE(r.avg_rating, 0) AS rating, COALESCE(r.review_count, 0) AS rating_count
+        FROM equipment e
+        LEFT JOIN (
+            SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+            FROM reviews GROUP BY equipment_id
+        ) r ON r.equipment_id = e.equipment_id
+        WHERE e.status = 'Available' AND (" . implode(' OR ', $conditions) . ") ORDER BY distance_km ASC, equipment_id DESC";
                 $multi_stmt = $conn->prepare($multi_sql);
                 $multi_stmt->bind_param($types, ...$params);
                 $multi_stmt->execute();
@@ -97,7 +109,13 @@ if (!empty($search_query)) {
         }
 
         if (!empty($detected_fallback_category)) {
-            $cat_stmt = $conn->prepare("SELECT * FROM equipment WHERE status = 'Available' AND category = ? ORDER BY distance_km ASC, equipment_id DESC");
+            $cat_stmt = $conn->prepare("SELECT e.*, COALESCE(r.avg_rating, 0) AS rating, COALESCE(r.review_count, 0) AS rating_count
+        FROM equipment e
+        LEFT JOIN (
+            SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+            FROM reviews GROUP BY equipment_id
+        ) r ON r.equipment_id = e.equipment_id
+        WHERE e.status = 'Available' AND category = ? ORDER BY distance_km ASC, equipment_id DESC");
             $cat_stmt->bind_param("s", $detected_fallback_category);
             $cat_stmt->execute();
             $cat_result = $cat_stmt->get_result();

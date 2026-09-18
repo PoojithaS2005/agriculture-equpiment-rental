@@ -60,6 +60,17 @@ if ($result->num_rows === 0) {
 $booking = $result->fetch_assoc();
 $stmt->close();
 
+// Fetch the renter's review for this completed booking.
+$review = null;
+$review_stmt = $conn->prepare("SELECT review_id, rating, review_text, created_at, updated_at FROM reviews WHERE booking_id = ? AND renter_id = ? LIMIT 1");
+if ($review_stmt) {
+    $review_stmt->bind_param('ii', $booking_id, $renter_id);
+    $review_stmt->execute();
+    $review_result = $review_stmt->get_result();
+    $review = $review_result->fetch_assoc() ?: null;
+    $review_stmt->close();
+}
+
 /* =========================================================
    RENTER CONFIRMATION ACTIONS
    ========================================================= */
@@ -169,6 +180,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .main-content { margin-left: 75px; }
         }
 
+        .review-card { background:#fffdf5; border:1px solid #fde68a; border-radius:14px; padding:22px; margin-bottom:20px; }
+        .review-stars { color:#f59e0b; font-size:18px; letter-spacing:2px; }
+        .review-text { color:#334155; font-size:14px; line-height:1.6; white-space:pre-wrap; }
+        .btn-review { display:inline-flex; align-items:center; gap:7px; background:#f59e0b; color:#fff; text-decoration:none; border-radius:8px; padding:8px 14px; font-weight:800; font-size:13px; }
+        .btn-review:hover { background:#d97706; color:#fff; }
         .content-card { background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .card-title-custom { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         .card-title-custom i { color: #198754; }
@@ -258,12 +274,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li class="nav-item">
                 <a href="my_bookings.php<?php echo $lang_param; ?>" class="nav-link active">
                     <span class="nav-link-content"><i class="fa-solid fa-clock-rotate-left"></i> <span>My Bookings</span></span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="notifications.php<?php echo $lang_param; ?>" class="nav-link">
-                    <span class="nav-link-content"><i class="fa-solid fa-bell"></i> <span>Notifications</span></span>
-                    <span class="badge-count"><?php echo $notif_count; ?></span>
                 </a>
             </li>
             <li class="nav-item">
@@ -446,6 +456,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                 </div>
+
+                <!-- Your Review -->
+                <?php if ($st === 'Completed'): ?>
+                    <div class="content-card review-card">
+                        <div class="card-title-custom">
+                            <i class="fa-solid fa-star"></i> <?php echo __('your_review'); ?>
+                        </div>
+
+                        <?php if ($review): ?>
+                            <div class="review-stars" aria-label="<?php echo intval($review['rating']); ?> out of 5 stars">
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <?php echo ($i <= intval($review['rating'])) ? '★' : '☆'; ?>
+                                <?php endfor; ?>
+                                <span style="color:#475569;font-size:13px;letter-spacing:0;margin-left:8px;">
+                                    <?php echo intval($review['rating']); ?>/5
+                                </span>
+                            </div>
+                            <div class="review-text mt-3"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></div>
+                            <div class="text-muted mt-3" style="font-size:12px;font-weight:600;">
+                                <?php echo __('reviewed_on'); ?>:
+                                <?php echo date('d M Y, h:i A', strtotime($review['created_at'])); ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted fw-semibold mb-3"><?php echo __('no_review_yet'); ?></p>
+                            <a href="review_submit.php?booking_id=<?php echo urlencode($booking_id); ?><?php echo $lang_param; ?>" class="btn-review">
+                                <i class="fa-solid fa-star"></i> <?php echo __('submit_review'); ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Rental Timeline Section -->
                 <div class="content-card">

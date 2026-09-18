@@ -834,6 +834,24 @@ $translations = [
         'notification_default' => 'You have a new notification.',
         'notification_request' => 'Request',
 
+           // Ratings & Reviews
+        'submit_review' => 'Submit Review',
+        'review_submitted' => 'Review Submitted',
+        'your_review' => 'Your Review',
+        'reviewed_on' => 'Reviewed on',
+        'no_review_yet' => 'You have not submitted a review yet.',
+        'customer_reviews' => 'Customer Reviews',
+        'no_reviews_yet' => 'No reviews yet.',
+        'new_customer_review' => 'New Customer Review',
+        'new_customer_review_message' => 'A customer has submitted a new review for your equipment.',
+        'lender_reviews_subtitle' => 'View ratings and customer reviews for your equipment.',
+        'average_rating' => 'Average Rating',
+        'total_reviews' => 'Total Reviews',
+        'no_lender_reviews_message' => 'No customer reviews have been submitted for your equipment yet.',
+        'give_rating' => 'Give Rating',
+        'write_review' => 'Write Your Review',
+        'review_placeholder' => 'Share your experience with this equipment...',
+
 
 
         
@@ -1661,6 +1679,26 @@ $translations = [
         'booking_completed_message' => 'ವಿತರಣೆ ಮತ್ತು ಹಿಂತಿರುಗಿಸುವಿಕೆ ಎರಡನ್ನೂ ದೃಢೀಕರಿಸಲಾಗಿದೆ. ಈ ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ.',
         'notification_default' => 'ನಿಮಗೆ ಹೊಸ ಅಧಿಸೂಚನೆ ಇದೆ.',
         'notification_request' => 'ವಿನಂತಿ',
+
+
+        // Ratings & Reviews
+        'submit_review' => 'ವಿಮರ್ಶೆ ಸಲ್ಲಿಸಿ',
+        'review_submitted' => 'ವಿಮರ್ಶೆ ಸಲ್ಲಿಸಲಾಗಿದೆ',
+        'your_review' => 'ನಿಮ್ಮ ವಿಮರ್ಶೆ',
+        'reviewed_on' => 'ವಿಮರ್ಶಿಸಿದ ದಿನಾಂಕ',
+        'no_review_yet' => 'ನೀವು ಇನ್ನೂ ವಿಮರ್ಶೆಯನ್ನು ಸಲ್ಲಿಸಿಲ್ಲ.',
+        'customer_reviews' => 'ಗ್ರಾಹಕರ ವಿಮರ್ಶೆಗಳು',
+        'no_reviews_yet' => 'ಇನ್ನೂ ಯಾವುದೇ ವಿಮರ್ಶೆಗಳಿಲ್ಲ.',
+        'new_customer_review' => 'ಹೊಸ ಗ್ರಾಹಕರ ವಿಮರ್ಶೆ',
+        'new_customer_review_message' => 'ಗ್ರಾಹಕರು ನಿಮ್ಮ ಉಪಕರಣದ ಕುರಿತು ಹೊಸ ವಿಮರ್ಶೆಯನ್ನು ಸಲ್ಲಿಸಿದ್ದಾರೆ.',
+        'lender_reviews_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣಗಳ ರೇಟಿಂಗ್‌ಗಳು ಮತ್ತು ಗ್ರಾಹಕರ ವಿಮರ್ಶೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ.',
+        'average_rating' => 'ಸರಾಸರಿ ರೇಟಿಂಗ್',
+        'total_reviews' => 'ಒಟ್ಟು ವಿಮರ್ಶೆಗಳು',
+        'no_lender_reviews_message' => 'ನಿಮ್ಮ ಉಪಕರಣಗಳಿಗೆ ಇನ್ನೂ ಯಾವುದೇ ಗ್ರಾಹಕರ ವಿಮರ್ಶೆಗಳು ಸಲ್ಲಿಕೆಯಾಗಿಲ್ಲ.',
+        'give_rating' => 'ರೇಟಿಂಗ್ ನೀಡಿ',
+        'write_review' => 'ನಿಮ್ಮ ವಿಮರ್ಶೆಯನ್ನು ಬರೆಯಿರಿ',
+        'review_placeholder' => 'ಈ ಉಪಕರಣದೊಂದಿಗೆ ನಿಮ್ಮ ಅನುಭವವನ್ನು ಹಂಚಿಕೊಳ್ಳಿ...',
+
 
 
 ],
@@ -2493,6 +2531,24 @@ $translations = [
         'booking_completed_message' => 'डिलीवरी और वापसी दोनों की पुष्टि हो गई है। यह किराया पूरा हो गया है।',
         'notification_default' => 'आपके पास एक नई सूचना है।',
         'notification_request' => 'अनुरोध',
+
+        // Ratings & Reviews
+        'submit_review' => 'समीक्षा दें',
+        'review_submitted' => 'समीक्षा सबमिट की गई',
+        'your_review' => 'आपकी समीक्षा',
+        'reviewed_on' => 'समीक्षा की तारीख',
+        'no_review_yet' => 'आपने अभी तक कोई समीक्षा सबमिट नहीं की है।',
+        'customer_reviews' => 'ग्राहक समीक्षाएं',
+        'no_reviews_yet' => 'अभी कोई समीक्षा नहीं है।',
+        'new_customer_review' => 'नई ग्राहक समीक्षा',
+        'new_customer_review_message' => 'एक ग्राहक ने आपके उपकरण के लिए नई समीक्षा सबमिट की है।',
+        'lender_reviews_subtitle' => 'अपने उपकरणों की रेटिंग और ग्राहक समीक्षाएं देखें।',
+        'average_rating' => 'औसत रेटिंग',
+        'total_reviews' => 'कुल समीक्षाएं',
+        'no_lender_reviews_message' => 'आपके उपकरणों के लिए अभी तक कोई ग्राहक समीक्षा सबमिट नहीं की गई है।',
+        'give_rating' => 'रेटिंग दें',
+        'write_review' => 'अपनी समीक्षा लिखें',
+        'review_placeholder' => 'इस उपकरण के साथ अपना अनुभव साझा करें...',
     
 
 

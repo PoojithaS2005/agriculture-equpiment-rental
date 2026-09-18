@@ -54,6 +54,7 @@ if ($sort_by === 'oldest') {
 // Base SQL query joining bookings, equipment, and lender details from users table
 $sql = "SELECT b.*, 
                e.title AS equipment_title, e.category AS equipment_category, e.service_location, e.image AS equipment_image,
+               CASE WHEN EXISTS (SELECT 1 FROM reviews rv WHERE rv.booking_id = b.booking_id) THEN 1 ELSE 0 END AS has_review,
                u.full_name AS lender_name, u.phone AS lender_phone
         FROM bookings b
         JOIN equipment e ON b.equipment_id = e.equipment_id
@@ -109,7 +110,9 @@ $stmt->close();
         .nav-link-content { display: flex; align-items: center; gap: 14px; }
         .nav-link i { font-size: 17px; width: 20px; text-align: center; }
         .nav-link:hover, .nav-link.active { background-color: #198754; color: #fff; }
-        .nav-link:hover .badge-count, .nav-link.active .badge-count { background: #fff; color: #198754; }
+        .nav-link:hover .badge-count, .nav-link.active .btn-submit-review { background: #f59e0b; color: #fff; border: 1.5px solid #d97706; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; }
+        .btn-submit-review:hover { background: #d97706; color: #fff; }
+        .badge-count { background: #fff; color: #198754; }
 
         /* Main Content */
         .main-content { margin-left: 260px; flex: 1; padding: 20px 30px; }
@@ -156,6 +159,16 @@ $stmt->close();
         .btn-view-details { background: #fff; border: 1.5px solid #198754; color: #198754; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
         .btn-view-details:hover { background: #198754; color: #fff; }
 
+        .btn-submit-review {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+        .btn-submit-review:hover { background: #d97706; color: #fff; }
         .badge-count { background: #dc2626; color: #fff; border-radius: 50px; padding: 2px 8px; font-size: 11px; font-weight: 900; }
         .profile-avatar-btn { width: 38px; height: 38px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #334155; text-decoration: none; font-size: 16px; border: 2px solid #cbd5e1; transition: 0.2s; }
         .profile-avatar-btn:hover { background: #198754; color: #fff; border-color: #198754; }
@@ -344,6 +357,15 @@ $stmt->close();
                         <a href="booking_details.php?booking_id=<?php echo $b['booking_id']; ?><?php echo $lang_param; ?>" class="btn-view-details">
                             <i class="fa-solid fa-eye"></i> <?php echo __('view_details'); ?>
                         </a>
+                        <?php if ($st === 'Completed'): ?>
+                            <?php if (!empty($b['has_review'])): ?>
+                                <span class="text-success fw-bold mt-2" style="font-size:13px;"><i class="fa-solid fa-circle-check"></i> <?php echo __('review_submitted'); ?></span>
+                            <?php else: ?>
+                                <a href="review_submit.php?booking_id=<?php echo urlencode($b['booking_id']); ?><?php echo $lang_param ? '&lang=' . urlencode($current_lang) : ''; ?>" class="btn-submit-review">
+                                    <i class="fa-solid fa-star"></i> <?php echo __('submit_review'); ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>

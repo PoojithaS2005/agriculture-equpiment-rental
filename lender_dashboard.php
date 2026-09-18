@@ -237,7 +237,7 @@ $active_result = mysqli_query($conn, $active_query);
                 </a>
             </li>
             <li class="nav-item">
-                <a href="earnings.php" class="nav-link">
+                <a href="total_earnings.php" class="nav-link">
                     <i class="fa-solid fa-wallet"></i> <?php echo __('total_earnings'); ?>
                 </a>
             </li>

@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($update_stmt) {
 
                 $update_stmt->bind_param(
-                    "ssssii",
+                    "sssssii",
                     $new_status,
                     $new_status,
                     $new_status,

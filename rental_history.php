@@ -1492,7 +1492,7 @@ body {
                             <td>
 
                                 <a
-                                    href="booking_details.php?id=<?= urlencode($booking_id) ?>"
+                                    href="booking_details.php?booking_id=<?= urlencode($booking_id) ?><?= !empty($current_lang) ? '&lang=' . urlencode($current_lang) : '' ?>"
                                     class="view-details"
                                 >
 

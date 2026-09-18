@@ -171,4 +171,12 @@ CREATE TABLE IF NOT EXISTS `reviews` (
   CONSTRAINT `fk_reviews_lender` FOREIGN KEY (`lender_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--date: 18-09-2026
+-- changes: Ratings & Reviews migration for agri_rental_db
+-- Run after selecting agri_rental_db in phpMyAdmin.
 
+ALTER TABLE `reviews`
+    ADD UNIQUE KEY `unique_review_booking` (`booking_id`),
+    ADD KEY `idx_reviews_equipment` (`equipment_id`),
+    ADD KEY `idx_reviews_renter` (`renter_id`),
+    ADD KEY `idx_reviews_lender` (`lender_id`);
