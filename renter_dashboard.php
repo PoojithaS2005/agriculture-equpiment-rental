@@ -69,8 +69,10 @@ $recent_res = mysqli_query($conn, $recent_query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= __('renter_dashboard'); ?> - <?= __('title'); ?></title>
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
@@ -87,50 +89,6 @@ $recent_res = mysqli_query($conn, $recent_query);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-gray);
             color: #2d3748;
-        }
-
-        /* Full Sidebar Styling */
-        .sidebar {
-            width: 250px;
-            min-height: 100vh;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid #edf2f7;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            padding-top: 20px;
-        }
-
-        .sidebar .brand-logo {
-            padding: 0 20px 20px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar .brand-logo i {
-            font-size: 1.8rem;
-            color: var(--brand-green);
-        }
-
-        .sidebar .nav-link {
-            color: var(--sidebar-text);
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 0 20px 20px 0;
-            margin-bottom: 2px;
-            text-decoration: none;
-        }
-
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: var(--brand-green);
-            background-color: var(--brand-green-light);
-            font-weight: 600;
         }
 
         .main-wrapper {
@@ -201,74 +159,18 @@ $recent_res = mysqli_query($conn, $recent_query);
         .cat-box {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
         .cat-box:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
     </style>
 </head>
+
 <body>
 
-    <!-- FULL SIDEBAR -->
-    <div class="sidebar">
-        <div class="brand-logo">
-            <i class="fa-solid fa-tractor"></i>
-            <div>
-                <strong style="color: var(--brand-green); display: block; line-height: 1;">AGRICULTURE</strong>
-                <span style="font-size: 0.65rem; color: #64748b; font-weight: 700;">EQUIPMENT RENTAL SYSTEM</span>
-            </div>
-        </div>
-
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a href="renter_dashboard.php" class="nav-link active">
-                    <i class="fa-solid fa-border-all"></i> <?= __('dashboard'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="search_equipment.php" class="nav-link">
-                    <i class="fa-solid fa-magnifying-glass"></i> <?= __('search_equipment'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="categories.php" class="nav-link">
-                    <i class="fa-solid fa-layer-group"></i> <?= __('categories'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="featured_equipment.php" class="nav-link">
-                    <i class="fa-regular fa-star"></i> <?= __('featured_equipment'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="recommended.php" class="nav-link">
-                    <i class="fa-regular fa-thumbs-up"></i> <?= __('recommended'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="my_bookings.php" class="nav-link">
-                    <i class="fa-regular fa-calendar-check"></i> <?= __('my_bookings'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="rental_history.php" class="nav-link">
-                    <i class="fa-solid fa-clock-rotate-left"></i> <?= __('rental_history'); ?>
-                </a>
-            </li>
-            <li class="nav-item">
-               <a href="profile.php" class="nav-link">
-                  <i class="fa-regular fa-user"></i>
-                My Profile
-             </a>
-              </li>
-            </li>
-            <li class="nav-item mt-3">
-                <a href="logout.php" class="nav-link text-danger">
-                    <i class="fa-solid fa-right-from-bracket"></i> <?= __('logout'); ?>
-                </a>
-            </li>
-        </ul>
-    </div>
+    <!-- COMMON RENTER SIDEBAR -->
+    <?php include 'renter_sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <div class="main-wrapper">
@@ -313,6 +215,7 @@ $recent_res = mysqli_query($conn, $recent_query);
 
             <!-- LOCATION, LANGUAGE & PROFILE -->
             <div class="d-flex align-items-center gap-3">
+
                 <!-- Location Display -->
                 <div class="small text-secondary fw-semibold d-none d-lg-flex align-items-center gap-1">
                     <i class="fa-solid fa-location-dot text-danger"></i>
@@ -334,6 +237,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                 <div class="dropdown border-start ps-3">
                     <button class="btn btn-light border-0 position-relative p-2 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
                         <i class="fa-regular fa-bell text-secondary fa-lg"></i>
+
                         <?php if ($unread_count > 0): ?>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.65rem;">
                                 <?= $unread_count; ?>
@@ -342,33 +246,48 @@ $recent_res = mysqli_query($conn, $recent_query);
                     </button>
                     
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width: 320px; max-height: 350px; overflow-y: auto;">
+
                         <li class="dropdown-header fw-bold border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
                             <span class="text-dark">Notifications</span>
+
                             <?php if ($unread_count > 0): ?>
                                 <span class="badge bg-danger-subtle text-danger small"><?= $unread_count; ?> New</span>
                             <?php endif; ?>
                         </li>
 
                         <?php if ($notif_list_res && mysqli_num_rows($notif_list_res) > 0): ?>
+
                             <?php while ($notif = mysqli_fetch_assoc($notif_list_res)): ?>
+
                                 <li class="mb-1">
                                     <a class="dropdown-item rounded p-2 text-wrap small <?= ($notif['is_read'] == 0) ? 'bg-light border-start border-3 border-success fw-semibold' : 'text-muted'; ?>" href="#">
+
                                         <div class="d-flex justify-content-between align-items-center mb-1">
                                             <strong class="text-dark" style="font-size: 0.82rem;"><?= htmlspecialchars($notif['title']); ?></strong>
-                                            <span class="text-muted" style="font-size: 0.65rem;"><?= date('M d, g:i a', strtotime($notif['created_at'])); ?></span>
+
+                                            <span class="text-muted" style="font-size: 0.65rem;">
+                                                <?= date('M d, g:i a', strtotime($notif['created_at'])); ?>
+                                            </span>
                                         </div>
+
                                         <div class="text-secondary" style="font-size: 0.78rem; line-height: 1.3;">
                                             <?= htmlspecialchars($notif['message']); ?>
                                         </div>
+
                                     </a>
                                 </li>
+
                             <?php endwhile; ?>
+
                         <?php else: ?>
+
                             <li class="text-center text-muted py-4 small">
                                 <i class="fa-regular fa-bell-slash d-block fa-2x mb-2 opacity-50"></i>
                                 No notifications found
                             </li>
+
                         <?php endif; ?>
+
                     </ul>
                 </div>
 
@@ -376,116 +295,216 @@ $recent_res = mysqli_query($conn, $recent_query);
                 <div class="d-flex align-items-center gap-2 border-start ps-3">
                     <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" 
                          style="width: 36px; height: 36px; font-size: 0.9rem;">
+
                         <?= strtoupper(substr($user_info['full_name'] ?? 'P', 0, 1)); ?>
+
                     </div>
+
                     <div class="d-none d-sm-block">
-                        <div class="fw-bold small lh-1"><?= htmlspecialchars($user_info['full_name'] ?? 'Pragathi'); ?></div>
-                        <span class="text-muted" style="font-size: 0.75rem;">Renter</span>
+
+                        <div class="fw-bold small lh-1">
+                            <?= htmlspecialchars($user_info['full_name'] ?? 'Pragathi'); ?>
+                        </div>
+
+                        <span class="text-muted" style="font-size: 0.75rem;">
+                            Renter
+                        </span>
+
                     </div>
                 </div>
+
             </div>
         </div>
 
         <!-- WELCOME BANNER WITH tractor3.jpg FULL BACKGROUND -->
         <div class="welcome-banner">
             <div style="max-width: 100%;">
-                <h3 class="fw-bold mb-2"><?= __('welcome_back'); ?>, <?= htmlspecialchars($user_info['full_name'] ?? 'User'); ?> 🌿</h3>
-                <p class="mb-0 small"><?= __('find_and_rent'); ?></p>
+                <h3 class="fw-bold mb-2">
+                    <?= __('welcome_back'); ?>, <?= htmlspecialchars($user_info['full_name'] ?? 'User'); ?> 🌿
+                </h3>
+
+                <p class="mb-0 small">
+                    <?= __('find_and_rent'); ?>
+                </p>
             </div>
         </div>
 
         <!-- DYNAMIC STATS -->
         <div class="row g-3 mb-4">
+
             <div class="col-md-3">
                 <div class="stat-card d-flex align-items-center gap-3">
+
                     <div class="stat-icon-wrapper bg-success-subtle text-success">
                         <i class="fa-regular fa-calendar-check"></i>
                     </div>
+
                     <div>
-                        <div class="text-muted" style="font-size: 0.75rem;"><?= __('active_bookings'); ?></div>
-                        <h4 class="fw-bold mb-0"><?= $active_count; ?></h4>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            <?= __('active_bookings'); ?>
+                        </div>
+
+                        <h4 class="fw-bold mb-0">
+                            <?= $active_count; ?>
+                        </h4>
                     </div>
+
                 </div>
             </div>
+
             <div class="col-md-3">
                 <div class="stat-card d-flex align-items-center gap-3">
+
                     <div class="stat-icon-wrapper bg-primary-subtle text-primary">
                         <i class="fa-regular fa-clock"></i>
                     </div>
+
                     <div>
-                        <div class="text-muted" style="font-size: 0.75rem;"><?= __('upcoming_bookings'); ?></div>
-                        <h4 class="fw-bold mb-0"><?= $upcoming_count; ?></h4>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            <?= __('upcoming_bookings'); ?>
+                        </div>
+
+                        <h4 class="fw-bold mb-0">
+                            <?= $upcoming_count; ?>
+                        </h4>
                     </div>
+
                 </div>
             </div>
+
             <div class="col-md-3">
                 <div class="stat-card d-flex align-items-center gap-3">
+
                     <div class="stat-icon-wrapper bg-warning-subtle text-warning">
                         <i class="fa-solid fa-history"></i>
                     </div>
+
                     <div>
-                        <div class="text-muted" style="font-size: 0.75rem;"><?= __('completed_rentals'); ?></div>
-                        <h4 class="fw-bold mb-0"><?= $completed_count; ?></h4>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            <?= __('completed_rentals'); ?>
+                        </div>
+
+                        <h4 class="fw-bold mb-0">
+                            <?= $completed_count; ?>
+                        </h4>
                     </div>
+
                 </div>
             </div>
+
             <div class="col-md-3">
                 <div class="stat-card d-flex align-items-center gap-3">
+
                     <div class="stat-icon-wrapper bg-info-subtle text-info">
                         <i class="fa-solid fa-indian-rupee-sign"></i>
                     </div>
+
                     <div>
-                        <div class="text-muted" style="font-size: 0.75rem;"><?= __('total_spent'); ?></div>
-                        <h4 class="fw-bold mb-0">₹ <?= $total_spent; ?></h4>
+                        <div class="text-muted" style="font-size: 0.75rem;">
+                            <?= __('total_spent'); ?>
+                        </div>
+
+                        <h4 class="fw-bold mb-0">
+                            ₹ <?= $total_spent; ?>
+                        </h4>
                     </div>
+
                 </div>
             </div>
+
         </div>
 
         <!-- POPULAR CATEGORIES (WITH FLEXIBLE DYNAMIC COUNTING LOGIC) -->
+
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold mb-0"><?= __('popular_categories'); ?></h6>
-            <a href="categories.php" class="text-success small text-decoration-none fw-semibold"><?= __('view_all'); ?> →</a>
+
+            <h6 class="fw-bold mb-0">
+                <?= __('popular_categories'); ?>
+            </h6>
+
+            <a href="categories.php" class="text-success small text-decoration-none fw-semibold">
+                <?= __('view_all'); ?> →
+            </a>
+
         </div>
+
         <div class="row g-3 mb-4">
+
             <?php if ($cat_res && mysqli_num_rows($cat_res) > 0): ?>
+
                 <?php while ($cat = mysqli_fetch_assoc($cat_res)): ?>
-    <?php 
-        $cat_name = $cat['category_name'];
 
-        $q_equip = "SELECT COUNT(*) AS total 
-                    FROM equipment 
-                    WHERE category_id = " . (int)$cat['category_id'];
+                    <?php 
+                        $cat_name = $cat['category_name'];
 
-        $res_equip = mysqli_query($conn, $q_equip);
-        $row_equip = mysqli_fetch_assoc($res_equip);
+                        $q_equip = "SELECT COUNT(*) AS total 
+                                    FROM equipment 
+                                    WHERE category_id = " . (int)$cat['category_id'];
 
-        $total_equipment_count = $row_equip['total'] ?? 0;
-    ?>
+                        $res_equip = mysqli_query($conn, $q_equip);
+                        $row_equip = mysqli_fetch_assoc($res_equip);
+
+                        $total_equipment_count = $row_equip['total'] ?? 0;
+                    ?>
+
                     <div class="col-md-2 col-4">
+
                         <a href="category_items.php?category_id=<?= (int)$cat['category_id']; ?>" class="text-decoration-none text-dark d-block h-100">
+
                             <div class="bg-white border rounded p-3 text-center h-100 cat-box">
+
                                 <i class="<?= $cat['icon_class'] ?: 'fa-solid fa-gears'; ?> text-success fa-xl mb-2"></i>
-                                <div class="fw-bold small"><?= htmlspecialchars($cat_name); ?></div>
-                                <span class="text-muted" style="font-size: 0.7rem;">(<?= (int)$total_equipment_count; ?>)</span>
+
+                                <div class="fw-bold small">
+                                    <?= htmlspecialchars($cat_name); ?>
+                                </div>
+
+                                <span class="text-muted" style="font-size: 0.7rem;">
+                                    (<?= (int)$total_equipment_count; ?>)
+                                </span>
+
                             </div>
+
                         </a>
+
                     </div>
+
                 <?php endwhile; ?>
+
             <?php else: ?>
-                <div class="col-12"><div class="text-muted small p-2 bg-white rounded border text-center">No Categories Available Yet</div></div>
+
+                <div class="col-12">
+                    <div class="text-muted small p-2 bg-white rounded border text-center">
+                        No Categories Available Yet
+                    </div>
+                </div>
+
             <?php endif; ?>
+
         </div>
 
         <!-- RECENT BOOKINGS -->
+
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold mb-0"><?= __('recent_bookings'); ?></h6>
-            <a href="my_bookings.php" class="text-success small text-decoration-none fw-semibold"><?= __('view_all'); ?> →</a>
+
+            <h6 class="fw-bold mb-0">
+                <?= __('recent_bookings'); ?>
+            </h6>
+
+            <a href="my_bookings.php" class="text-success small text-decoration-none fw-semibold">
+                <?= __('view_all'); ?> →
+            </a>
+
         </div>
+
         <div class="bg-white rounded border p-3">
+
             <?php if ($recent_res && mysqli_num_rows($recent_res) > 0): ?>
+
                 <table class="table align-middle small mb-0">
+
                     <thead class="table-light">
+
                         <tr>
                             <th>Equipment</th>
                             <th>Booking ID</th>
@@ -493,39 +512,77 @@ $recent_res = mysqli_query($conn, $recent_query);
                             <th>Status</th>
                             <th>Amount</th>
                         </tr>
+
                     </thead>
+
                     <tbody>
+
                         <?php while ($row = mysqli_fetch_assoc($recent_res)): ?>
+
                             <tr>
-                                <td><strong><?= htmlspecialchars($row['equipment_name']); ?></strong></td>
-                                <td>BK<?= $row['booking_id']; ?></td>
-                                <td><?= $row['start_date']; ?> - <?= $row['end_date']; ?></td>
+
                                 <td>
+                                    <strong>
+                                        <?= htmlspecialchars($row['equipment_name']); ?>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    BK<?= $row['booking_id']; ?>
+                                </td>
+
+                                <td>
+                                    <?= $row['start_date']; ?> - <?= $row['end_date']; ?>
+                                </td>
+
+                                <td>
+
                                     <span class="badge bg-<?= ($row['status'] == 'confirmed') ? 'success' : (($row['status'] == 'pending') ? 'warning' : 'secondary'); ?>">
                                         <?= ucfirst($row['status']); ?>
                                     </span>
+
                                 </td>
-                                <td>₹ <?= number_format($row['total_amount']); ?></td>
+
+                                <td>
+                                    ₹ <?= number_format($row['total_amount']); ?>
+                                </td>
+
                             </tr>
+
                         <?php endwhile; ?>
+
                     </tbody>
+
                 </table>
+
             <?php else: ?>
+
                 <div class="text-center py-4">
+
                     <i class="fa-solid fa-folder-open text-muted fa-2x mb-2"></i>
-                    <p class="text-muted small mb-2"><?= __('no_active_rentals'); ?></p>
+
+                    <p class="text-muted small mb-2">
+                        <?= __('no_active_rentals'); ?>
+                    </p>
+
                     <a href="search_equipment.php" class="btn btn-sm btn-success fw-semibold">
-                        <i class="fa-solid fa-magnifying-glass me-1"></i> <?= __('browse_equipment'); ?>
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        <?= __('browse_equipment'); ?>
                     </a>
+
                 </div>
+
             <?php endif; ?>
+
         </div>
 
     </div>
 
     <!-- VOICE SEARCH JAVASCRIPT ENGINE -->
+
     <script>
     function startVoiceSearch() {
+
         const micBtn = document.getElementById('micBtn');
         const micIcon = document.getElementById('micIcon');
         const searchInput = document.getElementById('searchInput');
@@ -541,6 +598,7 @@ $recent_res = mysqli_query($conn, $recent_query);
         const recognition = new SpeechRecognition();
 
         const currentLang = '<?= $current_lang; ?>';
+
         if (currentLang === 'kn') {
             recognition.lang = 'kn-IN';
         } else if (currentLang === 'hi') {
@@ -554,14 +612,19 @@ $recent_res = mysqli_query($conn, $recent_query);
 
         micBtn.classList.remove('btn-success');
         micBtn.classList.add('btn-danger');
+
         micIcon.className = 'fa-solid fa-spinner fa-spin text-white';
+
         searchInput.placeholder = "Listening... Speak now...";
 
         recognition.start();
 
         recognition.onresult = function(event) {
+
             const transcript = event.results[0][0].transcript;
+
             searchInput.value = transcript;
+
             resetMicUI();
 
             setTimeout(() => {
@@ -570,8 +633,11 @@ $recent_res = mysqli_query($conn, $recent_query);
         };
 
         recognition.onerror = function(event) {
+
             console.error("Speech Recognition Error: " + event.error);
+
             alert("Could not recognize voice. Please try again.");
+
             resetMicUI();
         };
 
@@ -580,14 +646,18 @@ $recent_res = mysqli_query($conn, $recent_query);
         };
 
         function resetMicUI() {
+
             micBtn.classList.remove('btn-danger');
             micBtn.classList.add('btn-success');
+
             micIcon.className = 'fa-solid fa-microphone text-white';
+
             searchInput.placeholder = "<?= __('search_placeholder'); ?>";
         }
     }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

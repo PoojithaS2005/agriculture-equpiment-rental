@@ -13,7 +13,7 @@ if ($conn->connect_error) {
 }
 
 // Authentication Check: Ensure lender is logged in
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'lender') {
+if (!isset($_SESSION['user_id']) || strtolower(trim($_SESSION['role'] ?? '')) !== 'lender') {
     // Defaulting to lender ID 7 from your seed data for testing if session is absent
     $_SESSION['user_id'] = 7;
 }

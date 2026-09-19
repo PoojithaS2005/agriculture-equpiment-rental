@@ -1,296 +1,1570 @@
 <?php
+
 session_start();
-require_once 'includes/lang.php';
-require_once 'includes/config.php';// Reusing existing project database connection file
 
-// Authentication Check: Ensure lender is logged in
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'lender') {
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/lang.php';
+
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
-    exit();
-}
-$lender_id = $_SESSION['user_id'];
-
-// Handle Status Updates (Accept / Reject)
-if (isset($_GET['action'], $_GET['id']) && in_array($_GET['action'], ['accept', 'reject'])) {
-    $action_id = intval($_GET['id']);
-    $new_status = ($_GET['action'] === 'accept') ? 'Accepted' : 'Rejected';
-
-    $update_sql = "UPDATE bookings b 
-                   JOIN equipment e ON b.equipment_id = e.equipment_id 
-                   SET b.status = ? 
-                   WHERE b.booking_id = ? AND e.lender_id = ?";
-    $update_stmt = $conn->prepare($update_sql);
-    $update_stmt->bind_param("sii", $new_status, $action_id, $lender_id);
-    $update_stmt->execute();
-    
-    header("Location: rental_request.php");
-    exit();
+    exit;
 }
 
-// Fetch Lender Details for Dynamic Header
-$lender_query = "SELECT full_name FROM users WHERE user_id = ?";
-$lender_stmt = $conn->prepare($lender_query);
-$lender_stmt->bind_param("i", $lender_id);
-$lender_stmt->execute();
-$lender_res = $lender_stmt->get_result()->fetch_assoc();
-$lender_name = $lender_res['full_name'] ?? 'Lender';
+$user_id = $_SESSION['user_id'];
 
-// Fetch Summary Statistics dynamically
-$stats_query = "SELECT 
-    COUNT(b.booking_id) as total_requests,
-    SUM(CASE WHEN b.status = 'Pending' THEN 1 ELSE 0 END) as pending_requests,
-    SUM(CASE WHEN b.status = 'Accepted' AND MONTH(b.created_at) = MONTH(CURRENT_DATE()) AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as accepted_month,
-    SUM(CASE WHEN b.status = 'Rejected' AND MONTH(b.created_at) = MONTH(CURRENT_DATE()) AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as rejected_month
+$allowed_languages = ['en', 'kn', 'hi'];
+
+if (isset($_GET['lang'])) {
+
+    $selected_lang = $_GET['lang'];
+
+    if (in_array($selected_lang, $allowed_languages, true)) {
+        $_SESSION['lang'] = $selected_lang;
+    }
+
+    header("Location: rental_history.php");
+    exit;
+}
+
+$current_lang = $_SESSION['lang'] ?? 'en';
+
+if (!in_array($current_lang, $allowed_languages, true)) {
+    $current_lang = 'en';
+    $_SESSION['lang'] = 'en';
+}
+
+function tr($key, $default = '')
+{
+    global $translations, $current_lang;
+
+    if (isset($translations[$current_lang][$key])) {
+        return $translations[$current_lang][$key];
+    }
+
+    if (isset($translations['en'][$key])) {
+        return $translations['en'][$key];
+    }
+
+    return $default !== '' ? $default : $key;
+}
+
+$user_name = $_SESSION['name'] ?? $_SESSION['full_name'] ?? 'Renter';
+$user_location = $_SESSION['location'] ?? '';
+
+$user_sql = "SELECT * FROM users WHERE user_id = ?";
+
+$user_stmt = mysqli_prepare($conn, $user_sql);
+
+if ($user_stmt) {
+
+    mysqli_stmt_bind_param($user_stmt, "i", $user_id);
+    mysqli_stmt_execute($user_stmt);
+
+    $user_result = mysqli_stmt_get_result($user_stmt);
+
+    if ($user = mysqli_fetch_assoc($user_result)) {
+
+        if (!empty($user['full_name'])) {
+            $user_name = $user['full_name'];
+        }
+
+        if (isset($user['location']) && !empty($user['location'])) {
+            $user_location = $user['location'];
+        } elseif (isset($user['address']) && !empty($user['address'])) {
+            $user_location = $user['address'];
+        } elseif (isset($user['city']) && !empty($user['city'])) {
+            $user_location = $user['city'];
+        }
+    }
+
+    mysqli_stmt_close($user_stmt);
+}
+
+if (empty($user_location)) {
+    $user_location = tr('location_not_set', 'Location not set');
+}
+
+$user_initial = 'R';
+
+if (!empty($user_name)) {
+    $user_initial = mb_strtoupper(
+        mb_substr(trim($user_name), 0, 1, 'UTF-8'),
+        'UTF-8'
+    );
+}
+
+$bookings = [];
+
+$booking_sql = "
+    SELECT
+        b.*,
+        e.title AS equipment_title,
+        e.category AS equipment_category,
+        e.image AS equipment_image
     FROM bookings b
-    JOIN equipment e ON b.equipment_id = e.equipment_id
-    WHERE e.lender_id = ?";
-$stats_stmt = $conn->prepare($stats_query);
-$stats_stmt->bind_param("i", $lender_id);
-$stats_stmt->execute();
-$stats = $stats_stmt->get_result()->fetch_assoc();
+    LEFT JOIN equipment e
+        ON b.equipment_id = e.equipment_id
+    WHERE b.renter_id = ?
+    ORDER BY b.booking_id DESC
+";
+
+$booking_stmt = mysqli_prepare($conn, $booking_sql);
+
+if ($booking_stmt) {
+
+    mysqli_stmt_bind_param($booking_stmt, "i", $user_id);
+    mysqli_stmt_execute($booking_stmt);
+
+    $booking_result = mysqli_stmt_get_result($booking_stmt);
+
+    while ($booking = mysqli_fetch_assoc($booking_result)) {
+        $bookings[] = $booking;
+    }
+
+    mysqli_stmt_close($booking_stmt);
+}
+
+function getBookingValue($row, $keys, $default = '')
+{
+    foreach ($keys as $key) {
+
+        if (isset($row[$key]) && $row[$key] !== '') {
+            return $row[$key];
+        }
+    }
+
+    return $default;
+}
+
+function getEquipmentImage($image)
+{
+    if (empty($image)) {
+        return '';
+    }
+
+    $image = str_replace('\\', '/', trim($image));
+
+    if (
+        strpos($image, 'http://') === 0 ||
+        strpos($image, 'https://') === 0
+    ) {
+        return $image;
+    }
+
+    $filename = basename($image);
+
+    $possible_files = [
+        __DIR__ . '/' . $image,
+        __DIR__ . '/images/' . $filename,
+        __DIR__ . '/uploads/' . $filename,
+        __DIR__ . '/uploads/equipment/' . $filename
+    ];
+
+    foreach ($possible_files as $file) {
+
+        if (file_exists($file)) {
+
+            $file = str_replace('\\', '/', $file);
+
+            if (strpos($file, '/uploads/equipment/') !== false) {
+                return 'uploads/equipment/' . $filename;
+            }
+
+            if (strpos($file, '/uploads/') !== false) {
+                return 'uploads/' . $filename;
+            }
+
+            if (strpos($file, '/images/') !== false) {
+                return 'images/' . $filename;
+            }
+
+            return $image;
+        }
+    }
+
+    return '';
+}
+
+function formatBookingDate($date)
+{
+    if (empty($date)) {
+        return '';
+    }
+
+    $timestamp = strtotime($date);
+
+    if ($timestamp === false) {
+        return $date;
+    }
+
+    return date('d M Y', $timestamp);
+}
+
+function formatBookingTime($date)
+{
+    if (empty($date)) {
+        return '';
+    }
+
+    $timestamp = strtotime($date);
+
+    if ($timestamp === false) {
+        return '';
+    }
+
+    return date('h:i A', $timestamp);
+}
+
+function calculateDays($start_date, $end_date)
+{
+    if (empty($start_date) || empty($end_date)) {
+        return 0;
+    }
+
+    $start = strtotime($start_date);
+    $end = strtotime($end_date);
+
+    if ($start === false || $end === false) {
+        return 0;
+    }
+
+    $days = floor(($end - $start) / 86400) + 1;
+
+    return max(1, $days);
+}
+
+function getStatusClass($status)
+{
+    $status = strtolower(trim($status));
+
+    if (
+        $status === 'completed' ||
+        $status === 'complete'
+    ) {
+        return 'status-completed';
+    }
+
+    if (
+        $status === 'cancelled' ||
+        $status === 'canceled'
+    ) {
+        return 'status-cancelled';
+    }
+
+    if (
+        $status === 'pending'
+    ) {
+        return 'status-pending';
+    }
+
+    if (
+        $status === 'confirmed' ||
+        $status === 'approved'
+    ) {
+        return 'status-confirmed';
+    }
+
+    if (
+        $status === 'ongoing' ||
+        $status === 'active'
+    ) {
+        return 'status-ongoing';
+    }
+
+    return 'status-pending';
+}
+
 ?>
+
 <!DOCTYPE html>
-<html lang="<?php echo $current_lang; ?>">
+<html lang="<?= htmlspecialchars($current_lang) ?>">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo __('page_title_rental_requests'); ?> - Agriculture Equipment Rental System</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f8f9fa; color: #333; }
-        .main-header { background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0; z-index: 1000; }
-        .logo-container { display: flex; align-items: center; gap: 10px; color: #2e7d32; font-weight: bold; font-size: 18px; }
-        .logo-icon { font-size: 24px; }
-        .logo-title small { display: block; font-size: 9px; color: #666; letter-spacing: 1px; }
-        .header-right-controls { display: flex; align-items: center; gap: 20px; }
-        .language-selector select { padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background-color: #fff; font-size: 13px; color: #333; cursor: pointer; outline: none; }
-        .user-profile-menu { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
-        .user-info .user-name { display: block; font-size: 13px; font-weight: bold; }
-        .user-info .user-role { font-size: 11px; color: #666; }
-        .dashboard-container { display: flex; min-height: calc(100vh - 65px); }
-        .sidebar { width: 240px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; }
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #333; text-decoration: none; font-size: 14px; transition: 0.2s; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { background: #e8f5e9; color: #2e7d32; font-weight: 500; border-left: 4px solid #2e7d32; }
-        .sidebar-menu li.logout-item { margin-top: 20px; border-top: 1px solid #eee; }
-        .main-content { flex: 1; padding: 25px; background: #f8f9fa; overflow-x: auto; }
-        .content-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .content-header-row h1 { font-size: 22px; color: #222; }
-        .content-header-row p { font-size: 13px; color: #666; }
-        .header-filters { display: flex; gap: 10px; align-items: center; }
-        .filter-select, .search-box { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; outline: none; background: white; }
-        .stats-cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 20px; border-radius: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .stat-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
-        .bg-green { background: #2e7d32; }
-        .bg-blue { background: #1976d2; }
-        .bg-orange { background: #f57c00; }
-        .bg-red { background: #c62828; }
-        .stat-title { font-size: 12px; color: #666; display: block; }
-        .stat-value { font-size: 18px; font-weight: bold; color: #222; margin: 3px 0; }
-        .stat-desc { font-size: 11px; color: #888; }
-        .table-card { background: white; border-radius: 10px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.02); overflow: hidden; }
-        .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        .data-table th { background: #fafafa; padding: 15px; font-weight: 600; color: #555; border-bottom: 1px solid #eee; }
-        .data-table td { padding: 15px; border-bottom: 1px solid #f1f1f1; vertical-align: middle; }
-        .table-equipment-info { display: flex; align-items: center; gap: 12px; }
-        .eq-thumb { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; border: 1px solid #eee; }
-        .badge-status { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; }
-        .status-pending { background: #fff3e0; color: #f57c00; }
-        .status-accepted { background: #e8f5e9; color: #2e7d32; }
-        .status-rejected { background: #ffebee; color: #c62828; }
-        .action-buttons { display: flex; gap: 6px; }
-        .btn-action { padding: 6px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; border: 1px solid #ddd; background: white; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
-        .btn-accept { color: #2e7d32; border-color: #c8e6c9; background: #e8f5e9; }
-        .btn-reject { color: #c62828; border-color: #ffcdd2; background: #ffebee; }
-        .btn-view { color: #1976d2; border-color: #bbdefb; background: #e3f2fd; }
-        .pagination-footer { padding: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #666; background: #fafafa; border-top: 1px solid #eee; }
-    </style>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+<?= htmlspecialchars(tr('rental_history', 'Rental History')) ?>
+</title>
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f8fafb;
+    color: #172033;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 270px;
+    height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding: 24px 18px;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    padding-left: 5px;
+}
+
+.logo-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+}
+
+.logo-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-text {
+    color: #168b45;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 20px;
+}
+
+.logo-sub {
+    color: #555;
+    font-size: 8px;
+    margin-top: 3px;
+    letter-spacing: 0.2px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-item {
+    width: 100%;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #172033;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #eef8f1;
+    color: #168b45;
+}
+
+.nav-item.active {
+    background: #3d9d3f;
+    color: white;
+}
+
+.nav-icon {
+    width: 21px;
+    min-width: 21px;
+    height: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 17px;
+    line-height: 1;
+}
+
+.nav-text {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.notification-count {
+    width: 21px;
+    height: 21px;
+    min-width: 21px;
+    border-radius: 50%;
+    background: #46a447;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    margin-left: auto;
+}
+
+.nav-item.active .notification-count {
+    background: white;
+    color: #3d9d3f;
+}
+
+.main {
+    margin-left: 270px;
+    min-height: 100vh;
+}
+
+.topbar {
+    height: 80px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 25px;
+    padding: 0 35px;
+}
+
+.location {
+    color: #555;
+    font-size: 13px;
+}
+
+.language {
+    position: relative;
+}
+
+.language-button {
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    padding: 9px 13px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.language-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    width: 150px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.language:hover .language-menu {
+    display: block;
+}
+
+.language-menu a {
+    display: block;
+    padding: 12px 14px;
+    text-decoration: none;
+    color: #333;
+    font-size: 13px;
+}
+
+.language-menu a:hover {
+    background: #eef8f1;
+    color: #168b45;
+}
+
+.profile-link {
+    text-decoration: none;
+    color: #172033;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: #168b45;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.profile-name {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.profile-role {
+    color: #777;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+.content {
+    padding: 30px 35px 40px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    font-size: 13px;
+}
+
+.breadcrumb a {
+    color: #168b45;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-arrow {
+    color: #999;
+}
+
+.breadcrumb-current {
+    color: #555;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.page-title h1 {
+    font-size: 27px;
+    margin-bottom: 7px;
+}
+
+.page-title p {
+    color: #666;
+    font-size: 14px;
+}
+
+.status-filter {
+    position: relative;
+}
+
+.status-filter select {
+    min-width: 135px;
+    padding: 10px 13px;
+    border: 1px solid #dfe3e8;
+    border-radius: 7px;
+    background: white;
+    color: #333;
+    font-size: 13px;
+    outline: none;
+}
+
+.history-box {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th {
+    text-align: left;
+    padding: 13px 10px;
+    background: #ffffff;
+    color: #333;
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.history-table td {
+    padding: 13px 10px;
+    border-bottom: 1px solid #edf0f2;
+    vertical-align: middle;
+    font-size: 11px;
+}
+
+.history-table tr:last-child td {
+    border-bottom: none;
+}
+
+.equipment-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+}
+
+.equipment-image {
+    width: 48px;
+    height: 42px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #f1f4f1;
+    border: 1px solid #e4e7e4;
+}
+
+.equipment-placeholder {
+    width: 48px;
+    height: 42px;
+    border-radius: 6px;
+    background: #f1f4f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.equipment-info {
+    min-width: 0;
+}
+
+.equipment-name {
+    font-weight: bold;
+    color: #172033;
+    margin-bottom: 5px;
+    font-size: 11px;
+}
+
+.equipment-category {
+    color: #777;
+    font-size: 9px;
+}
+
+.booking-id {
+    color: #333;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.rental-period {
+    line-height: 17px;
+    white-space: nowrap;
+}
+
+.rental-period strong {
+    font-weight: bold;
+}
+
+.rental-days {
+    color: #666;
+    font-size: 9px;
+}
+
+.total-amount {
+    font-weight: bold;
+    color: #172033;
+    white-space: nowrap;
+}
+
+.advance {
+    color: #777;
+    font-size: 9px;
+    margin-top: 4px;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.status-completed {
+    background: #eaf6e9;
+    color: #338b35;
+}
+
+.status-cancelled {
+    background: #fdeaea;
+    color: #c84b4b;
+}
+
+.status-pending {
+    background: #fff5d9;
+    color: #b78300;
+}
+
+.status-confirmed {
+    background: #e9f3ff;
+    color: #3275b7;
+}
+
+.status-ongoing {
+    background: #e9f8ef;
+    color: #168b45;
+}
+
+.booked-on {
+    white-space: nowrap;
+    line-height: 16px;
+}
+
+.booked-time {
+    color: #777;
+    font-size: 9px;
+}
+
+.view-details {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: 82px;
+    padding: 7px 9px;
+    border: 1px solid #b9d4b9;
+    border-radius: 6px;
+    background: white;
+    color: #438643;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.view-details:hover {
+    background: #eef8f1;
+    border-color: #8dbb8d;
+}
+
+.empty {
+    padding: 65px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 45px;
+    margin-bottom: 15px;
+}
+
+.empty h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.empty p {
+    color: #777;
+    font-size: 13px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    border-top: 1px solid #edf0f2;
+}
+
+.page-button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #dfe3e8;
+    border-radius: 5px;
+    background: white;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.page-button:hover {
+    background: #eef8f1;
+    color: #168b45;
+}
+
+.page-button.active {
+    background: #46a447;
+    border-color: #46a447;
+    color: white;
+}
+
+.page-arrow {
+    font-size: 16px;
+}
+
+@media (max-width: 1100px) {
+
+    .sidebar {
+        width: 230px;
+    }
+
+    .main {
+        margin-left: 230px;
+    }
+
+    .content {
+        padding: 25px;
+    }
+
+    .history-box {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        min-width: 900px;
+    }
+
+}
+
+@media (max-width: 750px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+    }
+
+    .topbar {
+        padding: 0 15px;
+        gap: 10px;
+    }
+
+    .location {
+        display: none;
+    }
+
+    .content {
+        padding: 20px 15px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .status-filter {
+        width: 100%;
+    }
+
+    .status-filter select {
+        width: 100%;
+    }
+
+}
+
+</style>
+
 </head>
+
 <body>
-    <header class="main-header">
-        <div class="logo-container">
-            <i class="fa-solid fa-tractor logo-icon"></i>
-            <span class="logo-title">AGRICULTURE <small>EQUIPMENT RENTAL SYSTEM</small></span>
-        </div>
-        <div class="header-right-controls">
-            <div class="language-selector">
-                <select id="langSelect" onchange="window.location.href='?lang=' + this.value">
-                    <option value="en" <?php echo ($current_lang == 'en') ? 'selected' : ''; ?>>English</option>
-                    <option value="kn" <?php echo ($current_lang == 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ</option>
-                    <option value="hi" <?php echo ($current_lang == 'hi') ? 'selected' : ''; ?>>हिंदी</option>
-                </select>
-            </div>
-            <div class="user-profile-menu">
-                <img src="assets/images/default_avatar.png" alt="Profile" class="avatar">
-                <div class="user-info">
-                    <span class="user-name"><?php echo htmlspecialchars($lender_name); ?></span>
-                    <span class="user-role"><?php echo __('lender_role'); ?></span>
-                </div>
+
+<div class="sidebar">
+        <div class="brand-logo">
+            <i class="fa-solid fa-tractor"></i>
+            <div>
+                <strong style="color: var(--brand-green); display: block; line-height: 1;">AGRICULTURE</strong>
+                <span style="font-size: 0.65rem; color: #64748b; font-weight: 700;">EQUIPMENT RENTAL SYSTEM</span>
             </div>
         </div>
-    </header>
 
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="lender_dashboard.php"><i class="fa-solid fa-chart-pie"></i> <span><?php echo __('menu_dashboard'); ?></span></a></li>
-                <li><a href="add_item.php"><i class="fa-solid fa-plus"></i> <span><?php echo __('menu_add_equipment'); ?></span></a></li>
-                <li><a href="my_equipment.php"><i class="fa-solid fa-tractor"></i> <span><?php echo __('menu_my_equipment'); ?></span></a></li>
-                <li class="active"><a href="rental_request.php"><i class="fa-solid fa-star"></i> <span><?php echo __('menu_rental_requests'); ?></span></a></li>
-                <li><a href="active_rentals.php"><i class="fa-solid fa-calendar-check"></i> <span><?php echo __('menu_active_rentals'); ?></span></a></li>
-                <li><a href="rental_history.php"><i class="fa-solid fa-clock-rotate-left"></i> <span><?php echo __('menu_rental_history'); ?></span></a></li>
-                <li><a href="profile.php"><i class="fa-solid fa-user"></i> <span><?php echo __('menu_profile'); ?></span></a></li>
-                <li class="logout-item"><a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> <span><?php echo __('menu_logout'); ?></span></a></li>
-            </ul>
-        </aside>
-
-        <main class="main-content">
-            <div class="content-header-row">
-                <div>
-                    <h1><?php echo __('page_title_rental_requests'); ?></h1>
-                    <p><?php echo __('page_subtitle_rental_requests'); ?></p>
-                </div>
-                <div class="header-filters">
-                    <input type="text" id="tableSearch" class="search-box" placeholder="Search request..." onkeyup="filterTable()">
-                    <select class="filter-select">
-                        <option><?php echo __('filter_all_requests'); ?></option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="stats-cards-grid">
-                <div class="stat-card">
-                    <div class="stat-icon bg-blue"><i class="fa-solid fa-clipboard-list"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_total_requests'); ?></span>
-                        <h2 class="stat-value"><?php echo $stats['total_requests'] ?? 0; ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_all_time'); ?></span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon bg-orange"><i class="fa-solid fa-clock"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_pending_requests'); ?></span>
-                        <h2 class="stat-value"><?php echo $stats['pending_requests'] ?? 0; ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_awaiting_response'); ?></span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon bg-green"><i class="fa-solid fa-check"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_accepted_requests'); ?></span>
-                        <h2 class="stat-value"><?php echo $stats['accepted_month'] ?? 0; ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_this_month'); ?></span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon bg-red"><i class="fa-solid fa-xmark"></i></div>
-                    <div class="stat-details">
-                        <span class="stat-title"><?php echo __('stat_rejected_requests'); ?></span>
-                        <h2 class="stat-value"><?php echo $stats['rejected_month'] ?? 0; ?></h2>
-                        <span class="stat-desc"><?php echo __('stat_this_month'); ?></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-card">
-                <table class="data-table" id="requestsTable">
-                    <thead>
-                        <tr>
-                            <th><?php echo __('table_col_request_id'); ?></th>
-                            <th><?php echo __('table_col_equipment'); ?></th>
-                            <th><?php echo __('table_col_renter'); ?></th>
-                            <th><?php echo __('table_col_rental_period'); ?></th>
-                            <th><?php echo __('table_col_days'); ?></th>
-                            <th><?php echo __('table_col_total_amount'); ?></th>
-                            <th><?php echo __('table_col_status'); ?></th>
-                            <th><?php echo __('table_col_requested_on'); ?></th>
-                            <th><?php echo __('table_col_action'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $sql = "SELECT b.*, e.title as eq_title, e.category as eq_cat, e.image as eq_image, 
-                                       u.full_name as renter_name, u.phone as renter_phone 
-                                FROM bookings b 
-                                JOIN equipment e ON b.equipment_id = e.equipment_id 
-                                JOIN users u ON b.renter_id = u.user_id 
-                                WHERE e.lender_id = ? 
-                                ORDER BY b.booking_id DESC";
-                        $stmt = $conn->prepare($sql);
-                        $stmt->bind_param("i", $lender_id);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $total_rows = $result->num_rows;
-
-                        if ($total_rows > 0) {
-                            while($row = $result->fetch_assoc()) {
-                                $status_class = 'status-pending';
-                                if ($row['status'] === 'Accepted') $status_class = 'status-accepted';
-                                if ($row['status'] === 'Rejected') $status_class = 'status-rejected';
-                        ?>
-                        <tr>
-                            <td><strong>REQ<?php echo $row['booking_id']; ?></strong></td>
-                            <td>
-                                <div class="table-equipment-info">
-                                    <img src="uploads/<?php echo htmlspecialchars($row['eq_image']); ?>" alt="Equipment" class="eq-thumb" onerror="this.src='assets/images/default.png'">
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($row['eq_title']); ?></strong><br>
-                                        <small><?php echo htmlspecialchars($row['eq_cat']); ?></small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    <span><i class="fa-regular fa-user"></i> <?php echo htmlspecialchars($row['renter_name']); ?></span><br>
-                                    <small><i class="fa-solid fa-phone"></i> <?php echo htmlspecialchars($row['renter_phone']); ?></small>
-                                </div>
-                            </td>
-                            <td><?php echo date('M d', strtotime($row['start_date'])) . ' – ' . date('M d, Y', strtotime($row['end_date'])); ?></td>
-                            <td><?php echo $row['total_days']; ?></td>
-                            <td>₹<?php echo number_format($row['total_amount'], 2); ?></td>
-                            <td><span class="badge-status <?php echo $status_class; ?>"><?php echo $row['status']; ?></span></td>
-                            <td><?php echo date('M d, Y h:i A', strtotime($row['created_at'] ?? 'now')); ?></td>
-                            <td>
-                                <div class="action-buttons">
-                                    <?php if ($row['status'] === 'Pending'): ?>
-                                        <a href="rental_request.php?action=accept&id=<?php echo $row['booking_id']; ?>" class="btn-action btn-accept"><i class="fa-solid fa-check"></i></a>
-                                        <a href="rental_request.php?action=reject&id=<?php echo $row['booking_id']; ?>" class="btn-action btn-reject"><i class="fa-solid fa-xmark"></i></a>
-                                    <?php endif; ?>
-                                   <a href="lender_booking_details.php?booking_id=<?php echo $row['booking_id']; ?>" class="btn-action btn-view">
-    <i class="fa-regular fa-eye"></i>
-</a>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php 
-                            }
-                        } else {
-                            echo '<tr><td colspan="9" style="text-align:center; padding: 25px;">' . __('no_rental_requests') . '</td></tr>';
-                        }
-                        ?>
-                    </tbody>
-                </table>
-                <div class="pagination-footer">
-                    <span><?php echo "Showing 1 to {$total_rows} of {$total_rows} requests"; ?></span>
-                </div>
-            </div>
-        </main>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="renter_dashboard.php" class="nav-link">
+                    <i class="fa-solid fa-border-all"></i> <?= __('dashboard'); ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="search_equipment.php" class="nav-link">
+                    <i class="fa-solid fa-magnifying-glass"></i> <?= __('search_equipment'); ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.php" class="nav-link">
+                    <i class="fa-solid fa-layer-group"></i> <?= __('categories'); ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="notifications.php" class="nav-link">
+                    <i class="fa-regular fa-bell"></i> Notifications
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="recommended.php" class="nav-link">
+                    <i class="fa-regular fa-thumbs-up"></i> <?= __('recommended'); ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="my_bookings.php" class="nav-link">
+                    <i class="fa-regular fa-calendar-check"></i> <?= __('my_bookings'); ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="rental_history.php" class="nav-link active">
+                    <i class="fa-solid fa-clock-rotate-left"></i> <?= __('rental_history'); ?>
+                </a>
+            </li>
+            <li class="nav-item">
+               <a href="profile.php" class="nav-link">
+                  <i class="fa-regular fa-user"></i>
+                My Profile
+             </a>
+              </li>
+            </li>
+            <li class="nav-item mt-3">
+                <a href="logout.php" class="nav-link text-danger">
+                    <i class="fa-solid fa-right-from-bracket"></i> <?= __('logout'); ?>
+                </a>
+            </li>
+        </ul>
     </div>
 
-    <script>
-        function filterTable() {
-            let input = document.getElementById("tableSearch").value.toLowerCase();
-            let table = document.getElementById("requestsTable");
-            let tr = table.getElementsByTagName("tr");
-            for (let i = 1; i < tr.length; i++) {
-                let text = tr[i].textContent || tr[i].innerText;
-                tr[i].style.display = text.toLowerCase().indexOf(input) > -1 ? "" : "none";
+<div class="main">
+
+    <div class="topbar">
+
+        <div class="location">
+
+            📍 <?= htmlspecialchars($user_location) ?>
+
+        </div>
+
+        <div class="language">
+
+            <button class="language-button">
+
+                🌐
+
+                <?php
+
+                if ($current_lang === 'kn') {
+                    echo 'ಕನ್ನಡ';
+                } elseif ($current_lang === 'hi') {
+                    echo 'हिन्दी';
+                } else {
+                    echo 'English';
+                }
+
+                ?>
+
+                ▾
+
+            </button>
+
+            <div class="language-menu">
+
+                <a href="rental_history.php?lang=en">
+                     English
+                </a>
+
+                <a href="rental_history.php?lang=kn">
+                     ಕನ್ನಡ
+                </a>
+
+                <a href="rental_history.php?lang=hi">
+                     हिन्दी
+                </a>
+
+            </div>
+
+        </div>
+
+        <a href="profile.php" class="profile-link">
+
+            <div class="profile">
+
+                <div class="profile-icon">
+                    <?= htmlspecialchars($user_initial) ?>
+                </div>
+
+                <div>
+
+                    <div class="profile-name">
+                        <?= htmlspecialchars($user_name) ?>
+                    </div>
+
+                    <div class="profile-role">
+                        <?= htmlspecialchars(tr('renter', 'Renter')) ?>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+    <div class="content">
+
+        <div class="breadcrumb">
+
+            <a href="renter_dashboard.php">
+                <?= htmlspecialchars(tr('home', 'Home')) ?>
+            </a>
+
+            <span class="breadcrumb-arrow">
+                ›
+            </span>
+
+            <span class="breadcrumb-current">
+                <?= htmlspecialchars(tr('rental_history', 'Rental History')) ?>
+            </span>
+
+        </div>
+
+        <div class="page-header">
+
+            <div class="page-title">
+
+                <h1>
+                    <?= htmlspecialchars(tr('rental_history', 'Rental History')) ?>
+                </h1>
+
+                <p>
+                    <?= htmlspecialchars(
+                        tr(
+                            'rental_history_description',
+                            'View your past bookings and rental activities.'
+                        )
+                    ) ?>
+                </p>
+
+            </div>
+
+            <div class="status-filter">
+
+                <select id="statusFilter">
+
+                    <option value="all">
+                        <?= htmlspecialchars(tr('all_status', 'All Status')) ?>
+                    </option>
+
+                    <option value="completed">
+                        <?= htmlspecialchars(tr('completed', 'Completed')) ?>
+                    </option>
+
+                    <option value="confirmed">
+                        <?= htmlspecialchars(tr('confirmed', 'Confirmed')) ?>
+                    </option>
+
+                    <option value="pending">
+                        <?= htmlspecialchars(tr('pending', 'Pending')) ?>
+                    </option>
+
+                    <option value="cancelled">
+                        <?= htmlspecialchars(tr('cancelled', 'Cancelled')) ?>
+                    </option>
+
+                    <option value="ongoing">
+                        <?= htmlspecialchars(tr('ongoing', 'Ongoing')) ?>
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="history-box">
+
+            <?php if (count($bookings) > 0): ?>
+
+                <table class="history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                <?= htmlspecialchars(tr('equipment', 'Equipment')) ?>
+                            </th>
+
+                            <th>
+                                <?= htmlspecialchars(tr('booking_id', 'Booking ID')) ?>
+                            </th>
+
+                            <th>
+                                <?= htmlspecialchars(tr('rental_period', 'Rental Period')) ?>
+                            </th>
+
+                            <th>
+                                <?= htmlspecialchars(tr('total_amount', 'Total Amount')) ?>
+                            </th>
+
+                            <th>
+                                <?= htmlspecialchars(tr('status', 'Status')) ?>
+                            </th>
+
+                            <th>
+                                <?= htmlspecialchars(tr('booked_on', 'Booked On')) ?>
+                            </th>
+
+                            <th>
+                                <?= htmlspecialchars(tr('action', 'Action')) ?>
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="bookingTableBody">
+
+                    <?php foreach ($bookings as $row): ?>
+
+                        <?php
+
+                        $booking_id = getBookingValue(
+                            $row,
+                            ['booking_id', 'id'],
+                            0
+                        );
+
+                        $equipment_id = getBookingValue(
+                            $row,
+                            ['equipment_id'],
+                            0
+                        );
+
+                        $equipment_name = getBookingValue(
+                            $row,
+                            [
+                                'equipment_title',
+                                'title',
+                                'equipment_name'
+                            ],
+                            'Agricultural Equipment'
+                        );
+
+                        $equipment_category = getBookingValue(
+                            $row,
+                            [
+                                'equipment_category',
+                                'category'
+                            ],
+                            'Agricultural Equipment'
+                        );
+
+                        $equipment_image = getEquipmentImage(
+                            getBookingValue(
+                                $row,
+                                ['equipment_image', 'image'],
+                                ''
+                            )
+                        );
+
+                        $start_date = getBookingValue(
+                            $row,
+                            [
+                                'start_date',
+                                'rental_start',
+                                'from_date',
+                                'booking_start',
+                                'rent_from'
+                            ],
+                            ''
+                        );
+
+                        $end_date = getBookingValue(
+                            $row,
+                            [
+                                'end_date',
+                                'rental_end',
+                                'to_date',
+                                'booking_end',
+                                'rent_to'
+                            ],
+                            ''
+                        );
+
+                        $total_amount = getBookingValue(
+                            $row,
+                            [
+                                'total_amount',
+                                'total_price',
+                                'amount',
+                                'total'
+                            ],
+                            0
+                        );
+
+                        $advance = getBookingValue(
+                            $row,
+                            [
+                                'advance_amount',
+                                'advance',
+                                'deposit'
+                            ],
+                            0
+                        );
+
+                        $status = getBookingValue(
+                            $row,
+                            ['status', 'booking_status'],
+                            'Pending'
+                        );
+
+                        $booked_on = getBookingValue(
+                            $row,
+                            [
+                                'created_at',
+                                'booked_on',
+                                'booking_date',
+                                'created_date'
+                            ],
+                            ''
+                        );
+
+                        $days = calculateDays(
+                            $start_date,
+                            $end_date
+                        );
+
+                        $status_class = getStatusClass($status);
+
+                        ?>
+
+                        <tr
+                            class="booking-row"
+                            data-status="<?= htmlspecialchars(strtolower($status)) ?>"
+                        >
+
+                            <td>
+
+                                <div class="equipment-cell">
+
+                                    <?php if (!empty($equipment_image)): ?>
+
+                                        <img
+                                            src="<?= htmlspecialchars($equipment_image) ?>"
+                                            class="equipment-image"
+                                            alt="<?= htmlspecialchars($equipment_name) ?>"
+                                        >
+
+                                    <?php else: ?>
+
+                                        <div class="equipment-placeholder">
+                                            🚜
+                                        </div>
+
+                                    <?php endif; ?>
+
+                                    <div class="equipment-info">
+
+                                        <div class="equipment-name">
+                                            <?= htmlspecialchars($equipment_name) ?>
+                                        </div>
+
+                                        <div class="equipment-category">
+
+                                            <?= htmlspecialchars(
+                                                tr('category', 'Category')
+                                            ) ?>:
+
+                                            <?= htmlspecialchars($equipment_category) ?>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <div class="booking-id">
+
+                                    <?php
+                                    echo 'REQ-' . strtoupper(
+                                        substr(
+                                            md5((string)$booking_id),
+                                            0,
+                                            6
+                                        )
+                                    );
+                                    ?>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <div class="rental-period">
+
+                                    <?php if (!empty($start_date)): ?>
+
+                                        <strong>
+                                            <?= htmlspecialchars(
+                                                formatBookingDate($start_date)
+                                            ) ?>
+                                        </strong>
+
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($end_date)): ?>
+
+                                        <br>
+
+                                        <strong>
+                                            <?= htmlspecialchars(
+                                                formatBookingDate($end_date)
+                                            ) ?>
+                                        </strong>
+
+                                    <?php endif; ?>
+
+                                    <?php if ($days > 0): ?>
+
+                                        <div class="rental-days">
+
+                                            (
+                                            <?= htmlspecialchars($days) ?>
+
+                                            <?= htmlspecialchars(
+                                                tr('days', 'Days')
+                                            ) ?>
+
+                                            )
+
+                                        </div>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <div class="total-amount">
+
+                                    ₹<?= number_format(
+                                        (float)$total_amount,
+                                        0
+                                    ) ?>
+
+                                </div>
+
+                                <?php if ((float)$advance > 0): ?>
+
+                                    <div class="advance">
+
+                                        <?= htmlspecialchars(
+                                            tr('advance', 'Advance')
+                                        ) ?>:
+
+                                        ₹<?= number_format(
+                                            (float)$advance,
+                                            0
+                                        ) ?>
+
+                                    </div>
+
+                                <?php endif; ?>
+
+                            </td>
+
+                            <td>
+
+                                <span class="status <?= htmlspecialchars($status_class) ?>">
+
+                                    <?= htmlspecialchars(
+                                        ucfirst($status)
+                                    ) ?>
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <div class="booked-on">
+
+                                    <?php if (!empty($booked_on)): ?>
+
+                                        <?= htmlspecialchars(
+                                            formatBookingDate($booked_on)
+                                        ) ?>
+
+                                        <br>
+
+                                        <span class="booked-time">
+
+                                            <?= htmlspecialchars(
+                                                formatBookingTime($booked_on)
+                                            ) ?>
+
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        -
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="booking_details.php?booking_id=<?= urlencode($booking_id) ?><?= !empty($current_lang) ? '&lang=' . urlencode($current_lang) : '' ?>"
+                                    class="view-details"
+                                >
+
+                                    <span>
+                                        👁
+                                    </span>
+
+                                    <?= htmlspecialchars(
+                                        tr('view_details', 'View Details')
+                                    ) ?>
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                    </tbody>
+
+                </table>
+
+                <div class="pagination">
+
+                    <a href="#" class="page-button page-arrow">
+                        «
+                    </a>
+
+                    <a href="#" class="page-button page-arrow">
+                        ‹
+                    </a>
+
+                    <a href="#" class="page-button active">
+                        1
+                    </a>
+
+                    <a href="#" class="page-button">
+                        2
+                    </a>
+
+                    <a href="#" class="page-button">
+                        3
+                    </a>
+
+                    <a href="#" class="page-button page-arrow">
+                        ›
+                    </a>
+
+                    <a href="#" class="page-button page-arrow">
+                        »
+                    </a>
+
+                </div>
+
+            <?php else: ?>
+
+                <div class="empty">
+
+                    <div class="empty-icon">
+                        📋
+                    </div>
+
+                    <h2>
+                        <?= htmlspecialchars(
+                            tr(
+                                'no_rental_history',
+                                'No Rental History'
+                            )
+                        ) ?>
+                    </h2>
+
+                    <p>
+                        <?= htmlspecialchars(
+                            tr(
+                                'no_rental_history_description',
+                                'You have not made any equipment bookings yet.'
+                            )
+                        ) ?>
+                    </p>
+
+                </div>
+
+            <?php endif; ?>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const statusFilter = document.getElementById('statusFilter');
+
+if (statusFilter) {
+
+    statusFilter.addEventListener('change', function () {
+
+        const selectedStatus = this.value;
+
+        const rows = document.querySelectorAll('.booking-row');
+
+        rows.forEach(function (row) {
+
+            const rowStatus = row.getAttribute('data-status');
+
+            if (
+                selectedStatus === 'all' ||
+                rowStatus === selectedStatus
+            ) {
+
+                row.style.display = '';
+
+            } else {
+
+                row.style.display = 'none';
+
             }
-        }
-    </script>
+
+        });
+
+    });
+
+}
+
+</script>
+
 </body>
+
 </html>
