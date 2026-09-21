@@ -1,9 +1,22 @@
 <?php
 session_start();
-require_once 'includes/lang.php';
 
-if (file_exists('includes/config.php')) {
-    include('includes/config.php');
+/*
+|--------------------------------------------------------------------------
+| UPDATE SESSION LANGUAGE BEFORE LOADING LANG FILE
+|--------------------------------------------------------------------------
+*/
+if (isset($_GET['lang'])) {
+    $allowed_languages = ['en', 'kn', 'hi'];
+    if (in_array($_GET['lang'], $allowed_languages, true)) {
+        $_SESSION['lang'] = $_GET['lang'];
+    }
+}
+
+require_once __DIR__ . '/includes/lang.php';
+
+if (file_exists(__DIR__ . '/includes/config.php')) {
+    include(__DIR__ . '/includes/config.php');
 }
 
 if (!isset($_SESSION['user_id'])) {
@@ -11,12 +24,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$current_lang = $_SESSION['lang'] ?? 'en';
+
 /*
 |--------------------------------------------------------------------------
 | GET CATEGORY ID
 |--------------------------------------------------------------------------
-| Normally categories.php sends category_id.
-| The fallback below also supports category name if it is passed.
 */
 
 $category_id = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
@@ -104,36 +117,25 @@ if ($category_id > 0) {
 
 /*
 |--------------------------------------------------------------------------
-| CATEGORY DESCRIPTION
+| CATEGORY DESCRIPTION & BUTTON TRANSLATIONS
 |--------------------------------------------------------------------------
-| If translation key exists, use it.
-| Otherwise use language-specific fallback.
 */
 
-$category_description = '';
+$category_description = 'Explore available equipment in this category.';
+$view_details_label = 'View Details';
+$day_label = 'day';
 
 if ($current_lang == 'kn') {
-
     $category_description = 'ಈ ವರ್ಗದಲ್ಲಿ ಲಭ್ಯವಿರುವ ಕೃಷಿ ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ ಮತ್ತು ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ.';
-
+    $view_details_label = 'ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ';
+    $day_label = 'ದಿನ';
 } elseif ($current_lang == 'hi') {
-
     $category_description = 'इस श्रेणी में उपलब्ध कृषि उपकरण देखें और किराए पर लें।';
-
-} else {
-
-    $category_description = 'Explore available equipment in this category.';
-
+    $view_details_label = 'विवरण देखें';
+    $day_label = 'दिन';
 }
 
-/*
-|--------------------------------------------------------------------------
-| Try language file translation first
-|--------------------------------------------------------------------------
-*/
-
 $translated_description = __('category_items_desc', '');
-
 if (!empty($translated_description) && $translated_description !== 'category_items_desc') {
     $category_description = $translated_description;
 }
@@ -141,12 +143,11 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 ?>
 
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars($current_lang ?? 'en'); ?>">
+<html lang="<?= htmlspecialchars($current_lang); ?>">
 
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
@@ -155,9 +156,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
     </title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
 
@@ -170,76 +169,15 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             background-color: var(--bg-gray);
             color: #2d3748;
         }
 
-        .sidebar {
-            width: 260px;
-            min-height: 100vh;
-            background-color: #ffffff;
-            border-right: 1px solid var(--card-border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            padding: 20px 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .sidebar .brand-logo {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 0 10px 20px 10px;
-            border-bottom: 1px solid var(--card-border);
-            margin-bottom: 15px;
-        }
-
-        .sidebar .brand-logo img {
-            width: 65px;
-            height: 65px;
-            object-fit: contain;
-            margin-bottom: 8px;
-        }
-
-        .sidebar .brand-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--brand-green);
-            line-height: 1.2;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .sidebar .nav-link {
-            color: #4a5568;
-            padding: 10px 15px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 10px;
-            margin-bottom: 4px;
-            text-decoration: none;
-            transition: 0.2s;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: var(--brand-green);
-            background-color: var(--brand-green-light);
-            font-weight: 600;
-        }
-
         .main-wrapper {
-            margin-left: 260px;
+            margin-left: 250px;
             padding: 25px 35px;
+            min-height: 100vh;
         }
 
         .top-navbar {
@@ -257,7 +195,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
             background: #ffffff;
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 20px;
+            overflow: hidden;
             transition: all 0.2s ease-in-out;
             height: 100%;
             display: flex;
@@ -270,21 +208,39 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
             border-color: #cbd5e1;
         }
 
+        /* BANNER IMAGE CONTAINER - PREVENTS CUTOFF */
         .eq-img-container {
-            height: 160px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #f1f5f9;
+            width: 100%;
+            height: 200px;
+            background-color: #f1f5f9;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
+            overflow: hidden;
         }
 
         .eq-img-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Entire image fits inside without cropping */
+            object-position: center;
+            display: block;
+            padding: 4px; /* Optional subtle padding so edges don't touch card borders */
+        }
+
+        .eq-card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                margin-left: 0;
+                padding: 20px 15px;
+            }
         }
 
     </style>
@@ -294,182 +250,10 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 <body>
 
 <!-- ========================================================= -->
-<!-- SIDEBAR -->
+<!-- RENTER SIDEBAR (SHARED COMPONENT) -->
 <!-- ========================================================= -->
 
-<div class="sidebar">
-
-    <div>
-
-        <div class="brand-logo">
-
-            <img src="images/logo.png"
-                 alt="Agriculture Logo"
-                 onerror="this.src='images/tractor.png'">
-
-            <span class="brand-title">
-
-                <?php
-                echo __('app_title', 'Agriculture Equipment Rental');
-                ?>
-
-            </span>
-
-        </div>
-
-
-        <ul class="nav flex-column">
-
-            <li class="nav-item">
-
-                <a href="renter_dashboard.php" class="nav-link">
-
-                    <i class="fa-solid fa-border-all"></i>
-
-                    <?php
-                    echo __('dashboard', 'Dashboard');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="search_equipment.php" class="nav-link">
-
-                    <i class="fa-solid fa-magnifying-glass"></i>
-
-                    <?php
-                    echo __('search_equipment', 'Search Equipment');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="categories.php" class="nav-link active">
-
-                    <i class="fa-solid fa-layer-group"></i>
-
-                    <?php
-                    echo __('categories', 'Categories');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="featured_equipment.php" class="nav-link">
-
-                    <i class="fa-regular fa-star"></i>
-
-                    <?php
-                    echo __('featured_equipment', 'Featured Equipment');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="recommended.php" class="nav-link">
-
-                    <i class="fa-regular fa-thumbs-up"></i>
-
-                    <?php
-                    echo __('recommended', 'Recommended');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="my_bookings.php" class="nav-link">
-
-                    <i class="fa-regular fa-calendar-check"></i>
-
-                    <?php
-                    echo __('my_bookings', 'My Bookings');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="rental_history.php" class="nav-link">
-
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-
-                    <?php
-                    echo __('rental_history', 'Rental History');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item">
-
-                <a href="profile.php" class="nav-link">
-
-                    <i class="fa-regular fa-user"></i>
-
-                    <?php
-                    echo __('my_profile', 'My Profile');
-                    ?>
-
-                </a>
-
-            </li>
-
-
-            <li class="nav-item mt-2">
-
-                <a href="logout.php" class="nav-link text-danger">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    <?php
-                    echo __('logout', 'Logout');
-                    ?>
-
-                </a>
-
-            </li>
-
-        </ul>
-
-    </div>
-
-
-    <div class="text-center pb-2">
-
-        <img src="images/tractor3.jpg"
-             alt="Tractor Illustration"
-             class="img-fluid rounded"
-             onerror="this.src='images/tractor.png'"
-             style="height: 100px; object-fit: cover; width: 100%;">
-
-    </div>
-
-</div>
+<?php include __DIR__ . '/renter_sidebar.php'; ?>
 
 
 <!-- ========================================================= -->
@@ -633,7 +417,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 
                     <li class="breadcrumb-item">
 
-                        <a href="renter_dashboard.php"
+                        <a href="renter_dashboard.php?lang=<?= urlencode($current_lang); ?>"
                            class="text-muted text-decoration-none">
 
                             <?php
@@ -647,7 +431,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 
                     <li class="breadcrumb-item">
 
-                        <a href="categories.php"
+                        <a href="categories.php?lang=<?= urlencode($current_lang); ?>"
                            class="text-muted text-decoration-none">
 
                             <?php
@@ -706,6 +490,30 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 
             <?php while ($eq = mysqli_fetch_assoc($result)): ?>
 
+                <?php
+                $eq_id = $eq['equipment_id'] ?? $eq['id'] ?? $eq['eq_id'] ?? 0;
+
+                // Determine image path accurately
+                $raw_img = $eq['equipment_image'] ?? $eq['image'] ?? $eq['image_path'] ?? $eq['photo'] ?? '';
+                $imgSrc = 'images/tractor.png'; // default fallback
+
+                if (!empty($raw_img)) {
+                    $raw_img = trim($raw_img);
+                    if (file_exists(__DIR__ . '/' . $raw_img) || preg_match('/^https?:\/\//i', $raw_img)) {
+                        $imgSrc = $raw_img;
+                    } elseif (file_exists(__DIR__ . '/uploads/' . $raw_img)) {
+                        $imgSrc = 'uploads/' . $raw_img;
+                    } elseif (file_exists(__DIR__ . '/uploads/equipment/' . $raw_img)) {
+                        $imgSrc = 'uploads/equipment/' . $raw_img;
+                    } else {
+                        if (strpos($raw_img, '/') === false) {
+                            $imgSrc = 'uploads/' . $raw_img;
+                        } else {
+                            $imgSrc = $raw_img;
+                        }
+                    }
+                }
+                ?>
 
                 <div class="col-lg-4 col-md-6">
 
@@ -713,139 +521,122 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
                     <div class="eq-card">
 
 
-                        <div>
+                        <!-- EQUIPMENT IMAGE (FLUSH TOP BANNER WITHOUT CROPPING) -->
 
+                        <div class="eq-img-container">
 
-                            <!-- EQUIPMENT IMAGE -->
-
-                            <div class="eq-img-container">
-
-
-                                <?php
-
-                                $imgSrc = !empty($eq['image'])
-                                    ? $eq['image']
-                                    : (
-                                        !empty($eq['equipment_image'])
-                                        ? $eq['equipment_image']
-                                        : 'images/tractor.png'
-                                    );
-
-                                ?>
-
-
-                                <img src="<?= htmlspecialchars($imgSrc); ?>"
-                                     alt="<?= htmlspecialchars(
-                                         $eq['title']
-                                         ?? $eq['equipment_title']
-                                         ?? 'Equipment'
-                                     ); ?>"
-                                     onerror="this.src='images/tractor.png'">
-
-
-                            </div>
-
-
-                            <!-- TITLE -->
-
-                            <h5 class="fw-bold mb-1">
-
-                                <?= htmlspecialchars(
-                                    $eq['title']
-                                    ?? $eq['equipment_title']
-                                    ?? 'Unnamed Equipment'
-                                ); ?>
-
-                            </h5>
-
-
-                            <!-- DESCRIPTION -->
-
-                            <p class="text-muted small mb-2"
-                               style="font-size: 0.85rem;">
-
-                                <?= htmlspecialchars(
-                                    $eq['description'] ?? ''
-                                ); ?>
-
-                            </p>
-
-
-                            <!-- LOCATION -->
-
-                            <p class="text-secondary small mb-3 fw-semibold">
-
-                                📍
-
-                                <?= htmlspecialchars(
-                                    $eq['service_location']
-                                    ?? 'Location not specified'
-                                ); ?>
-
-                            </p>
-
+                            <img src="<?= htmlspecialchars($imgSrc); ?>"
+                                 alt="<?= htmlspecialchars(
+                                     $eq['title']
+                                     ?? $eq['equipment_title']
+                                     ?? 'Equipment'
+                                 ); ?>"
+                                 onerror="this.onerror=null; this.src='images/tractor.png';">
 
                         </div>
 
 
-                        <div>
+                        <div class="eq-card-body">
 
+                            <div>
 
-                            <!-- PRICE -->
+                                <!-- TITLE -->
 
-                            <div class="d-flex align-items-center justify-content-between pt-3 border-top mb-2">
+                                <h5 class="fw-bold mb-1">
 
-                                <span class="text-dark fw-bold">
-
-                                    ₹<?= number_format(
-                                        $eq['price']
-                                        ?? $eq['price_per_day']
-                                        ?? 0
+                                    <?= htmlspecialchars(
+                                        $eq['title']
+                                        ?? $eq['equipment_title']
+                                        ?? 'Unnamed Equipment'
                                     ); ?>
 
-                                    / day
-
-                                </span>
-
-                            </div>
+                                </h5>
 
 
-                            <!-- BUTTONS -->
+                                <!-- DESCRIPTION -->
 
-                            <div class="d-flex gap-2">
+                                <p class="text-muted small mb-2"
+                                   style="font-size: 0.85rem;">
 
+                                    <?= htmlspecialchars(
+                                        $eq['description'] ?? ''
+                                    ); ?>
 
-                                <!-- VIEW DETAILS -->
-
-                                <a href="equipment_details.php?equipment_id=<?= $eq['equipment_id']; ?>"
-                                   class="btn btn-outline-secondary btn-sm w-50">
-
-                                    <?php
-                                    echo __('view_details', 'View Details');
-                                    ?>
-
-                                    →
-
-                                </a>
+                                </p>
 
 
-                                <!-- RENT NOW -->
+                                <!-- LOCATION -->
 
-                                <a href="rent_now.php?equipment_id=<?= $eq['equipment_id']; ?>"
-                                   class="btn btn-agro btn-sm w-100"
-                                   style="background-color:#2d6a4f; color:white;">
+                                <p class="text-secondary small mb-3 fw-semibold">
 
-                                    <i class="fa-solid fa-cart-shopping me-1"></i>
+                                    📍
 
-                                    <?php
-                                    echo __('rent_now', 'Rent Now');
-                                    ?>
+                                    <?= htmlspecialchars(
+                                        $eq['service_location']
+                                        ?? 'Location not specified'
+                                    ); ?>
 
-                                </a>
-
+                                </p>
 
                             </div>
 
+
+                            <div>
+
+                                <!-- PRICE -->
+
+                                <div class="d-flex align-items-center justify-content-between pt-3 border-top mb-2">
+
+                                    <span class="text-dark fw-bold">
+
+                                        ₹<?= number_format(
+                                            $eq['price']
+                                            ?? $eq['price_per_day']
+                                            ?? 0
+                                        ); ?>
+
+                                        / <?= htmlspecialchars($day_label); ?>
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- BUTTONS -->
+
+                                <div class="d-flex gap-2">
+
+
+                                    <!-- VIEW DETAILS -->
+
+                                    <a href="equipment_details.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&lang=<?= urlencode($current_lang); ?>"
+                                       class="btn btn-outline-secondary btn-sm w-50">
+
+                                        <?= htmlspecialchars($view_details_label); ?>
+
+                                        →
+
+                                    </a>
+
+
+                                    <!-- RENT NOW -->
+
+                                    <a href="rent_now.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&lang=<?= urlencode($current_lang); ?>"
+                                       class="btn btn-agro btn-sm w-100"
+                                       style="background-color:#2d6a4f; color:white;">
+
+                                        <i class="fa-solid fa-cart-shopping me-1"></i>
+
+                                        <?php
+                                        echo __('rent_now', 'Rent Now');
+                                        ?>
+
+                                    </a>
+
+
+                                </div>
+
+                            </div>
 
                         </div>
 
@@ -891,6 +682,50 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- SIDEBAR DYNAMIC TRANSLATION SCRIPT -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currentLang = "<?= $current_lang; ?>";
+
+    const sidebarTranslations = {
+        'kn': {
+            'Dashboard': 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+            'Search Equipment': 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
+            'Categories': 'ವರ್ಗಗಳು',
+            'Notifications': 'ಅಧಿಸೂಚನೆಗಳು',
+            'Recommended': 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
+            'My Bookings': 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+            'Rental History': 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
+            'My Profile': 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+            'Logout': 'ನಿರ್ಗಮನ'
+        },
+        'hi': {
+            'Dashboard': 'डैशबोर्ड',
+            'Search Equipment': 'उपकरण खोजें',
+            'Categories': 'श्रेणियां',
+            'Notifications': 'सूचनाएं',
+            'Recommended': 'अनुशंसित',
+            'My Bookings': 'मेरी बुकिंग',
+            'Rental History': 'किराए का इतिहास',
+            'My Profile': 'मेरी प्रोफाइल',
+            'Logout': 'लॉग आउट'
+        }
+    };
+
+    if (sidebarTranslations[currentLang]) {
+        const dict = sidebarTranslations[currentLang];
+        const sidebarLinks = document.querySelectorAll('.renter-sidebar a span');
+
+        sidebarLinks.forEach(span => {
+            const originalText = span.textContent.trim();
+            if (dict[originalText]) {
+                span.textContent = dict[originalText];
+            }
+        });
+    }
+});
+</script>
 
 </body>
 

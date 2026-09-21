@@ -7,8 +7,30 @@ if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
 
+/*
+ * PHPMailer - manual installation
+ * Keep your Gmail App Password private.
+ */
+require_once __DIR__ . '/PHPMailer-master/PHPMailer-master/src/Exception.php';
+require_once __DIR__ . '/PHPMailer-master/PHPMailer-master/src/PHPMailer.php';
+require_once __DIR__ . '/PHPMailer-master/PHPMailer-master/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 $step = 1;
 $error = '';
+
+/*
+ * Gmail SMTP settings
+ * Replace only these two values:
+ * 1. YOUR_PROJECT_GMAIL@gmail.com -> the new Gmail account you created.
+ * 2. YOUR_16_CHARACTER_APP_PASSWORD -> the Google App Password.
+ *
+ * Do NOT use your normal Gmail password here.
+ */
+$smtp_username = 'agrirental78@gmail.com';
+$smtp_app_password = 'lwiikmmigqghekcp';
 
 // Determine current step based on form submission
 if (isset($_POST['step'])) {
@@ -40,16 +62,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_find_account']
             $update_stmt->execute();
             $update_stmt->close();
 
-            // Send Real Email OTP (Only if user has a valid email address)
+            // Send the OTP through Gmail SMTP using PHPMailer.
             if (!empty($user['email'])) {
-                $to = $user['email'];
-                $subject = "Your Password Reset OTP";
-                $message = "Hello,\n\nYour OTP for password recovery is: " . $otp . "\n\nThis code is valid for 10 minutes.";
-                $headers = "From: no-reply@" . $_SERVER['SERVER_NAME'];
-                @mail($to, $subject, $message, $headers);
-            }
+                $mail = new PHPMailer(true);
 
-            $step = 2;
+                try {
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = $smtp_username;
+                    $mail->Password = $smtp_app_password;
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = 587;
+                    $mail->CharSet = 'UTF-8';
+
+                    $mail->setFrom($smtp_username, 'Agriculture Equipment Rental System');
+                    $mail->addAddress($user['email']);
+
+                    $mail->isHTML(false);
+                    $mail->Subject = 'Your Password Reset OTP';
+                    $mail->Body =
+                        "Hello,\n\n" .
+                        "Your OTP for password recovery is: " . $otp . "\n\n" .
+                        "This code is valid for 10 minutes.\n\n" .
+                        "If you did not request a password reset, please ignore this email.";
+
+                    $mail->send();
+                    $step = 2;
+                } catch (Exception $e) {
+                    $error = 'Unable to send the OTP email. Please check the Gmail/PHPMailer settings.';
+                    $step = 1;
+                }
+            } else {
+                $error = 'No email address is registered for this account.';
+                $step = 1;
+            }
         } else {
             if (!empty($user['security_question'])) {
                 $_SESSION['reset_question'] = $user['security_question'];
@@ -72,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_verify_otp']))
     $user_id = $_SESSION['reset_user_id'] ?? null;
 
     $stmt = $conn->prepare("SELECT reset_otp, otp_expires_at FROM users WHERE user_id = ?");
-    $stmt->bind_param("s", $user_id);
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc();
     $stmt->close();
@@ -202,8 +249,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
             <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
                 <div class="brand-logo-icon"><i class="fa-solid fa-tractor"></i></div>
                 <div>
-                    <div class="brand-text-main">AGRICULTURE</div>
-                    <div class="brand-text-sub">EQUIPMENT RENTAL SYSTEM</div>
+                   <div class="brand-text-main"><?= __('brand_main'); ?></div>
+<div class="brand-text-sub"><?= __('brand_sub'); ?></div>
                 </div>
             </a>
             
@@ -257,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
                     <input type="hidden" name="step" value="2">
                     <div class="mb-4 text-center">
                         <label class="form-label small fw-semibold text-secondary"><?= __('enter_otp'); ?></label>
-                        <input type="text" name="otp_code" class="form-control text-center fw-bold fs-4" maxlength="6" required style="letter-spacing: 6px;">
+                        <input type="text" name="otp_code" class="form-control text-center fw-bold fs-4" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" autocomplete="one-time-code" required style="letter-spacing: 6px;">
                     </div>
                     <button type="submit" name="action_verify_otp" class="btn btn-brand-green w-100"><?= __('verify_code'); ?></button>
                 </form>

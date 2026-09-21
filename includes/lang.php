@@ -133,7 +133,10 @@ $translations = [
          'secure_booking'        => 'Secure Booking',
           'easy_cancel'           => 'Easy Cancellation',
             'support_247'           => '24/7 Support',
-            // Forgot password
+            // Forgot password page
+            'forgot_password_title' => 'Forgot Password',
+'brand_main' => 'AGRICULTURE',
+'brand_sub' => 'EQUIPMENT RENTAL SYSTEM',
         'title' => 'Account Recovery',
         'enter_email' => 'Enter Registered Email:',
         'choose_method' => 'Choose Reset Method:',
@@ -1035,6 +1038,9 @@ $translations = [
          'easy_cancel'           => 'ಸುಲಭ ರದ್ದತಿ',
          'support_247'           => '24/7 ಬೆಂಬಲ',
          // forgot password
+           'forgot_password_title' => 'ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರುವಿರಾ?',
+'brand_main' => 'ಕೃಷಿ',
+'brand_sub' => 'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
          'title' => 'ಖಾತೆ ಮರುಪಡೆಯುವಿಕೆ',
         'enter_email' => 'ನೋಂದಾಯಿತ ಇಮೇಲ್ ನಮೂದಿಸಿ:',
         'choose_method' => 'ಮರುಹೊಂದಿಸುವ ವಿಧಾನವನ್ನು ಆಯ್ಕೆಮಾಡಿ:',
@@ -1935,6 +1941,9 @@ $translations = [
 'easy_cancel'           => 'आसान रद्दीकरण',
 'support_247'           => '24/7 सहायता',
 // forgot password
+           'forgot_password_title' => 'पासवर्ड भूल गए?',
+'brand_main' => 'कृषि',
+'brand_sub' => 'उपकरण किराया प्रणाली',
    'title' => 'खाता रिकवरी',
         'enter_email' => 'पंजीकृत ईमेल दर्ज करें:',
         'choose_method' => 'रीसेट तरीका चुनें:',
