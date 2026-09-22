@@ -17,39 +17,73 @@ $search_query = trim($_GET['q'] ?? '');
 // Preserve active language query parameter if present
 $lang_param = isset($_GET['lang']) ? '&lang=' . urlencode($_GET['lang']) : '';
 
-// 1. Fetch Renter's Registered Address
-$user_stmt = $conn->prepare("SELECT full_name, email, COALESCE(address, 'Not Specified') AS address FROM users WHERE user_id = ?");
+// 1. Fetch Renter's registered city/district/state
+$user_stmt = $conn->prepare("
+    SELECT full_name, email,
+           COALESCE(address, 'Not Specified') AS address,
+           COALESCE(city, '') AS city,
+           COALESCE(district, '') AS district,
+           COALESCE(state, '') AS state
+    FROM users
+    WHERE user_id = ?
+");
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
 $user_result = $user_stmt->get_result();
-$user_data = $user_result->fetch_assoc();
+$user_data = $user_result->fetch_assoc() ?: [];
 $user_address = $user_data['address'] ?? 'Not Specified';
+$user_city = trim($user_data['city'] ?? '');
+$user_district = trim($user_data['district'] ?? '');
+$user_state = trim($user_data['state'] ?? '');
 $user_stmt->close();
 
-// Extract primary city/keyword from user address for flexible comparison
-$primary_user_location = '';
-if ($user_address !== 'Not Specified') {
-    $parts = explode(',', $user_address);
-    $primary_user_location = trim($parts[0]);
+$user_location_display = trim($user_city . ($user_district !== '' ? ', ' . $user_district : '') . ($user_state !== '' ? ', ' . $user_state : ''));
+$location_section_labels = [
+    'en' => ['city' => 'Equipment in Your City', 'district' => 'Equipment in Your District', 'state' => 'Equipment in Your State'],
+    'kn' => ['city' => 'ನಿಮ್ಮ ನಗರದ ಉಪಕರಣಗಳು', 'district' => 'ನಿಮ್ಮ ಜಿಲ್ಲೆಯ ಉಪಕರಣಗಳು', 'state' => 'ನಿಮ್ಮ ರಾಜ್ಯದ ಉಪಕರಣಗಳು'],
+    'hi' => ['city' => 'आपके शहर के उपकरण', 'district' => 'आपके जिले के उपकरण', 'state' => 'आपके राज्य के उपकरण']
+];
+
+if ($user_location_display === '') {
+    $user_location_display = $user_address;
 }
 
-// 2. Define Supported Categories for Intelligent Fallback Matching
 $valid_categories = ['Harvesting', 'Tillage', 'Seeding', 'Spraying', 'Irrigation', 'Tractor'];
 $detected_fallback_category = '';
-
 $raw_collected_items = [];
 $search_mode = 'specific';
 
 if (!empty($search_query)) {
 
-    // Step A: Attempt a specific search using the full query phrase first
     $like_term = "%" . $search_query . "%";
 
-    $eq_stmt = $conn->prepare("
-        SELECT e.*, 
-               COALESCE(r.avg_rating, 0) AS rating, 
-               COALESCE(r.review_count, 0) AS rating_count
+    // Location priority:
+    // 1 = same city + same state
+    // 2 = same state, different city
+    // 3 = other states / unknown
+    $location_priority_sql = "
+        CASE
+            WHEN TRIM(LOWER(COALESCE(l.city, ''))) = TRIM(LOWER(?))
+             AND TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+             AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 1
+            WHEN TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+             AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 2
+            WHEN TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 3
+            ELSE 4
+        END
+    ";
+
+    // Step A: Full phrase search
+    $eq_sql = "
+        SELECT e.*,
+               COALESCE(r.avg_rating, 0) AS rating,
+               COALESCE(r.review_count, 0) AS rating_count,
+               COALESCE(l.city, '') AS lender_city,
+               COALESCE(l.district, '') AS lender_district,
+               COALESCE(l.state, '') AS lender_state,
+               ($location_priority_sql) AS location_priority
         FROM equipment e
+        LEFT JOIN users l ON l.user_id = e.lender_id
         LEFT JOIN (
             SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
             FROM reviews
@@ -57,69 +91,88 @@ if (!empty($search_query)) {
         ) r ON r.equipment_id = e.equipment_id
         WHERE e.status = 'Available'
           AND (
-              title LIKE ?
-              OR category LIKE ?
-              OR brand_model LIKE ?
-              OR description LIKE ?
+              e.title LIKE ?
+              OR e.category LIKE ?
+              OR e.brand_model LIKE ?
+              OR e.description LIKE ?
           )
-        ORDER BY distance_km ASC, equipment_id DESC
-    ");
-
-    $eq_stmt->bind_param("ssss", $like_term, $like_term, $like_term, $like_term);
+        ORDER BY location_priority ASC, e.equipment_id DESC
+    ";
+    $eq_sql = "
+        SELECT e.*,
+               COALESCE(r.avg_rating, 0) AS rating,
+               COALESCE(r.review_count, 0) AS rating_count,
+               COALESCE(l.city, '') AS lender_city,
+               COALESCE(l.district, '') AS lender_district,
+               COALESCE(l.state, '') AS lender_state,
+               CASE
+                   WHEN TRIM(LOWER(COALESCE(l.city, ''))) = TRIM(LOWER(?))
+                    AND TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+                    AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 1
+                   WHEN TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+                    AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 2
+                   WHEN TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 3
+                   ELSE 4
+               END AS location_priority
+        FROM equipment e
+        LEFT JOIN users l ON l.user_id = e.lender_id
+        LEFT JOIN (
+            SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+            FROM reviews
+            GROUP BY equipment_id
+        ) r ON r.equipment_id = e.equipment_id
+        WHERE e.status = 'Available'
+          AND (e.title LIKE ? OR e.category LIKE ? OR e.brand_model LIKE ? OR e.description LIKE ?)
+        ORDER BY location_priority ASC, e.equipment_id DESC
+    ";
+    $eq_stmt = $conn->prepare($eq_sql);
+    $eq_stmt->bind_param(
+        "ssssssssss",
+        $user_city, $user_district, $user_state, $user_district, $user_state, $user_state, $like_term, $like_term, $like_term, $like_term
+    );
     $eq_stmt->execute();
     $eq_result = $eq_stmt->get_result();
-
     while ($row = $eq_result->fetch_assoc()) {
         $raw_collected_items[] = $row;
     }
-
     $eq_stmt->close();
 
-    // Step B: If full-phrase search fails, try breaking into words
+    // Step B: word search
     if (empty($raw_collected_items)) {
-
         $words = explode(' ', $search_query);
-
         if (count($words) > 1) {
-
             $conditions = [];
-            $types = '';
-            $params = [];
+            $types = "ssssss";
+            $params = [$user_city, $user_district, $user_state, $user_district, $user_state, $user_state];
 
             foreach ($words as $word) {
-
                 if (strlen(trim($word)) > 2) {
-
                     $w_term = "%" . trim($word) . "%";
-
-                    $conditions[] = "
-                        (
-                            title LIKE ?
-                            OR category LIKE ?
-                            OR brand_model LIKE ?
-                            OR description LIKE ?
-                        )
-                    ";
-
-                    $types .= 'ssss';
-
-                    array_push(
-                        $params,
-                        $w_term,
-                        $w_term,
-                        $w_term,
-                        $w_term
-                    );
+                    $conditions[] = "(e.title LIKE ? OR e.category LIKE ? OR e.brand_model LIKE ? OR e.description LIKE ?)";
+                    $types .= "ssss";
+                    array_push($params, $w_term, $w_term, $w_term, $w_term);
                 }
             }
 
             if (!empty($conditions)) {
-
                 $multi_sql = "
-                    SELECT e.*, 
-                           COALESCE(r.avg_rating, 0) AS rating, 
-                           COALESCE(r.review_count, 0) AS rating_count
+                    SELECT e.*,
+                           COALESCE(r.avg_rating, 0) AS rating,
+                           COALESCE(r.review_count, 0) AS rating_count,
+                           COALESCE(l.city, '') AS lender_city,
+                           COALESCE(l.district, '') AS lender_district,
+                           COALESCE(l.state, '') AS lender_state,
+                           CASE
+                               WHEN TRIM(LOWER(COALESCE(l.city, ''))) = TRIM(LOWER(?))
+                                AND TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+                                AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 1
+                               WHEN TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+                                AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 2
+                               WHEN TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 3
+                               ELSE 4
+                           END AS location_priority
                     FROM equipment e
+                    LEFT JOIN users l ON l.user_id = e.lender_id
                     LEFT JOIN (
                         SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
                         FROM reviews
@@ -127,31 +180,25 @@ if (!empty($search_query)) {
                     ) r ON r.equipment_id = e.equipment_id
                     WHERE e.status = 'Available'
                       AND (" . implode(' OR ', $conditions) . ")
-                    ORDER BY distance_km ASC, equipment_id DESC
+                    ORDER BY location_priority ASC, e.equipment_id DESC
                 ";
-
                 $multi_stmt = $conn->prepare($multi_sql);
                 $multi_stmt->bind_param($types, ...$params);
                 $multi_stmt->execute();
                 $multi_res = $multi_stmt->get_result();
-
                 while ($row = $multi_res->fetch_assoc()) {
                     $raw_collected_items[] = $row;
                 }
-
                 $multi_stmt->close();
             }
         }
     }
 
-    // Step C: Fallback to Category match if still empty
+    // Step C: category fallback
     if (empty($raw_collected_items)) {
-
         $search_mode = 'fallback';
         $query_lower = mb_strtolower($search_query);
-
         foreach ($valid_categories as $cat) {
-
             if (stripos($query_lower, mb_strtolower($cat)) !== false) {
                 $detected_fallback_category = $cat;
                 break;
@@ -159,56 +206,75 @@ if (!empty($search_query)) {
         }
 
         if (!empty($detected_fallback_category)) {
-
-            $cat_stmt = $conn->prepare("
-                SELECT e.*, 
-                       COALESCE(r.avg_rating, 0) AS rating, 
-                       COALESCE(r.review_count, 0) AS rating_count
+            $cat_sql = "
+                SELECT e.*,
+                       COALESCE(r.avg_rating, 0) AS rating,
+                       COALESCE(r.review_count, 0) AS rating_count,
+                       COALESCE(l.city, '') AS lender_city,
+                       COALESCE(l.district, '') AS lender_district,
+                       COALESCE(l.state, '') AS lender_state,
+                       CASE
+                           WHEN TRIM(LOWER(COALESCE(l.city, ''))) = TRIM(LOWER(?))
+                            AND TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+                            AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 1
+                           WHEN TRIM(LOWER(COALESCE(l.district, ''))) = TRIM(LOWER(?))
+                            AND TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 2
+                           WHEN TRIM(LOWER(COALESCE(l.state, ''))) = TRIM(LOWER(?)) THEN 3
+                           ELSE 4
+                       END AS location_priority
                 FROM equipment e
+                LEFT JOIN users l ON l.user_id = e.lender_id
                 LEFT JOIN (
                     SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
                     FROM reviews
                     GROUP BY equipment_id
                 ) r ON r.equipment_id = e.equipment_id
-                WHERE e.status = 'Available'
-                  AND category = ?
-                ORDER BY distance_km ASC, equipment_id DESC
-            ");
-
-            $cat_stmt->bind_param("s", $detected_fallback_category);
+                WHERE e.status = 'Available' AND e.category = ?
+                ORDER BY location_priority ASC, e.equipment_id DESC
+            ";
+            $cat_stmt = $conn->prepare($cat_sql);
+            $cat_stmt->bind_param("sssssss",
+                $user_city, $user_district, $user_state, $user_district, $user_state, $user_state,
+                $detected_fallback_category
+            );
             $cat_stmt->execute();
             $cat_result = $cat_stmt->get_result();
-
             while ($row = $cat_result->fetch_assoc()) {
                 $raw_collected_items[] = $row;
             }
-
             $cat_stmt->close();
         }
     }
 
-    // Step D: Process collected items into Location Priority sections
-    $nearby_equipment = [];
+    // Step D: Split into same-city, same-district, same-state, and other locations
+    $same_city_equipment = [];
+    $same_district_equipment = [];
+    $same_state_equipment = [];
     $other_equipment = [];
 
     foreach ($raw_collected_items as $row) {
+        $lender_city = trim($row['lender_city'] ?? '');
+        $lender_district = trim($row['lender_district'] ?? '');
+        $lender_state = trim($row['lender_state'] ?? '');
 
-        $service_loc = trim($row['service_location'] ?? '');
-        $is_nearby = false;
-
-        if (!empty($primary_user_location) && !empty($service_loc)) {
-
-            if (stripos($service_loc, $primary_user_location) !== false) {
-                $is_nearby = true;
-            }
-        }
-
-        if ($is_nearby) {
-            $nearby_equipment[] = $row;
+        if ($user_city !== '' && $user_district !== '' && $user_state !== ''
+            && strcasecmp($lender_city, $user_city) === 0
+            && strcasecmp($lender_district, $user_district) === 0
+            && strcasecmp($lender_state, $user_state) === 0) {
+            $same_city_equipment[] = $row;
+        } elseif ($user_district !== '' && $user_state !== ''
+            && strcasecmp($lender_district, $user_district) === 0
+            && strcasecmp($lender_state, $user_state) === 0) {
+            $same_district_equipment[] = $row;
+        } elseif ($user_state !== '' && strcasecmp($lender_state, $user_state) === 0) {
+            $same_state_equipment[] = $row;
         } else {
             $other_equipment[] = $row;
         }
     }
+
+    // Keep the old variable name for empty-state compatibility.
+    $nearby_equipment = array_merge($same_city_equipment, $same_district_equipment, $same_state_equipment);
 }
 ?>
 
@@ -496,7 +562,7 @@ if (!empty($search_query)) {
                 <i class="fa-solid fa-location-dot me-1 text-danger"></i>
                 <?php echo __('registered_location'); ?>:
                 <strong>
-                    <?php echo htmlspecialchars($user_address); ?>
+                    <?php echo htmlspecialchars($user_location_display); ?>
                 </strong>
             </p>
 
@@ -561,21 +627,21 @@ if (!empty($search_query)) {
         <?php else: ?>
 
             <!-- SECTION 1: Equipment Near You -->
-            <?php if (!empty($nearby_equipment)): ?>
+            <?php if (!empty($same_city_equipment)): ?>
 
                 <div class="section-title">
 
                     <i class="fa-solid fa-map-pin text-danger"></i>
 
-                    <?php echo __('equipment_near_you'); ?>
+                    <?php echo htmlspecialchars($location_section_labels[$current_lang]['city']); ?>
 
-                    (<?php echo htmlspecialchars($primary_user_location); ?>)
+                    (<?php echo htmlspecialchars($user_city); ?>)
 
                 </div>
 
                 <div class="equipment-grid">
 
-                    <?php foreach ($nearby_equipment as $eq): ?>
+                    <?php foreach ($same_city_equipment as $eq): ?>
 
                         <?php
                         $img_path = !empty($eq['image'])
@@ -641,17 +707,8 @@ if (!empty($search_query)) {
                                 </div>
 
                                 <div class="meta-text text-danger fw-semibold">
-
                                     <i class="fa-solid fa-location-dot me-1"></i>
-
-                                    <?php echo htmlspecialchars($eq['service_location']); ?>
-
-                                    <?php
-                                    echo !empty($eq['distance_km'])
-                                        ? '(' . htmlspecialchars($eq['distance_km']) . ' km)'
-                                        : '';
-                                    ?>
-
+                                    <?php echo htmlspecialchars(trim(($eq['lender_city'] ?? '') . (!empty($eq['lender_district']) ? ', ' . $eq['lender_district'] : '') . (!empty($eq['lender_state']) ? ', ' . $eq['lender_state'] : '')) ?: ($eq['service_location'] ?? '')); ?>
                                 </div>
 
                                 <div class="meta-text text-warning">
@@ -707,7 +764,96 @@ if (!empty($search_query)) {
             <?php endif; ?>
 
 
-            <!-- SECTION 2: Other Equipment -->
+            <!-- SECTION 2: Equipment in Your State -->
+            <?php if (!empty($same_district_equipment)): ?>
+                <div class="section-title">
+                    <i class="fa-solid fa-map-location-dot text-primary"></i>
+                    <?php echo htmlspecialchars($location_section_labels[$current_lang]['district']); ?> (<?php echo htmlspecialchars($user_district); ?>)
+                </div>
+                <div class="equipment-grid">
+                    <?php foreach ($same_district_equipment as $eq): ?>
+                        <?php
+                        $img_path = !empty($eq['image']) ? 'uploads/' . $eq['image'] : '';
+                        $has_valid_img = !empty($eq['image']) && file_exists(__DIR__ . '/' . $img_path);
+                        ?>
+                        <div class="equipment-card">
+                            <div class="card-img-container">
+                                <?php if ($has_valid_img): ?>
+                                    <img src="<?php echo htmlspecialchars($img_path); ?>" alt="Equipment Image">
+                                <?php else: ?>
+                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
+                                        <i class="fa-solid fa-tractor fa-2x"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-body-content">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="equipment-title"><?php echo htmlspecialchars($eq['title']); ?></h5>
+                                    <span class="badge bg-success" style="font-size: 10px;"><?php echo __('available_status_label'); ?></span>
+                                </div>
+                                <div class="meta-text"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($eq['category']); ?><?php echo !empty($eq['brand_model']) ? ' | ' . htmlspecialchars($eq['brand_model']) : ''; ?></div>
+                                <div class="meta-text text-danger fw-semibold">
+                                    <i class="fa-solid fa-location-dot me-1"></i>
+                                    <?php echo htmlspecialchars(trim(($eq['lender_city'] ?? '') . (!empty($eq['lender_district']) ? ', ' . $eq['lender_district'] : '') . (!empty($eq['lender_state']) ? ', ' . $eq['lender_state'] : '')) ?: ($eq['service_location'] ?? '')); ?>
+                                </div>
+                                <div class="meta-text text-warning"><i class="fa-solid fa-star"></i> <?php echo number_format($eq['rating'] ?? 0, 1); ?> (<?php echo intval($eq['rating_count'] ?? 0); ?>)</div>
+                                <div class="price-tag">₹<?php echo number_format($eq['price_per_day'], 2); ?> <small class="text-muted fw-normal" style="font-size: 11px;"><?php echo __('per_day'); ?></small></div>
+                            </div>
+                            <div class="card-footer-actions">
+                                <a href="equipment_details.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param) ? '&lang=' . urlencode($current_lang) : ''; ?>" class="btn-view"><?php echo __('view_equipment'); ?></a>
+                                <a href="rent_now.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param) ? '&lang=' . urlencode($current_lang) : ''; ?>" class="btn-rent-now"><i class="fa-solid fa-calendar-check me-1"></i>Rent Now</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- SECTION 3: Other Equipment -->
+
+            <?php if (!empty($same_state_equipment)): ?>
+                <div class="section-title">
+                    <i class="fa-solid fa-map-location-dot text-primary"></i>
+                    <?php echo htmlspecialchars($location_section_labels[$current_lang]['state']); ?> (<?php echo htmlspecialchars($user_state); ?>)
+                </div>
+                <div class="equipment-grid">
+                    <?php foreach ($same_state_equipment as $eq): ?>
+                        <?php
+                        $img_path = !empty($eq['image']) ? 'uploads/' . $eq['image'] : '';
+                        $has_valid_img = !empty($eq['image']) && file_exists(__DIR__ . '/' . $img_path);
+                        ?>
+                        <div class="equipment-card">
+                            <div class="card-img-container">
+                                <?php if ($has_valid_img): ?>
+                                    <img src="<?php echo htmlspecialchars($img_path); ?>" alt="Equipment Image">
+                                <?php else: ?>
+                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted">
+                                        <i class="fa-solid fa-tractor fa-2x"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-body-content">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="equipment-title"><?php echo htmlspecialchars($eq['title']); ?></h5>
+                                    <span class="badge bg-success" style="font-size: 10px;"><?php echo __('available_status_label'); ?></span>
+                                </div>
+                                <div class="meta-text"><i class="fa-solid fa-tag me-1"></i><?php echo htmlspecialchars($eq['category']); ?><?php echo !empty($eq['brand_model']) ? ' | ' . htmlspecialchars($eq['brand_model']) : ''; ?></div>
+                                <div class="meta-text text-danger fw-semibold">
+                                    <i class="fa-solid fa-location-dot me-1"></i>
+                                    <?php echo htmlspecialchars(trim(($eq['lender_city'] ?? '') . (!empty($eq['lender_district']) ? ', ' . $eq['lender_district'] : '') . (!empty($eq['lender_state']) ? ', ' . $eq['lender_state'] : '')) ?: ($eq['service_location'] ?? '')); ?>
+                                </div>
+                                <div class="meta-text text-warning"><i class="fa-solid fa-star"></i> <?php echo number_format($eq['rating'] ?? 0, 1); ?> (<?php echo intval($eq['rating_count'] ?? 0); ?>)</div>
+                                <div class="price-tag">₹<?php echo number_format($eq['price_per_day'], 2); ?> <small class="text-muted fw-normal" style="font-size: 11px;"><?php echo __('per_day'); ?></small></div>
+                            </div>
+                            <div class="card-footer-actions">
+                                <a href="equipment_details.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param) ? '&lang=' . urlencode($current_lang) : ''; ?>" class="btn-view"><?php echo __('view_equipment'); ?></a>
+                                <a href="rent_now.php?id=<?php echo $eq['equipment_id']; ?><?php echo !empty($lang_param) ? '&lang=' . urlencode($current_lang) : ''; ?>" class="btn-rent-now"><i class="fa-solid fa-calendar-check me-1"></i>Rent Now</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- SECTION 3: Other Equipment -->
             <?php if (!empty($other_equipment)): ?>
 
                 <div class="section-title">
@@ -789,13 +935,7 @@ if (!empty($search_query)) {
 
                                     <i class="fa-solid fa-location-dot me-1"></i>
 
-                                    <?php echo htmlspecialchars($eq['service_location']); ?>
-
-                                    <?php
-                                    echo !empty($eq['distance_km'])
-                                        ? '(' . htmlspecialchars($eq['distance_km']) . ' km)'
-                                        : '';
-                                    ?>
+                                    <?php echo htmlspecialchars(trim(($eq['lender_city'] ?? '') . (!empty($eq['lender_district']) ? ', ' . $eq['lender_district'] : '') . (!empty($eq['lender_state']) ? ', ' . $eq['lender_state'] : '')) ?: ($eq['service_location'] ?? '')); ?>
 
                                 </div>
 

@@ -15,12 +15,24 @@ $user_id = $_SESSION['user_id'];
 $success = '';
 $error = '';
 
+$location_labels = [
+    'en' => ['city' => 'City', 'district' => 'District', 'state' => 'State'],
+    'kn' => ['city' => 'ನಗರ', 'district' => 'ಜಿಲ್ಲೆ', 'state' => 'ರಾಜ್ಯ'],
+    'hi' => ['city' => 'शहर', 'district' => 'जिला', 'state' => 'राज्य']
+];
+$city_label = $location_labels[$current_lang]['city'] ?? 'City';
+$district_label = $location_labels[$current_lang]['district'] ?? 'District';
+$state_label = $location_labels[$current_lang]['state'] ?? 'State';
+
 // Handle Profile Update Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = trim($_POST['full_name'] ?? '');
     $email     = trim($_POST['email'] ?? '');
     $phone     = trim($_POST['phone'] ?? '');
     $address   = trim($_POST['address'] ?? '');
+    $city      = trim($_POST['city'] ?? '');
+    $district  = trim($_POST['district'] ?? '');
+    $state     = trim($_POST['state'] ?? '');
 
     // Fetch current profile pic to keep it if no new upload
     $stmt_curr = mysqli_prepare($conn, "SELECT profile_pic, role FROM users WHERE user_id = ?");
@@ -47,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Secure Update
-    $update_stmt = mysqli_prepare($conn, "UPDATE users SET full_name = ?, email = ?, phone = ?, address = ?, profile_pic = ? WHERE user_id = ?");
-    mysqli_stmt_bind_param($update_stmt, "sssssi", $full_name, $email, $phone, $address, $profile_pic, $user_id);
+    $update_stmt = mysqli_prepare($conn, "UPDATE users SET full_name = ?, email = ?, phone = ?, address = ?, city = ?, district = ?, state = ?, profile_pic = ? WHERE user_id = ?");
+    mysqli_stmt_bind_param($update_stmt, "ssssssssi", $full_name, $email, $phone, $address, $city, $district, $state, $profile_pic, $user_id);
 
     if (mysqli_stmt_execute($update_stmt)) {
         $_SESSION['full_name'] = $full_name;
@@ -60,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch Latest User Information
-$stmt = mysqli_prepare($conn, "SELECT user_id, full_name, email, phone, role, security_question, address, profile_pic FROM users WHERE user_id = ?");
+$stmt = mysqli_prepare($conn, "SELECT user_id, full_name, email, phone, role, security_question, address, city, district, state, profile_pic FROM users WHERE user_id = ?");
 mysqli_stmt_bind_param($stmt, "i", $user_id);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
@@ -169,6 +181,18 @@ $profile_img = !empty($user['profile_pic']) ? $user['profile_pic'] : 'default_av
                         <div class="info-value"><?php echo htmlspecialchars($user['address'] ?? 'Not specified'); ?></div>
                     </div>
                     <div class="info-card">
+                        <div class="info-label"><?php echo htmlspecialchars($city_label); ?></div>
+                        <div class="info-value"><?php echo htmlspecialchars($user['city'] ?? 'Not specified'); ?></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label"><?php echo htmlspecialchars($district_label); ?></div>
+                        <div class="info-value"><?php echo htmlspecialchars($user['district'] ?? 'Not specified'); ?></div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label"><?php echo htmlspecialchars($state_label); ?></div>
+                        <div class="info-value"><?php echo htmlspecialchars($user['state'] ?? 'Not specified'); ?></div>
+                    </div>
+                    <div class="info-card">
                         <div class="info-label"><?php echo __('security_question'); ?></div>
                         <div class="info-value"><?php echo htmlspecialchars($user['security_question'] ?? 'Not specified'); ?></div>
                     </div>
@@ -215,6 +239,20 @@ $profile_img = !empty($user['profile_pic']) ? $user['profile_pic'] : 'default_av
                     <div class="mb-3">
                         <label class="form-label fw-bold"><?php echo __('address'); ?></label>
                         <textarea name="address" class="form-control" rows="3"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><?php echo htmlspecialchars($city_label); ?></label>
+                            <input type="text" name="city" class="form-control" value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><?php echo htmlspecialchars($district_label); ?></label>
+                            <input type="text" name="district" class="form-control" value="<?php echo htmlspecialchars($user['district'] ?? ''); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><?php echo htmlspecialchars($state_label); ?></label>
+                            <input type="text" name="state" class="form-control" value="<?php echo htmlspecialchars($user['state'] ?? ''); ?>" required>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">

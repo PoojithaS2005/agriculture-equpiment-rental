@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'renter') {
 $user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
 
 // 1. Fetch User Profile & Registered Address from Database
-$user_query = "SELECT full_name, email, COALESCE(address, 'Not Specified') AS address FROM users WHERE user_id = '$user_id'";
+$user_query = "SELECT full_name, email, COALESCE(address, 'Not Specified') AS address, COALESCE(city, '') AS city, COALESCE(district, '') AS district, COALESCE(state, '') AS state FROM users WHERE user_id = '$user_id'";
 $user_res = mysqli_query($conn, $user_query);
 $user_info = mysqli_fetch_assoc($user_res);
 
@@ -219,7 +219,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                 <!-- Location Display -->
                 <div class="small text-secondary fw-semibold d-none d-lg-flex align-items-center gap-1">
                     <i class="fa-solid fa-location-dot text-danger"></i>
-                    <span><?= htmlspecialchars($user_info['address'] ?? 'Devanahalli, Bengaluru Rural'); ?></span>
+                    <span><?= htmlspecialchars((trim(($user_info['city'] ?? '') . (!empty($user_info['district']) ? ', ' . $user_info['district'] : '') . (!empty($user_info['state']) ? ', ' . $user_info['state'] : '')) ?: ($user_info['address'] ?? 'Location not set'))); ?></span>
                 </div>
 
                 <!-- Language Switcher Dropdown -->

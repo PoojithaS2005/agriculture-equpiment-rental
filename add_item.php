@@ -86,8 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['submit_equipment']) 
     $drive_type       = '4WD';
     $working_width    = '';
 
-    $service_areas_arr = isset($_POST['service_areas']) ? $_POST['service_areas'] : [];
-    $service_areas     = mysqli_real_escape_string(
+    $service_areas_arr = $_POST['service_areas'] ?? [];
+
+    // Always make sure service_areas is an array before using implode().
+    if (!is_array($service_areas_arr)) {
+        $service_areas_arr = [$service_areas_arr];
+    }
+
+    $service_areas = mysqli_real_escape_string(
         $conn,
         implode(', ', $service_areas_arr)
     );

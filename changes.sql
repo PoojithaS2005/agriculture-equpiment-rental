@@ -180,3 +180,31 @@ ALTER TABLE `reviews`
     ADD KEY `idx_reviews_equipment` (`equipment_id`),
     ADD KEY `idx_reviews_renter` (`renter_id`),
     ADD KEY `idx_reviews_lender` (`lender_id`);
+
+
+
+ALTER TABLE `users`
+    ADD COLUMN `city` varchar(100) DEFAULT NULL AFTER `address`,
+    ADD COLUMN `state` varchar(100) DEFAULT NULL AFTER `city`;
+
+-- Populate city/state for existing users from the current address values.
+UPDATE `users` SET `city` = 'Bengaluru', `state` = 'Karnataka'
+WHERE LOWER(TRIM(`address`)) IN ('banglore', 'bengaluru', 'bangalore');
+
+UPDATE `users` SET `city` = 'Mysuru', `state` = 'Karnataka'
+WHERE LOWER(TRIM(`address`)) IN ('mysuru', 'mysore');
+
+UPDATE `users` SET `city` = 'Hassan', `state` = 'Karnataka'
+WHERE LOWER(TRIM(`address`)) LIKE 'hassan%';
+
+ALTER TABLE `users`
+    ADD COLUMN `district` varchar(100) DEFAULT NULL AFTER `city`;
+
+UPDATE `users` SET `city` = 'Bengaluru', `district` = 'Bengaluru Urban', `state` = 'Karnataka'
+WHERE LOWER(TRIM(`address`)) IN ('banglore', 'bengaluru', 'bangalore');
+
+UPDATE `users` SET `city` = 'Mysuru', `district` = 'Mysuru', `state` = 'Karnataka'
+WHERE LOWER(TRIM(`address`)) IN ('mysuru', 'mysore');
+
+UPDATE `users` SET `city` = 'Hassan', `district` = 'Hassan', `state` = 'Karnataka'
+WHERE LOWER(TRIM(`address`)) LIKE 'hassan%';

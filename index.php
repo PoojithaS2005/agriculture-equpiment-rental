@@ -25,6 +25,27 @@ if (isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= __('title'); ?></title>
+
+    <?php
+    // Language-specific text for the home page logo and main heading.
+    $brand_main = [
+        'en' => 'AGRICULTURE',
+        'kn' => 'ಕೃಷಿ',
+        'hi' => 'कृषि'
+    ][$current_lang] ?? 'AGRICULTURE';
+
+    $brand_sub = [
+        'en' => 'EQUIPMENT RENTAL SYSTEM',
+        'kn' => 'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+        'hi' => 'उपकरण किराया प्रणाली'
+    ][$current_lang] ?? 'EQUIPMENT RENTAL SYSTEM';
+
+    $home_hero_title = [
+        'en' => 'Easy Agricultural Equipment Rental',
+        'kn' => 'ಸುಲಭ ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ',
+        'hi' => 'आसान कृषि उपकरण किराया'
+    ][$current_lang] ?? 'Easy Agricultural Equipment Rental';
+    ?>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
@@ -309,8 +330,8 @@ if (isset($_SESSION['user_id'])) {
         <div class="brand-badge">
             <i class="fa-solid fa-tractor"></i>
             <div>
-                <div class="brand-title">AGRICULTURE</div>
-                <div class="brand-sub">EQUIPMENT RENTAL SYSTEM</div>
+                <div class="brand-title"><?= $brand_main; ?></div>
+                <div class="brand-sub"><?= $brand_sub; ?></div>
             </div>
         </div>
 
@@ -326,7 +347,7 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- HERO CONTENT -->
         <div class="hero-content">
-            <h1 class="hero-heading"><?= __('hero_title'); ?></h1>
+            <h1 class="hero-heading"><?= $home_hero_title; ?></h1>
             <p class="hero-subtitle">
                 <?= __('hero_sub'); ?>
             </p>

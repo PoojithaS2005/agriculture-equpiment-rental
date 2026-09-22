@@ -1,6 +1,20 @@
 <?php
 session_start();
 
+require_once 'includes/lang.php';
+
+$allowed_languages = ['en', 'kn', 'hi'];
+
+if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed_languages, true)) {
+    $_SESSION['lang'] = $_GET['lang'];
+}
+
+$current_lang = $_SESSION['lang'] ?? 'en';
+if (!in_array($current_lang, $allowed_languages, true)) {
+    $current_lang = 'en';
+    $_SESSION['lang'] = 'en';
+}
+
 if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
@@ -8,82 +22,112 @@ if (file_exists('includes/config.php')) {
 $error = "";
 $success = "";
 
+$register_text = [
+    'en' => [
+        'title'=>'Register - Agriculture Equipment Rental System','brand_main'=>'AGRICULTURE','brand_sub'=>'EQUIPMENT RENTAL SYSTEM',
+        'home'=>'Home','how_it_works'=>'How It Works','login'=>'Login','create_account'=>'Create Your Account','get_started'=>'and Get Started!',
+        'banner_sub'=>'Join us and access agricultural equipment for your farming needs.','register'=>'Register','form_sub'=>'Fill in the details to create your account',
+        'full_name'=>'Full Name','full_name_ph'=>'Enter your full name','email'=>'Email Address','email_ph'=>'Enter your email address',
+        'phone'=>'Phone Number','phone_ph'=>'Enter your phone number','address'=>'Address','address_ph'=>'Enter your full address','city'=>'City','city_ph'=>'Enter your city','district'=>'District','district_ph'=>'Enter your district','state'=>'State','state_ph'=>'Enter your state',
+        'user_type'=>'Select User Type','select_user'=>'-- Select User Type --','renter'=>'Farmer / Renter','lender'=>'Equipment Owner / Lender',
+        'password'=>'Password','password_ph'=>'Enter your password','confirm_password'=>'Confirm Password','confirm_ph'=>'Confirm your password',
+        'security'=>'Security Question','select_question'=>'-- Select a Security Question --',
+        'first_pet'=>'What was the name of your first pet?','birth_city'=>'In what city were you born?',
+        'mother_maiden'=>"What is your mother's maiden name?",'first_school'=>'What was the name of your first school?',
+        'answer'=>'Security Answer','answer_ph'=>'Enter your answer','agree'=>'I agree to the','terms'=>'Terms & Conditions','and'=>'and','privacy'=>'Privacy Policy',
+        'already'=>'Already have an account?','login_here'=>'Login here',
+        'err_terms'=>'Please agree to the Terms and Conditions and Privacy Policy.','err_password'=>'Passwords do not match!',
+        'err_exists'=>'An account with this Email or Phone number already exists!','success'=>'Registration successful! Redirecting to your dashboard...','db_error'=>'Database Error: '
+    ],
+    'kn' => [
+        'title'=>'ನೋಂದಣಿ - ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ','brand_main'=>'ಕೃಷಿ','brand_sub'=>'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+        'home'=>'ಮುಖಪುಟ','how_it_works'=>'ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ','login'=>'ಲಾಗಿನ್','create_account'=>'ನಿಮ್ಮ ಖಾತೆಯನ್ನು ರಚಿಸಿ','get_started'=>'ಮತ್ತು ಪ್ರಾರಂಭಿಸಿ!',
+        'banner_sub'=>'ನೋಂದಣಿ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಕೃಷಿ ಅಗತ್ಯಗಳಿಗೆ ಬೇಕಾದ ಉಪಕರಣಗಳನ್ನು ಪಡೆಯಿರಿ.','register'=>'ನೋಂದಣಿ','form_sub'=>'ನಿಮ್ಮ ಖಾತೆಯನ್ನು ರಚಿಸಲು ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ',
+        'full_name'=>'ಪೂರ್ಣ ಹೆಸರು','full_name_ph'=>'ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ','email'=>'ಇಮೇಲ್ ವಿಳಾಸ','email_ph'=>'ನಿಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ',
+        'phone'=>'ಫೋನ್ ಸಂಖ್ಯೆ','phone_ph'=>'ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ','address'=>'ವಿಳಾಸ','address_ph'=>'ನಿಮ್ಮ ಪೂರ್ಣ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ','city'=>'ನಗರ','city_ph'=>'ನಿಮ್ಮ ನಗರವನ್ನು ನಮೂದಿಸಿ','district'=>'ಜಿಲ್ಲೆ','district_ph'=>'ನಿಮ್ಮ ಜಿಲ್ಲೆಯನ್ನು ನಮೂದಿಸಿ','state'=>'ರಾಜ್ಯ','state_ph'=>'ನಿಮ್ಮ ರಾಜ್ಯವನ್ನು ನಮೂದಿಸಿ',
+        'user_type'=>'ಬಳಕೆದಾರರ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ','select_user'=>'-- ಬಳಕೆದಾರರ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ --','renter'=>'ರೈತ / ಬಾಡಿಗೆದಾರ','lender'=>'ಉಪಕರಣ ಮಾಲೀಕ / ಸಾಲದಾತ',
+        'password'=>'ಪಾಸ್‌ವರ್ಡ್','password_ph'=>'ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ','confirm_password'=>'ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ','confirm_ph'=>'ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಮತ್ತೆ ನಮೂದಿಸಿ',
+        'security'=>'ಭದ್ರತಾ ಪ್ರಶ್ನೆ','select_question'=>'-- ಭದ್ರತಾ ಪ್ರಶ್ನೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ --','first_pet'=>'ನಿಮ್ಮ ಮೊದಲ ಸಾಕುಪ್ರಾಣಿಯ ಹೆಸರು ಏನು?','birth_city'=>'ನೀವು ಯಾವ ನಗರದಲ್ಲಿ ಜನಿಸಿದ್ದೀರಿ?',
+        'mother_maiden'=>'ನಿಮ್ಮ ತಾಯಿಯ ವಿವಾಹಪೂರ್ವ ಹೆಸರು ಏನು?','first_school'=>'ನಿಮ್ಮ ಮೊದಲ ಶಾಲೆಯ ಹೆಸರು ಏನು?','answer'=>'ಭದ್ರತಾ ಉತ್ತರ','answer_ph'=>'ನಿಮ್ಮ ಉತ್ತರವನ್ನು ನಮೂದಿಸಿ',
+        'agree'=>'ನಾನು ಒಪ್ಪುತ್ತೇನೆ','terms'=>'ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು','and'=>'ಮತ್ತು','privacy'=>'ಗೌಪ್ಯತಾ ನೀತಿ','already'=>'ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ?','login_here'=>'ಇಲ್ಲಿ ಲಾಗಿನ್ ಮಾಡಿ',
+        'err_terms'=>'ದಯವಿಟ್ಟು ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು ಹಾಗೂ ಗೌಪ್ಯತಾ ನೀತಿಗೆ ಒಪ್ಪಿಕೊಳ್ಳಿ.','err_password'=>'ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ!',
+        'err_exists'=>'ಈ ಇಮೇಲ್ ಅಥವಾ ಫೋನ್ ಸಂಖ್ಯೆಯಿಂದ ಈಗಾಗಲೇ ಖಾತೆ ಇದೆ!','success'=>'ನೋಂದಣಿ ಯಶಸ್ವಿಯಾಗಿದೆ! ನಿಮ್ಮ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...','db_error'=>'ಡೇಟಾಬೇಸ್ ದೋಷ: '
+    ],
+    'hi' => [
+        'title'=>'पंजीकरण - कृषि उपकरण किराया प्रणाली','brand_main'=>'कृषि','brand_sub'=>'उपकरण किराया प्रणाली',
+        'home'=>'होम','how_it_works'=>'यह कैसे काम करता है','login'=>'लॉगिन','create_account'=>'अपना खाता बनाएं','get_started'=>'और शुरुआत करें!',
+        'banner_sub'=>'पंजीकरण करें और अपनी खेती की जरूरतों के लिए कृषि उपकरण प्राप्त करें।','register'=>'पंजीकरण','form_sub'=>'अपना खाता बनाने के लिए विवरण भरें',
+        'full_name'=>'पूरा नाम','full_name_ph'=>'अपना पूरा नाम दर्ज करें','email'=>'ईमेल पता','email_ph'=>'अपना ईमेल पता दर्ज करें',
+        'phone'=>'फोन नंबर','phone_ph'=>'अपना फोन नंबर दर्ज करें','address'=>'पता','address_ph'=>'अपना पूरा पता दर्ज करें','city'=>'शहर','city_ph'=>'अपना शहर दर्ज करें','district'=>'जिला','district_ph'=>'अपना जिला दर्ज करें','state'=>'राज्य','state_ph'=>'अपना राज्य दर्ज करें',
+        'user_type'=>'उपयोगकर्ता प्रकार चुनें','select_user'=>'-- उपयोगकर्ता प्रकार चुनें --','renter'=>'किसान / किरायेदार','lender'=>'उपकरण मालिक / ऋणदाता',
+        'password'=>'पासवर्ड','password_ph'=>'अपना पासवर्ड दर्ज करें','confirm_password'=>'पासवर्ड की पुष्टि करें','confirm_ph'=>'अपना पासवर्ड फिर से दर्ज करें',
+        'security'=>'सुरक्षा प्रश्न','select_question'=>'-- सुरक्षा प्रश्न चुनें --','first_pet'=>'आपके पहले पालतू जानवर का नाम क्या था?','birth_city'=>'आपका जन्म किस शहर में हुआ था?',
+        'mother_maiden'=>'आपकी माँ का विवाह से पहले का नाम क्या था?','first_school'=>'आपके पहले स्कूल का नाम क्या था?','answer'=>'सुरक्षा उत्तर','answer_ph'=>'अपना उत्तर दर्ज करें',
+        'agree'=>'मैं सहमत हूँ','terms'=>'नियम और शर्तें','and'=>'और','privacy'=>'गोपनीयता नीति','already'=>'क्या आपके पास पहले से खाता है?','login_here'=>'यहाँ लॉगिन करें',
+        'err_terms'=>'कृपया नियम और शर्तों तथा गोपनीयता नीति से सहमत हों।','err_password'=>'पासवर्ड मेल नहीं खाते!',
+        'err_exists'=>'इस ईमेल या फोन नंबर से पहले से एक खाता मौजूद है!','success'=>'पंजीकरण सफल हुआ! आपको आपके डैशबोर्ड पर भेजा जा रहा है...','db_error'=>'डेटाबेस त्रुटि: '
+    ]
+];
+
+$t = $register_text[$current_lang];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $full_name         = mysqli_real_escape_string($conn, $_POST['full_name']);
     $email             = mysqli_real_escape_string($conn, $_POST['email']);
     $phone             = mysqli_real_escape_string($conn, $_POST['phone']);
     $address           = mysqli_real_escape_string($conn, $_POST['address']);
+    $city              = mysqli_real_escape_string($conn, trim($_POST['city'] ?? ''));
+    $district          = mysqli_real_escape_string($conn, trim($_POST['district'] ?? ''));
+    $state             = mysqli_real_escape_string($conn, trim($_POST['state'] ?? ''));
     $user_type         = mysqli_real_escape_string($conn, $_POST['user_type']);
     $password          = $_POST['password'];
     $confirm_password  = $_POST['confirm_password'];
     $security_question = mysqli_real_escape_string($conn, $_POST['security_question']);
     $security_answer   = mysqli_real_escape_string($conn, $_POST['security_answer']);
 
-    // Check Terms & Conditions
     if (!isset($_POST['terms'])) {
-        $error = "Please agree to the Terms and Conditions and Privacy Policy.";
-    }
-
-    // Check if passwords match
-    elseif ($password !== $confirm_password) {
-        $error = "Passwords do not match!";
+        $error = $t['err_terms'];
+    } elseif ($password !== $confirm_password) {
+        $error = $t['err_password'];
     } else {
-
-        // Check if email or phone already exists
         $check_sql = "SELECT * FROM users WHERE email='$email' OR phone='$phone'";
         $check_res = mysqli_query($conn, $check_sql);
 
         if ($check_res && mysqli_num_rows($check_res) > 0) {
-            $error = "An account with this Email or Phone number already exists!";
+            $error = $t['err_exists'];
         } else {
-
-            // Securely hash the password before saving
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-            // Insert into database
-            $insert_sql = "INSERT INTO users 
-                           (full_name, email, phone, address, role, password, security_question, security_answer) 
-                           VALUES 
-                           ('$full_name', '$email', '$phone', '$address', '$user_type', '$hashed_password', '$security_question', '$security_answer')";
-            
+            $insert_sql = "INSERT INTO users
+                           (full_name, email, phone, address, city, district, state, role, password, security_question, security_answer)
+                           VALUES
+                           ('$full_name', '$email', '$phone', '$address', '$city', '$district', '$state', '$user_type', '$hashed_password', '$security_question', '$security_answer')";
+
             if (mysqli_query($conn, $insert_sql)) {
-
-                // Get newly created user ID
                 $user_id = mysqli_insert_id($conn);
-
-                // Set session variables (Auto-login)
-                $_SESSION['user_id']   = $user_id;
+                $_SESSION['user_id'] = $user_id;
                 $_SESSION['full_name'] = $full_name;
-                $_SESSION['email']     = $email;
-                $_SESSION['role']      = $user_type;
+                $_SESSION['email'] = $email;
+                $_SESSION['role'] = $user_type;
 
-                // Select dashboard based on user_type selection
-                $target_page = ($user_type === 'lender') 
-                    ? 'lender_dashboard.php' 
-                    : 'renter_dashboard.php';
-
-                $success = "Registration successful! Redirecting to your dashboard...";
+                $target_page = ($user_type === 'lender') ? 'lender_dashboard.php' : 'renter_dashboard.php';
+                $success = $t['success'];
 
                 echo "<script>
-                        setTimeout(function(){ 
-                            window.location.href = '$target_page'; 
-                        }, 1500);
+                        setTimeout(function(){ window.location.href = '$target_page'; }, 1500);
                       </script>";
-
             } else {
-                $error = "Database Error: " . mysqli_error($conn);
+                $error = $t['db_error'] . mysqli_error($conn);
             }
         }
     }
 }
-?>
-
-<!DOCTYPE html>
-<html lang="en">
+?><!DOCTYPE html>
+<html lang="<?= htmlspecialchars($current_lang); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - AgriRent</title>
+    <title><?= htmlspecialchars($t['title']); ?></title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -157,6 +201,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .btn-outline-login:hover {
             background-color: var(--brand-green);
             color: #fff;
+        }
+
+        .language-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 14px;
+            color: var(--brand-green);
+        }
+
+        .language-box i {
+            font-size: 0.95rem;
+        }
+
+        .language-box select {
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--brand-green);
+            font-weight: 600;
+            cursor: pointer;
         }
 
         /* --- Outer Card Layout --- */
@@ -367,14 +432,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
 
                 <div class="brand-logo-icon">
-                    <!-- Icon here -->
+                    <i class="fa-solid fa-tractor"></i>
                 </div>
 
                 <div>
-                    <div class="brand-text-main">AgriRent</div>
-                    <div class="brand-text-sub">
-                        Agriculture Equipment Rental System
-                    </div>
+                    <div class="brand-text-main"><?= htmlspecialchars($t['brand_main']); ?></div>
+                    <div class="brand-text-sub"><?= htmlspecialchars($t['brand_sub']); ?></div>
                 </div>
 
             </a>
@@ -393,33 +456,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <ul class="navbar-nav align-items-center me-3">
 
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php">Home</a>
+                        <a class="nav-link" href="index.php?lang=<?= urlencode($current_lang); ?>"><?= htmlspecialchars($t['home']); ?></a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Browse Equipment</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Categories</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">How It Works</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">About Us</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contact Us</a>
+                        <a class="nav-link" href="#"><?= htmlspecialchars($t['how_it_works']); ?></a>
                     </li>
 
                 </ul>
 
-                <a href="login.php" class="btn-outline-login">
-                    <i class="fa-regular fa-user"></i> Login
+                <div class="language-box">
+                    <i class="fa-solid fa-globe"></i>
+                    <select onchange="location.href=this.value;">
+                        <option value="register.php?lang=en" <?= $current_lang === 'en' ? 'selected' : ''; ?>>English</option>
+                        <option value="register.php?lang=kn" <?= $current_lang === 'kn' ? 'selected' : ''; ?>>ಕನ್ನಡ</option>
+                        <option value="register.php?lang=hi" <?= $current_lang === 'hi' ? 'selected' : ''; ?>>हिंदी</option>
+                    </select>
+                </div>
+                <a href="login.php?lang=<?= urlencode($current_lang); ?>" class="btn-outline-login">
+                    <i class="fa-regular fa-user"></i> <?= htmlspecialchars($t['login']); ?>
                 </a>
 
             </div>
@@ -441,14 +496,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div>
 
                             <h2 class="banner-heading">
-                                Create Your Account<br>
-                                and Get Started!
+                                <?= htmlspecialchars($t['create_account']); ?><br>
+                                <?= htmlspecialchars($t['get_started']); ?>
                             </h2>
 
                             <div class="banner-line"></div>
 
                             <p class="banner-subtext">
-                                Join AgriRent today and access a wide range of agricultural equipment for your farming needs.
+                                <?= htmlspecialchars($t['banner_sub']); ?>
                             </p>
 
                         </div>
@@ -472,11 +527,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         <div class="form-header-title">
                             <i class="fa-solid fa-user-plus"></i>
-                            Register
+                            <?= htmlspecialchars($t['register']); ?>
                         </div>
 
                         <p class="form-header-sub">
-                            Fill in the details to create your account
+                            <?= htmlspecialchars($t['form_sub']); ?>
                         </p>
 
                         <?php if($error != ""): ?>
@@ -503,7 +558,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Full Name
+                                        <?= htmlspecialchars($t['full_name']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -513,7 +568,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <input type="text"
                                                name="full_name"
                                                class="form-control"
-                                               placeholder="Enter your full name"
+                                               placeholder="<?= htmlspecialchars($t['full_name_ph']); ?>"
                                                required>
 
                                     </div>
@@ -524,7 +579,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Email Address
+                                        <?= htmlspecialchars($t['email']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -534,7 +589,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <input type="email"
                                                name="email"
                                                class="form-control"
-                                               placeholder="Enter your email address"
+                                               placeholder="<?= htmlspecialchars($t['email_ph']); ?>"
                                                required>
 
                                     </div>
@@ -545,7 +600,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Phone Number
+                                        <?= htmlspecialchars($t['phone']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -555,7 +610,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <input type="text"
                                                name="phone"
                                                class="form-control"
-                                               placeholder="Enter your phone number"
+                                               placeholder="<?= htmlspecialchars($t['phone_ph']); ?>"
                                                required>
 
                                     </div>
@@ -566,7 +621,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Address
+                                        <?= htmlspecialchars($t['address']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -576,18 +631,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <input type="text"
                                                name="address"
                                                class="form-control"
-                                               placeholder="Enter your full address"
+                                               placeholder="<?= htmlspecialchars($t['address_ph']); ?>"
                                                required>
 
                                     </div>
 
                                 </div>
 
+                                <!-- City -->
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <?= htmlspecialchars($t['city']); ?>
+                                    </label>
+                                    <div class="input-group-custom">
+                                        <i class="fa-solid fa-city input-icon-left"></i>
+                                        <input type="text"
+                                               name="city"
+                                               class="form-control"
+                                               placeholder="<?= htmlspecialchars($t['city_ph']); ?>"
+                                               required>
+                                    </div>
+                                </div>
+
+                                <!-- District -->
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <?= htmlspecialchars($t['district']); ?>
+                                    </label>
+                                    <div class="input-group-custom">
+                                        <i class="fa-solid fa-map-location-dot input-icon-left"></i>
+                                        <input type="text"
+                                               name="district"
+                                               class="form-control"
+                                               placeholder="<?= htmlspecialchars($t['district_ph']); ?>"
+                                               required>
+                                    </div>
+                                </div>
+
+                                <!-- State -->
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <?= htmlspecialchars($t['state']); ?>
+                                    </label>
+                                    <div class="input-group-custom">
+                                        <i class="fa-solid fa-map input-icon-left"></i>
+                                        <input type="text"
+                                               name="state"
+                                               class="form-control"
+                                               placeholder="<?= htmlspecialchars($t['state_ph']); ?>"
+                                               required>
+                                    </div>
+                                </div>
+
                                 <!-- Select User Type -->
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Select User Type
+                                        <?= htmlspecialchars($t['user_type']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -601,15 +701,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <option value=""
                                                     selected
                                                     disabled>
-                                                -- Select User Type --
+                                                <?= htmlspecialchars($t['select_user']); ?>
                                             </option>
 
                                             <option value="renter">
-                                                Farmer / Renter
+                                                <?= htmlspecialchars($t['renter']); ?>
                                             </option>
 
                                             <option value="lender">
-                                                Equipment Owner / Lender
+                                                <?= htmlspecialchars($t['lender']); ?>
                                             </option>
 
                                         </select>
@@ -622,7 +722,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Password
+                                        <?= htmlspecialchars($t['password']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -633,7 +733,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                name="password"
                                                id="passInput"
                                                class="form-control"
-                                               placeholder="Enter your password"
+                                               placeholder="<?= htmlspecialchars($t['password_ph']); ?>"
                                                required>
 
                                         <i class="fa-regular fa-eye-slash input-icon-right"
@@ -647,7 +747,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Confirm Password
+                                        <?= htmlspecialchars($t['confirm_password']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -658,7 +758,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                name="confirm_password"
                                                id="confirmPassInput"
                                                class="form-control"
-                                               placeholder="Confirm your password"
+                                               placeholder="<?= htmlspecialchars($t['confirm_ph']); ?>"
                                                required>
 
                                         <i class="fa-regular fa-eye-slash input-icon-right"
@@ -675,7 +775,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                                 <span>
                                     <i class="fa-solid fa-shield-halved"></i>
-                                    Security Question
+                                    <?= htmlspecialchars($t['security']); ?>
                                 </span>
 
                             </div>
@@ -686,7 +786,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Security Question
+                                        <?= htmlspecialchars($t['security']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -700,23 +800,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <option value=""
                                                     selected
                                                     disabled>
-                                                -- Select a Security Question --
+                                                <?= htmlspecialchars($t['select_question']); ?>
                                             </option>
 
                                             <option value="first_pet">
-                                                What was the name of your first pet?
+                                                <?= htmlspecialchars($t['first_pet']); ?>
                                             </option>
 
                                             <option value="birth_city">
-                                                In what city were you born?
+                                                <?= htmlspecialchars($t['birth_city']); ?>
                                             </option>
 
                                             <option value="mother_maiden">
-                                                What is your mother's maiden name?
+                                                <?= htmlspecialchars($t['mother_maiden']); ?>
                                             </option>
 
                                             <option value="first_school">
-                                                What was the name of your first school?
+                                                <?= htmlspecialchars($t['first_school']); ?>
                                             </option>
 
                                         </select>
@@ -729,7 +829,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <div class="col-md-6">
 
                                     <label class="form-label">
-                                        Security Answer
+                                        <?= htmlspecialchars($t['answer']); ?>
                                     </label>
 
                                     <div class="input-group-custom">
@@ -739,7 +839,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         <input type="text"
                                                name="security_answer"
                                                class="form-control"
-                                               placeholder="Enter your answer"
+                                               placeholder="<?= htmlspecialchars($t['answer_ph']); ?>"
                                                required>
 
                                     </div>
@@ -760,15 +860,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <label class="form-check-label small text-secondary"
                                        for="termsCheck">
 
-                                    I agree to the
-                                    <a href="#"
+                                    <?= htmlspecialchars($t['agree']); ?>
+                                    <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>"
                                        class="text-success fw-semibold text-decoration-none">
-                                        Terms & Conditions
+                                        <?= htmlspecialchars($t['terms']); ?>
                                     </a>
-                                    and
-                                    <a href="#"
+                                    <?= htmlspecialchars($t['and']); ?>
+                                    <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>#privacy"
                                        class="text-success fw-semibold text-decoration-none">
-                                        Privacy Policy
+                                        <?= htmlspecialchars($t['privacy']); ?>
                                     </a>
 
                                 </label>
@@ -780,16 +880,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     class="btn-register-submit">
 
                                 <i class="fa-solid fa-user-plus"></i>
-                                Register
+                                <?= htmlspecialchars($t['register']); ?>
 
                             </button>
 
                             <!-- Footer Login Link -->
                             <div class="login-link-footer">
 
-                                Already have an account?
-                                <a href="login.php">
-                                    Login here
+                                <?= htmlspecialchars($t['already']); ?>
+                                <a href="login.php?lang=<?= urlencode($current_lang); ?>">
+                                    <?= htmlspecialchars($t['login_here']); ?>
                                 </a>
 
                             </div>
