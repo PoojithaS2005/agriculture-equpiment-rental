@@ -1,639 +1,769 @@
 <?php
 session_start();
-require_once 'includes/config.php';
 
-if (isset($_GET['lang']) && !empty($_GET['lang'])) {
+require_once __DIR__ . '/includes/config.php';
+
+$allowed_languages = ['en', 'kn', 'hi'];
+
+if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed_languages, true)) {
     $_SESSION['lang'] = $_GET['lang'];
+    $_SESSION['language'] = $_GET['lang'];
 }
-require_once 'includes/lang.php';
+
+$current_lang = $_SESSION['lang'] ?? $_SESSION['language'] ?? 'en';
+
+if (!in_array($current_lang, $allowed_languages, true)) {
+    $current_lang = 'en';
+    $_SESSION['lang'] = 'en';
+    $_SESSION['language'] = 'en';
+}
+
+require_once __DIR__ . '/includes/lang.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$renter_id = $_SESSION['user_id'];
-$current_lang = $_SESSION['lang'] ?? 'en';
+$renter_id = (int)$_SESSION['user_id'];
+$booking_id = isset($_GET['booking_id']) ? (int)$_GET['booking_id'] : 0;
 
-// CSRF protection for renter confirmation actions
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$lang_param = '?lang=' . urlencode($current_lang);
-
-$booking_id = isset($_GET['booking_id']) ? intval($_GET['booking_id']) : 0;
-if ($booking_id <= 0) {
-    header("Location: my_bookings.php" . $lang_param);
+if (!$booking_id) {
+    header("Location: my_bookings.php?lang=" . urlencode($current_lang));
     exit();
 }
 
+/*
+|--------------------------------------------------------------------------
+| Handle Booking Cancellation
+|--------------------------------------------------------------------------
+*/
+if (isset($_POST['cancel_booking'])) {
+    // Cancellation is allowed only before delivery: Pending or Accepted.
+    // Once the lender marks the booking as Delivered, cancellation is not allowed.
+    $equipment_title_for_notification = 'Equipment';
+    $lender_id_for_notification = 0;
+
+    // Get the appropriate lender and equipment before changing the status.
+    $cancel_info_stmt = $conn->prepare("
+        SELECT e.lender_id, e.title
+        FROM bookings b
+        INNER JOIN equipment e ON b.equipment_id = e.equipment_id
+        WHERE b.booking_id = ?
+          AND b.renter_id = ?
+          AND b.status IN ('Pending', 'Accepted')
+        LIMIT 1
+    ");
+
+    if ($cancel_info_stmt) {
+        $cancel_info_stmt->bind_param("ii", $booking_id, $renter_id);
+        $cancel_info_stmt->execute();
+        $cancel_info = $cancel_info_stmt->get_result()->fetch_assoc();
+        if ($cancel_info) {
+            $lender_id_for_notification = (int)$cancel_info['lender_id'];
+            $equipment_title_for_notification = $cancel_info['title'] ?: 'Equipment';
+        }
+        $cancel_info_stmt->close();
+    }
+
+    // Update only if the booking is still Pending or Accepted.
+    $cancel_stmt = $conn->prepare("
+        UPDATE bookings
+        SET status = 'Cancelled'
+        WHERE booking_id = ?
+          AND renter_id = ?
+          AND status IN ('Pending', 'Accepted')
+    ");
+
+    $cancelled_successfully = false;
+    if ($cancel_stmt) {
+        $cancel_stmt->bind_param("ii", $booking_id, $renter_id);
+        $cancel_stmt->execute();
+        $cancelled_successfully = ($cancel_stmt->affected_rows > 0);
+        $cancel_stmt->close();
+    }
+
+    // Notify the appropriate lender only after a successful cancellation.
+    if ($cancelled_successfully && $lender_id_for_notification > 0) {
+        $notification_title = 'Booking Cancelled by Renter';
+        $notification_message = 'The renter has cancelled the booking for ' . $equipment_title_for_notification . '.';
+
+        $notification_stmt = $conn->prepare("
+            INSERT INTO notifications (user_id, title, message, is_read)
+            VALUES (?, ?, ?, 0)
+        ");
+
+        if ($notification_stmt) {
+            $notification_stmt->bind_param(
+                "iss",
+                $lender_id_for_notification,
+                $notification_title,
+                $notification_message
+            );
+            $notification_stmt->execute();
+            $notification_stmt->close();
+        }
+    }
+
+    header("Location: booking_details.php?booking_id=" . $booking_id . "&lang=" . urlencode($current_lang) . "&cancelled=1");
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Booking & Equipment Details
+|--------------------------------------------------------------------------
+*/
+$sql = "
+    SELECT 
+        b.*,
+        e.title AS equipment_title,
+        e.category AS equipment_category,
+        e.service_location,
+        e.image AS equipment_image,
+        e.price_per_day,
+        u.full_name AS lender_name,
+        u.phone AS lender_phone,
+        u.email AS lender_email
+    FROM bookings b
+    JOIN equipment e ON b.equipment_id = e.equipment_id
+    JOIN users u ON e.lender_id = u.user_id
+    WHERE b.booking_id = ? AND b.renter_id = ?
+";
+
+$stmt = $conn->prepare($sql);
+$booking = null;
+
+if ($stmt) {
+    $stmt->bind_param("ii", $booking_id, $renter_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $booking = $result->fetch_assoc();
+    $stmt->close();
+}
+
+if (!$booking) {
+    header("Location: my_bookings.php?lang=" . urlencode($current_lang));
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Unread Notification Count
+|--------------------------------------------------------------------------
+*/
 $notif_count = 0;
 $notif_check = $conn->query("SHOW TABLES LIKE 'notifications'");
+
 if ($notif_check && $notif_check->num_rows > 0) {
-    $n_stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM notifications WHERE user_id = ? AND (is_read = 0 OR is_read IS NULL)");
+    $n_stmt = $conn->prepare("
+        SELECT COUNT(*) AS cnt
+        FROM notifications
+        WHERE user_id = ? AND (is_read = 0 OR is_read IS NULL)
+    ");
     if ($n_stmt) {
         $n_stmt->bind_param("i", $renter_id);
         $n_stmt->execute();
-        $notif_count = intval($n_stmt->get_result()->fetch_assoc()['cnt'] ?? 0);
+        $notif_count = (int)($n_stmt->get_result()->fetch_assoc()['cnt'] ?? 0);
         $n_stmt->close();
     }
 }
 
-$sql = "SELECT b.*, 
-               e.title AS equipment_title, e.category AS equipment_category, e.service_location, e.image AS equipment_image, e.price_per_day,
-               u.user_id AS lender_id, u.full_name AS lender_name, u.phone AS lender_phone, u.email AS lender_email, u.address AS lender_address
-        FROM bookings b
-        JOIN equipment e ON b.equipment_id = e.equipment_id
-        JOIN users u ON e.lender_id = u.user_id
-        WHERE b.booking_id = ? AND b.renter_id = ?";
+$lang_param = '?lang=' . urlencode($current_lang);
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $booking_id, $renter_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    $stmt->close();
-    header("Location: my_bookings.php" . $lang_param);
-    exit();
-}
-$booking = $result->fetch_assoc();
-$stmt->close();
-
-// Fetch the renter's review for this completed booking.
-$review = null;
-$review_stmt = $conn->prepare("SELECT review_id, rating, review_text, created_at, updated_at FROM reviews WHERE booking_id = ? AND renter_id = ? LIMIT 1");
-if ($review_stmt) {
-    $review_stmt->bind_param('ii', $booking_id, $renter_id);
-    $review_stmt->execute();
-    $review_result = $review_stmt->get_result();
-    $review = $review_result->fetch_assoc() ?: null;
-    $review_stmt->close();
-}
-
-/* =========================================================
-   RENTER CONFIRMATION ACTIONS
-   ========================================================= */
-$action_message = '';
-$action_error = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $csrf = $_POST['csrf_token'] ?? '';
-
-    if (!hash_equals($_SESSION['csrf_token'], $csrf)) {
-        $action_error = 'Invalid request. Please try again.';
-    } elseif ($action === 'confirm_delivery') {
-        if (($booking['status'] ?? '') !== 'Delivered') {
-            $action_error = 'Delivery can be confirmed only after the lender marks it as delivered.';
-        } elseif (!empty($booking['delivery_confirmed'])) {
-            $action_error = 'Delivery is already confirmed.';
-        } else {
-            $confirm_stmt = $conn->prepare("
-                UPDATE bookings
-                SET delivery_confirmed = 1, delivery_confirmed_at = NOW()
-                WHERE booking_id = ? AND renter_id = ? AND status = 'Delivered'
-            ");
-            if ($confirm_stmt) {
-                $confirm_stmt->bind_param('ii', $booking_id, $renter_id);
-                if ($confirm_stmt->execute() && $confirm_stmt->affected_rows > 0) {
-                    $action_message = 'Delivery confirmed successfully.';
-                    $booking['delivery_confirmed'] = 1;
-                    $booking['delivery_confirmed_at'] = date('Y-m-d H:i:s');
-                } else {
-                    $action_error = 'Unable to confirm delivery. Please try again.';
-                }
-                $confirm_stmt->close();
-            } else {
-                $action_error = 'Unable to process delivery confirmation.';
-            }
-        }
-    } elseif ($action === 'confirm_return') {
-        if (($booking['status'] ?? '') !== 'Returned') {
-            $action_error = 'Return can be confirmed only after the lender marks it as returned.';
-        } elseif (!empty($booking['return_confirmed'])) {
-            $action_error = 'Return is already confirmed.';
-        } else {
-            $confirm_stmt = $conn->prepare("
-                UPDATE bookings
-                SET return_confirmed = 1, return_confirmed_at = NOW(), status = 'Completed'
-                WHERE booking_id = ? AND renter_id = ? AND status = 'Returned'
-            ");
-            if ($confirm_stmt) {
-                $confirm_stmt->bind_param('ii', $booking_id, $renter_id);
-                if ($confirm_stmt->execute() && $confirm_stmt->affected_rows > 0) {
-                    $action_message = 'Return confirmed successfully. Rental completed.';
-                    $booking['return_confirmed'] = 1;
-                    $booking['return_confirmed_at'] = date('Y-m-d H:i:s');
-                    $booking['status'] = 'Completed';
-                } else {
-                    $action_error = 'Unable to confirm return. Please try again.';
-                }
-                $confirm_stmt->close();
-            } else {
-                $action_error = 'Unable to process return confirmation.';
-            }
-        }
-    }
-}
+// Calculations
+$start_ts = strtotime($booking['start_date']);
+$end_ts = strtotime($booking['end_date']);
+$total_days = max(1, ceil(($end_ts - $start_ts) / 86400) + 1);
+$status = $booking['status'];
+$just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $status === 'Cancelled';
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo htmlspecialchars($current_lang); ?>">
+<html lang="<?php echo htmlspecialchars($current_lang, ENT_QUOTES, 'UTF-8'); ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Details - Agriculture Equipment Rental System</title>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f9; display: flex; color: #1e293b; margin: 0; font-weight: 500; }
-        
-        .sidebar { width: 260px; background: #fff; min-height: 100vh; padding: 20px; border-right: 1px solid #e0e0e0; position: fixed; }
-        .logo { display: flex; align-items: center; gap: 12px; font-weight: 900; color: #198754; font-size: 16px; margin-bottom: 35px; line-height: 1.2; }
-        .logo i { font-size: 28px; color: #198754; }
-        .logo-text-main { font-size: 15px; font-weight: 900; letter-spacing: 0.3px; color: #198754; display: block; }
-        .logo-text-sub { font-size: 10px; font-weight: 800; color: #198754; letter-spacing: 0.5px; display: block; margin-top: 2px; }
-
-        .nav-list { list-style: none; padding-left: 0; }
-        .nav-item { margin-bottom: 10px; }
-        .nav-link { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; color: #334155; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; transition: 0.2s; }
-        .nav-link-content { display: flex; align-items: center; gap: 14px; }
-        .nav-link i { font-size: 17px; width: 20px; text-align: center; }
-        .nav-link:hover, .nav-link.active { background-color: #198754; color: #fff; }
-        .nav-link:hover .badge-count, .nav-link.active .badge-count { background: #fff; color: #198754; }
-
-        .main-content { margin-left: 260px; flex: 1; padding: 20px 30px; }
-        .top-nav-bar { background: #fff; padding: 12px 25px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: flex-end; align-items: center; gap: 20px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .breadcrumb-custom { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .breadcrumb-custom a { color: #198754; text-decoration: none; }
-        .breadcrumb-custom a:hover { text-decoration: underline; }
-
-        .page-header-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-        .page-header { font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
-        .page-subtitle { font-size: 14px; color: #64748b; font-weight: 600; margin: 0; }
-
-        .details-grid { display: grid; grid-template-columns: 1fr 380px; gap: 25px; align-items: start; }
-        @media(max-width: 1024px) {
-            .details-grid { grid-template-columns: 1fr; }
-            .sidebar { width: 75px; padding: 15px 10px; }
-            .sidebar .logo span, .sidebar .nav-link span { display: none; }
-            .main-content { margin-left: 75px; }
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .review-card { background:#fffdf5; border:1px solid #fde68a; border-radius:14px; padding:22px; margin-bottom:20px; }
-        .review-stars { color:#f59e0b; font-size:18px; letter-spacing:2px; }
-        .review-text { color:#334155; font-size:14px; line-height:1.6; white-space:pre-wrap; }
-        .btn-review { display:inline-flex; align-items:center; gap:7px; background:#f59e0b; color:#fff; text-decoration:none; border-radius:8px; padding:8px 14px; font-weight:800; font-size:13px; }
-        .btn-review:hover { background:#d97706; color:#fff; }
-        .content-card { background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .card-title-custom { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .card-title-custom i { color: #198754; }
+        body {
+            background-color: #f4f6f9;
+            color: #1e293b;
+            margin: 0;
+            font-weight: 500;
+        }
 
-        .booking-main-row { display: flex; gap: 20px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .equipment-img-box { width: 140px; height: 100px; border-radius: 10px; overflow: hidden; background: #f1f5f9; flex-shrink: 0; }
-        .equipment-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .equipment-detail-info h4 { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
-        .equipment-detail-info p { font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 4px; }
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+            padding: 20px 30px;
+        }
 
-        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
-        .spec-item { background: #f8fafc; padding: 12px 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
-        .spec-label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
-        .spec-value { font-size: 14px; font-weight: 800; color: #0f172a; }
+        .top-nav-bar {
+            background: #fff;
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
 
-        .badge-status { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
-        .status-upcoming { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
-        .status-ongoing { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-        .status-completed { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
-        .status-cancelled { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .status-pending { background: #f1f5f9; color: #737373; border: 1px solid #cbd5e1; }
+        .breadcrumb-nav {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
 
-        .progress-timeline { display: flex; justify-content: space-between; position: relative; margin: 30px 0 10px 0; padding: 0 10px; }
-        .progress-timeline::before { content: ''; position: absolute; top: 15px; left: 30px; right: 30px; height: 3px; background: #e2e8f0; z-index: 1; }
-        .timeline-step { position: relative; z-index: 2; text-align: center; flex: 1; }
-        .step-icon { width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; color: #64748b; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; font-size: 13px; font-weight: 800; border: 3px solid #fff; box-shadow: 0 0 0 1px #cbd5e1; }
-        .timeline-step.completed .step-icon { background: #198754; color: #fff; box-shadow: 0 0 0 1px #198754; }
-        .timeline-step.current .step-icon { background: #0284c7; color: #fff; box-shadow: 0 0 0 1px #0284c7; }
-        .step-title { font-size: 12px; font-weight: 700; color: #334155; }
+        .breadcrumb-nav a {
+            color: #64748b;
+            text-decoration: none;
+        }
 
-        .timeline-list { position: relative; padding-left: 25px; margin-top: 15px; }
-        .timeline-list::before { content: ''; position: absolute; left: 7px; top: 5px; bottom: 5px; width: 2px; background: #e2e8f0; }
-        .timeline-item { position: relative; margin-bottom: 20px; }
-        .timeline-item:last-child { margin-bottom: 0; }
-        .timeline-dot { position: absolute; left: -25px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #cbd5e1; border: 3px solid #fff; box-shadow: 0 0 0 1px #94a3b8; }
-        .timeline-item.completed .timeline-dot { background: #198754; box-shadow: 0 0 0 1px #198754; }
-        .timeline-content h6 { font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
-        .timeline-content p { font-size: 12px; font-weight: 600; color: #64748b; margin: 0; }
+        .page-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-        .summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 12px; }
-        .summary-row.total { font-size: 16px; font-weight: 900; color: #0f172a; border-top: 1px dashed #cbd5e1; padding-top: 12px; margin-top: 12px; }
-        .summary-row .amount { font-weight: 800; color: #198754; }
+        .page-header {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
 
-        .action-btns-box { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-        .confirmation-box { margin-top: 18px; padding: 16px; border-radius: 12px; border: 1px solid #dbeafe; background: #eff6ff; }
-        .confirmation-box.confirmed { border-color: #bbf7d0; background: #f0fdf4; }
-        .confirmation-title { font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
-        .confirmation-text { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 12px; }
-        .btn-confirm-rental { width: 100%; border: 0; border-radius: 9px; padding: 10px 12px; background: #198754; color: #fff; font-size: 13px; font-weight: 800; }
-        .btn-confirm-rental:hover { background: #157347; }
-        .alert-action { margin-bottom: 18px; font-size: 13px; font-weight: 700; }
-        .btn-action-custom { width: 100%; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-        .btn-lender-details { background: #f8fafc; color: #334155; border: 1.5px solid #cbd5e1; }
-        .btn-lender-details:hover { background: #e2e8f0; color: #0f172a; }
-        .btn-contact-lender { background: #198754; color: #fff; border: 1.5px solid #198754; }
-        .btn-contact-lender:hover { background: #157347; color: #fff; }
+        .page-subtitle {
+            font-size: 13px;
+            color: #64748b;
+        }
 
-        .notes-list { padding-left: 18px; margin: 0; font-size: 13px; font-weight: 600; color: #475569; line-height: 1.6; }
-        .notes-list li { margin-bottom: 6px; }
+        .btn-back {
+            border: 1px solid #198754;
+            color: #198754;
+            background: #fff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s;
+        }
 
-        .badge-count { background: #dc2626; color: #fff; border-radius: 50px; padding: 2px 8px; font-size: 11px; font-weight: 900; }
-        .profile-avatar-btn { width: 38px; height: 38px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #334155; text-decoration: none; font-size: 16px; border: 2px solid #cbd5e1; transition: 0.2s; }
-        .profile-avatar-btn:hover { background: #198754; color: #fff; border-color: #198754; }
+        .btn-back:hover {
+            background: #198754;
+            color: #fff;
+        }
+
+        .content-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        .card-title-custom {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .equipment-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .equipment-img {
+            width: 100px;
+            height: 75px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f1f5f9;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .meta-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        .meta-item label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #64748b;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .meta-item span {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .info-pill {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Stepper */
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 25px 0 10px 0;
+        }
+
+        .stepper::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            background: #fff;
+            padding: 0 8px;
+            text-align: center;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px auto;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .step.active .step-circle {
+            background: #0284c7;
+            color: #fff;
+        }
+
+        .step.completed .step-circle {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .step-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        /* Timeline list */
+        .timeline-list {
+            list-style: none;
+            padding-left: 15px;
+            position: relative;
+            margin: 0;
+        }
+
+        .timeline-list::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            left: 4px;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .timeline-item.active::before {
+            background: #16a34a;
+        }
+
+        .timeline-item h6 {
+            font-size: 13px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .timeline-item p {
+            font-size: 11px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .profile-avatar-btn {
+            width: 38px;
+            height: 38px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+            text-decoration: none;
+            font-size: 16px;
+            border: 2px solid #cbd5e1;
+        }
+
+        .btn-cancel-booking {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 9px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-cancel-booking:hover {
+            background: #bb2d3b;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-tractor"></i>
-            <div>
-                <span class="logo-text-main">AGRI-RENT</span>
-                <span class="logo-text-sub">EQUIPMENT SYSTEM</span>
-            </div>
-        </div>
-        <ul class="nav-list">
-            <li class="nav-item">
-                <a href="renter_dashboard.php<?php echo $lang_param; ?>" class="nav-link">
-                    <span class="nav-link-content"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="categories.php<?php echo $lang_param; ?>" class="nav-link">
-                    <span class="nav-link-content"><i class="fa-solid fa-grid-2"></i> <span>Categories</span></span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="my_bookings.php<?php echo $lang_param; ?>" class="nav-link active">
-                    <span class="nav-link-content"><i class="fa-solid fa-clock-rotate-left"></i> <span>My Bookings</span></span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="profile.php<?php echo $lang_param; ?>" class="nav-link">
-                    <span class="nav-link-content"><i class="fa-solid fa-user"></i> <span>My Profile</span></span>
-                </a>
-            </li>
-            <li class="nav-item" style="margin-top: 35px;">
-                <a href="logout.php" class="nav-link" style="color: #ef4444;">
-                    <span class="nav-link-content"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></span>
-                </a>
-            </li>
-        </ul>
+<?php include __DIR__ . '/renter_sidebar.php'; ?>
+
+<div class="main-content">
+
+    <!-- Top Navigation Bar -->
+    <div class="top-nav-bar">
+        <form action="booking_details.php" method="GET" class="d-flex align-items-center mb-0">
+            <input type="hidden" name="booking_id" value="<?php echo $booking_id; ?>">
+            <select name="lang" class="form-select form-select-sm fw-bold w-auto" onchange="this.form.submit()">
+                <option value="en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
+                <option value="hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी (Hindi)</option>
+                <option value="kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ (Kannada)</option>
+            </select>
+        </form>
+
+        <a href="notifications.php<?php echo $lang_param; ?>" class="position-relative text-dark text-decoration-none p-1">
+            <i class="fa-solid fa-bell fa-lg"></i>
+            <?php if ($notif_count > 0): ?>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
+                    <?php echo $notif_count; ?>
+                </span>
+            <?php endif; ?>
+        </a>
+
+        <a href="profile.php<?php echo $lang_param; ?>" class="profile-avatar-btn">
+            <i class="fa-solid fa-user"></i>
+        </a>
     </div>
 
-    <div class="main-content">
-        
-        <div class="top-nav-bar">
-            <form action="booking_details.php" method="GET" class="d-flex align-items-center mb-0">
-                <input type="hidden" name="booking_id" value="<?php echo $booking_id; ?>">
-                <select name="lang" class="form-select form-select-sm fw-bold w-auto" onchange="this.form.submit()">
-                    <option value="en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
-                    <option value="hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी (Hindi)</option>
-                    <option value="kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ (Kannada)</option>
-                </select>
-            </form>
-            <a href="notifications.php<?php echo $lang_param; ?>" class="position-relative text-dark text-decoration-none p-1">
-                <i class="fa-solid fa-bell fa-lg"></i>
-                <?php if ($notif_count > 0): ?>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px; font-weight: 900;"><?php echo $notif_count; ?></span>
-                <?php endif; ?>
-            </a>
-            <a href="profile.php<?php echo $lang_param; ?>" class="profile-avatar-btn">
-                <i class="fa-solid fa-user"></i>
-            </a>
+    <!-- Header Section -->
+    <div class="breadcrumb-nav">
+        <a href="dashboard.php<?php echo $lang_param; ?>">Dashboard</a> &gt; 
+        <a href="my_bookings.php<?php echo $lang_param; ?>">My Bookings</a> &gt; 
+        <span>Booking Details</span>
+    </div>
+
+    <div class="page-header-container">
+        <div>
+            <h1 class="page-header"><?php echo htmlspecialchars(__('booking_details') === 'booking_details' ? 'Booking Details & Status' : __('booking_details')); ?></h1>
+            <div class="page-subtitle">Track your equipment rental status and lender details.</div>
         </div>
+        <a href="my_bookings.php<?php echo $lang_param; ?>" class="btn-back">
+            &larr; Back to My Bookings
+        </a>
+    </div>
 
-        <div class="breadcrumb-custom">
-            <a href="renter_dashboard.php<?php echo $lang_param; ?>">Dashboard</a>
-            <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
-            <a href="my_bookings.php<?php echo $lang_param; ?>">My Bookings</a>
-            <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
-            <span class="text-dark fw-bold">Booking Details</span>
+    <?php if ($status === 'Cancelled'): ?>
+        <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 10px; font-size: 13px; font-weight: 600;">
+            <i class="fa-solid fa-circle-xmark me-2"></i>
+            You have cancelled this equipment booking.
         </div>
+    <?php endif; ?>
 
-        <div class="page-header-box">
-            <div>
-                <h1 class="page-header">Booking Details & Status</h1>
-                <p class="page-subtitle">Track your equipment rental status and lender details.</p>
-            </div>
-            <a href="my_bookings.php<?php echo $lang_param; ?>" class="btn btn-outline-success fw-bold btn-sm px-3 py-2">
-                <i class="fa-solid fa-arrow-left me-1"></i> Back to My Bookings
-            </a>
-        </div>
-
-        <?php 
-            $img_path = !empty($booking['equipment_image']) ? 'uploads/' . $booking['equipment_image'] : '';
-            $has_img = !empty($booking['equipment_image']) && file_exists(__DIR__ . '/' . $img_path);
-
-            $st = $booking['status'];
-            $badge_class = 'status-pending';
-            $status_icon = 'fa-clock';
-            if ($st === 'Accepted') { $badge_class = 'status-upcoming'; $status_icon = 'fa-calendar-check'; }
-            elseif ($st === 'Delivered') { $badge_class = 'status-ongoing'; $status_icon = 'fa-spinner fa-spin'; }
-            elseif ($st === 'Returned') { $badge_class = 'status-completed'; $status_icon = 'fa-circle-check'; }
-            elseif ($st === 'Completed') { $badge_class = 'status-completed'; $status_icon = 'fa-circle-check'; }
-            elseif ($st === 'Rejected' || $st === 'Overdue') { $badge_class = 'status-cancelled'; $status_icon = 'fa-circle-xmark'; }
-        ?>
-
-        <?php if ($action_message): ?>
-            <div class="alert alert-success alert-action"><i class="fa-solid fa-circle-check me-1"></i><?php echo htmlspecialchars($action_message); ?></div>
-        <?php endif; ?>
-        <?php if ($action_error): ?>
-            <div class="alert alert-danger alert-action"><i class="fa-solid fa-circle-exclamation me-1"></i><?php echo htmlspecialchars($action_error); ?></div>
-        <?php endif; ?>
-
-        <div class="details-grid">
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
             
-            <div>
-                <!-- Booking Information Card -->
-                <div class="content-card">
-                    <div class="card-title-custom">
-                        <i class="fa-solid fa-circle-info"></i> Booking Information
-                    </div>
-
-                    <div class="booking-main-row">
-                        <div class="equipment-img-box">
-                            <?php if ($has_img): ?>
-                                <img src="<?php echo htmlspecialchars($img_path); ?>" alt="Equipment">
-                            <?php else: ?>
-                                <div class="d-flex align-items-center justify-content-center h-100 text-muted bg-light">
-                                    <i class="fa-solid fa-tractor fa-2x"></i>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="equipment-detail-info">
-                            <h4><?php echo htmlspecialchars($booking['equipment_title']); ?></h4>
-                            <p class="mb-1">Category: <strong><?php echo htmlspecialchars($booking['equipment_category']); ?></strong></p>
-                            <p class="mb-0"><i class="fa-solid fa-location-dot text-danger me-1"></i> <?php echo htmlspecialchars($booking['service_location']); ?></p>
-                        </div>
-                    </div>
-
-                    <div class="specs-grid">
-                        <div class="spec-item">
-                            <div class="spec-label">Booking ID</div>
-                            <div class="spec-value"><i class="fa-solid fa-barcode text-muted me-1"></i> <?php echo htmlspecialchars($booking['request_code'] ?? '#' . $booking['booking_id']); ?></div>
-                        </div>
-                        <div class="spec-item">
-                            <div class="spec-label">Booking Date</div>
-                            <div class="spec-value"><i class="fa-solid fa-calendar-days text-muted me-1"></i> <?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?></div>
-                        </div>
-                        <div class="spec-item">
-                            <div class="spec-label">Lender Name</div>
-                            <div class="spec-value"><i class="fa-solid fa-user text-muted me-1"></i> <?php echo htmlspecialchars($booking['lender_name']); ?></div>
-                        </div>
-                        <div class="spec-item">
-                            <div class="spec-label">Phone Number</div>
-                            <div class="spec-value"><i class="fa-solid fa-phone text-muted me-1"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?></div>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-light rounded-3 border mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted fw-bold" style="font-size: 13px;"><i class="fa-solid fa-calendar-week me-1"></i> Rental Period</span>
-                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fw-bold px-2 py-1"><?php echo intval($booking['total_days']); ?> Days</span>
-                        </div>
-                        <div class="fw-bold text-dark" style="font-size: 15px;">
-                            <?php echo date('d M Y', strtotime($booking['start_date'])); ?> – <?php echo date('d M Y', strtotime($booking['end_date'])); ?>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-light rounded-3 border">
-                        <div class="text-muted fw-bold mb-1" style="font-size: 13px;"><i class="fa-solid fa-location-crosshairs me-1 text-danger"></i> Delivery Address</div>
-                        <div class="fw-semibold text-dark" style="font-size: 14px;"><?php echo nl2br(htmlspecialchars($booking['delivery_address'] ?? 'N/A')); ?></div>
-                    </div>
+            <!-- Booking Information Card -->
+            <div class="content-card">
+                <div class="card-title-custom">
+                    <i class="fa-solid fa-circle-info text-success"></i> Booking Information
                 </div>
 
-                <!-- Booking Status Progress Stepper -->
-                <div class="content-card">
-                    <div class="card-title-custom">
-                        <i class="fa-solid fa-bars-progress"></i> Booking Status
-                        <div class="ms-auto">
-                            <span class="badge-status <?php echo $badge_class; ?>">
-                                <i class="fa-solid <?php echo $status_icon; ?>"></i> <?php echo htmlspecialchars($st); ?>
-                            </span>
-                        </div>
-                    </div>
-
+                <div class="equipment-box">
                     <?php 
-                        $is_pending = ($st === 'Pending');
-                        $is_accepted = ($st === 'Accepted');
-                        $is_delivered = ($st === 'Delivered');
-                        $is_returned = ($st === 'Returned');
+                    $img_path = !empty($booking['equipment_image']) ? 'uploads/' . $booking['equipment_image'] : '';
+                    if (!empty($booking['equipment_image']) && file_exists(__DIR__ . '/' . $img_path)): 
                     ?>
-
-                    <div class="progress-timeline">
-                        <div class="timeline-step completed">
-                            <div class="step-icon"><i class="fa-solid fa-check"></i></div>
-                            <div class="step-title">Submitted</div>
-                        </div>
-                        <div class="timeline-step <?php echo (!$is_pending) ? 'completed' : 'current'; ?>">
-                            <div class="step-icon"><?php echo (!$is_pending) ? '<i class="fa-solid fa-check"></i>' : '2'; ?></div>
-                            <div class="step-title">Pending Approval</div>
-                        </div>
-                        <div class="timeline-step <?php echo ($is_delivered || $is_returned) ? 'completed' : ($is_accepted ? 'current' : ''); ?>">
-                            <div class="step-icon"><?php echo ($is_delivered || $is_returned) ? '<i class="fa-solid fa-check"></i>' : '3'; ?></div>
-                            <div class="step-title">Accepted</div>
-                        </div>
-                        <div class="timeline-step <?php echo $is_returned ? 'completed' : ($is_delivered ? 'current' : ''); ?>">
-                            <div class="step-icon"><?php echo $is_returned ? '<i class="fa-solid fa-check"></i>' : '4'; ?></div>
-                            <div class="step-title">Delivered</div>
-                        </div>
-                        <div class="timeline-step <?php echo $is_returned ? 'completed' : ''; ?>">
-                            <div class="step-icon"><?php echo $is_returned ? '<i class="fa-solid fa-check"></i>' : '5'; ?></div>
-                            <div class="step-title">Returned</div>
-                        </div>
-                        <div class="timeline-step <?php echo ($st === 'Completed') ? 'completed' : ''; ?>">
-                            <div class="step-icon"><?php echo ($st === 'Completed') ? '<i class="fa-solid fa-check"></i>' : '6'; ?></div>
-                            <div class="step-title">Completed</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Your Review -->
-                <?php if ($st === 'Completed'): ?>
-                    <div class="content-card review-card">
-                        <div class="card-title-custom">
-                            <i class="fa-solid fa-star"></i> <?php echo __('your_review'); ?>
-                        </div>
-
-                        <?php if ($review): ?>
-                            <div class="review-stars" aria-label="<?php echo intval($review['rating']); ?> out of 5 stars">
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <?php echo ($i <= intval($review['rating'])) ? '★' : '☆'; ?>
-                                <?php endfor; ?>
-                                <span style="color:#475569;font-size:13px;letter-spacing:0;margin-left:8px;">
-                                    <?php echo intval($review['rating']); ?>/5
-                                </span>
-                            </div>
-                            <div class="review-text mt-3"><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></div>
-                            <div class="text-muted mt-3" style="font-size:12px;font-weight:600;">
-                                <?php echo __('reviewed_on'); ?>:
-                                <?php echo date('d M Y, h:i A', strtotime($review['created_at'])); ?>
-                            </div>
-                        <?php else: ?>
-                            <p class="text-muted fw-semibold mb-3"><?php echo __('no_review_yet'); ?></p>
-                            <a href="review_submit.php?booking_id=<?php echo urlencode($booking_id); ?><?php echo $lang_param; ?>" class="btn-review">
-                                <i class="fa-solid fa-star"></i> <?php echo __('submit_review'); ?>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Rental Timeline Section -->
-                <div class="content-card">
-                    <div class="card-title-custom">
-                        <i class="fa-solid fa-timeline"></i> Rental Timeline
-                    </div>
-
-                    <div class="timeline-list">
-                        <div class="timeline-item completed">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h6>Request Submitted</h6>
-                                <p>You have requested to book this equipment. (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item <?php echo (!$is_pending) ? 'completed' : ''; ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h6>Lender Review & Approval</h6>
-                                <p><?php echo (!$is_pending) ? 'Lender has reviewed and accepted your request.' : 'Awaiting lender review and confirmation.'; ?></p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item <?php echo ($is_delivered || $is_returned || $st === 'Completed') ? 'completed' : ''; ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h6>Equipment Delivery</h6>
-                                <p><?php echo ($is_delivered || $is_returned || $st === 'Completed') ? 'Equipment has been delivered successfully.' : 'Pending delivery execution by the lender.'; ?></p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item <?php echo ($is_returned || $st === 'Completed') ? 'completed' : ''; ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h6>Equipment Return</h6>
-                                <p><?php echo ($is_returned || $st === 'Completed') ? 'The lender has collected the equipment.' : 'Return will be recorded after the lender collects the equipment.'; ?></p>
-                            </div>
-                        </div>
-
-                        <div class="timeline-item <?php echo ($st === 'Completed') ? 'completed' : ''; ?>">
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h6>Rental Completed</h6>
-                                <p><?php echo ($st === 'Completed') ? 'You confirmed the return. This rental is completed.' : 'Waiting for return confirmation.'; ?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Important Notes -->
-                <div class="content-card">
-                    <div class="card-title-custom">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Important Notes
-                    </div>
-                    <ul class="notes-list">
-                        <li>Ensure the equipment is operated carefully and used only for intended agricultural purposes.</li>
-                        <li>Return the equipment on or before the agreed end date to avoid late penalty charges.</li>
-                        <li>Inspect the equipment upon delivery and report any mechanical issues immediately.</li>
-                        <li>Keep the equipment clean and securely stored when not in use during your rental period.</li>
-                        <li>Contact the lender directly if you need any assistance or have questions regarding operation.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Right Column: Order Summary & Action Buttons -->
-            <div>
-                <div class="content-card sticky-top" style="top: 20px;">
-                    <div class="card-title-custom">
-                        <i class="fa-solid fa-receipt"></i> Order Summary
-                    </div>
-
-                    <div class="summary-row">
-                        <span>Price per Day</span>
-                        <span class="fw-bold text-dark">₹<?php echo number_format($booking['price_per_day'], 2); ?></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Days</span>
-                        <span class="fw-bold text-dark"><?php echo intval($booking['total_days']); ?> Days</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Rent</span>
-                        <span class="amount">₹<?php echo number_format($booking['total_amount'], 2); ?></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Advance Paid</span>
-                        <span class="fw-bold text-dark">₹<?php echo number_format($booking['advance_amount'], 2); ?></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Remaining Amount (COD)</span>
-                        <span class="fw-bold text-danger">₹<?php echo number_format($booking['remaining_cod'] ?? ($booking['total_amount'] - $booking['advance_amount']), 2); ?></span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Payment Method</span>
-                        <span class="badge bg-light text-dark border px-2 py-1 fw-bold">Cash on Delivery</span>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="action-btns-box">
-                        <a href="lender_details.php?lender_id=<?php echo $booking['lender_id']; ?><?php echo $lang_param; ?>" class="btn-action-custom btn-lender-details">
-                            <span class="mb-0"><i class="fa-solid fa-user-tie"></i> View Lender Details</span>
-                        </a>
-                        <a href="tel:<?php echo htmlspecialchars($booking['lender_phone']); ?>" class="btn-action-custom btn-contact-lender">
-                            <i class="fa-solid fa-phone"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?>
-                        </a>
-
-                    <?php if ($st === 'Delivered'): ?>
-                        <div class="confirmation-box <?php echo !empty($booking['delivery_confirmed']) ? 'confirmed' : ''; ?>">
-                            <div class="confirmation-title"><i class="fa-solid fa-truck me-1"></i> Delivery Confirmation</div>
-                            <?php if (!empty($booking['delivery_confirmed'])): ?>
-                                <div class="confirmation-text mb-0"><i class="fa-solid fa-circle-check text-success me-1"></i>You have confirmed that the equipment was delivered.</div>
-                            <?php else: ?>
-                                <div class="confirmation-text">The lender has marked this equipment as delivered. Please confirm that you received it.</div>
-                                <form method="POST" onsubmit="return confirm('Confirm that you received the equipment?');">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                    <input type="hidden" name="action" value="confirm_delivery">
-                                    <button type="submit" class="btn-confirm-rental"><i class="fa-solid fa-circle-check me-1"></i> Confirm Delivery</button>
-                                </form>
-                            <?php endif; ?>
-                        </div>
-                    <?php elseif ($st === 'Returned'): ?>
-                        <div class="confirmation-box <?php echo !empty($booking['return_confirmed']) ? 'confirmed' : ''; ?>">
-                            <div class="confirmation-title"><i class="fa-solid fa-rotate-left me-1"></i> Return Confirmation</div>
-                            <?php if (!empty($booking['return_confirmed'])): ?>
-                                <div class="confirmation-text mb-0"><i class="fa-solid fa-circle-check text-success me-1"></i>You have confirmed that the equipment was returned.</div>
-                            <?php else: ?>
-                                <div class="confirmation-text">The lender has marked this equipment as returned. Please confirm that the equipment was collected.</div>
-                                <form method="POST" onsubmit="return confirm('Confirm that the equipment was collected by the lender?');">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                    <input type="hidden" name="action" value="confirm_return">
-                                    <button type="submit" class="btn-confirm-rental"><i class="fa-solid fa-circle-check me-1"></i> Confirm Return</button>
-                                </form>
-                            <?php endif; ?>
-                        </div>
-                    <?php elseif ($st === 'Completed'): ?>
-                        <div class="confirmation-box confirmed">
-                            <div class="confirmation-title"><i class="fa-solid fa-circle-check me-1 text-success"></i> Rental Completed</div>
-                            <div class="confirmation-text mb-0">Delivery and return have both been confirmed. This rental is completed.</div>
+                        <img src="<?php echo htmlspecialchars($img_path); ?>" class="equipment-img" alt="Equipment">
+                    <?php else: ?>
+                        <div class="equipment-img d-flex align-items-center justify-content-center text-muted">
+                            <i class="fa-solid fa-tractor fa-2x"></i>
                         </div>
                     <?php endif; ?>
+
+                    <div>
+                        <h5 class="fw-bold mb-1" style="font-size: 16px;"><?php echo htmlspecialchars($booking['equipment_title']); ?></h5>
+                        <p class="text-muted mb-1" style="font-size: 12px;">
+                            Category: <strong><?php echo htmlspecialchars($booking['equipment_category']); ?></strong>
+                        </p>
+                        <p class="text-muted mb-0" style="font-size: 12px;">
+                            <i class="fa-solid fa-location-dot text-danger me-1"></i>
+                            <?php echo htmlspecialchars($booking['service_location']); ?>
+                        </p>
                     </div>
                 </div>
+
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <label>Booking ID</label>
+                        <span><i class="fa-solid fa-barcode me-1 text-muted"></i> <?php echo htmlspecialchars($booking['request_code']); ?></span>
+                    </div>
+                    <div class="meta-item">
+                        <label>Booking Date</label>
+                        <span><i class="fa-solid fa-calendar me-1 text-muted"></i> <?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?></span>
+                    </div>
+                    <div class="meta-item">
+                        <label>Lender Name</label>
+                        <span><i class="fa-solid fa-user me-1 text-muted"></i> <?php echo htmlspecialchars($booking['lender_name']); ?></span>
+                    </div>
+                    <div class="meta-item">
+                        <label>Phone Number</label>
+                        <span><i class="fa-solid fa-phone me-1 text-muted"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?></span>
+                    </div>
+                </div>
+
+                <div class="info-pill d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fa-solid fa-calendar-days me-1 text-muted"></i> <strong>Rental Period</strong><br>
+                        <span class="text-muted"><?php echo date('d M Y', strtotime($booking['start_date'])); ?> – <?php echo date('d M Y', strtotime($booking['end_date'])); ?></span>
+                    </div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-bold"><?php echo $total_days; ?> Days</span>
+                </div>
+
+                <div class="info-pill">
+                    <i class="fa-solid fa-location-dot me-1 text-danger"></i> <strong>Delivery Address</strong><br>
+                    <span class="text-muted"><?php echo htmlspecialchars($booking['service_location']); ?></span>
+                </div>
+            </div>
+
+            <!-- Booking Status Stepper -->
+            <div class="content-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="card-title-custom mb-0">
+                        <i class="fa-solid fa-bars-progress text-success"></i> Booking Status
+                    </div>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-1 fw-bold">
+                        <?php echo htmlspecialchars($status); ?>
+                    </span>
+                </div>
+
+                <?php if ($status === 'Cancelled'): ?>
+                    <div class="stepper">
+                        <div class="step completed">
+                            <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                            <div class="step-label">Submitted</div>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                            <div class="step-label">Pending Approval</div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-circle"><i class="fa-solid fa-xmark"></i></div>
+                            <div class="step-label">Cancelled</div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                <div class="stepper">
+                    <div class="step <?php echo in_array($status, ['Pending', 'Accepted', 'Delivered', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
+                        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                        <div class="step-label">Submitted</div>
+                    </div>
+                    <div class="step <?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
+                        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                        <div class="step-label">Pending Approval</div>
+                    </div>
+                    <div class="step <?php echo ($status === 'Accepted') ? 'active' : (in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'completed' : ''); ?>">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Accepted</div>
+                    </div>
+                    <div class="step <?php echo ($status === 'Delivered') ? 'active' : (in_array($status, ['Returned', 'Completed']) ? 'completed' : ''); ?>">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Delivered</div>
+                    </div>
+                    <div class="step <?php echo ($status === 'Returned') ? 'active' : ($status === 'Completed' ? 'completed' : ''); ?>">
+                        <div class="step-circle">5</div>
+                        <div class="step-label">Returned</div>
+                    </div>
+                    <div class="step <?php echo ($status === 'Completed') ? 'completed' : ''; ?>">
+                        <div class="step-circle">6</div>
+                        <div class="step-label">Completed</div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Rental Timeline -->
+            <div class="content-card">
+                <div class="card-title-custom">
+                    <i class="fa-solid fa-timeline text-success"></i> Rental Timeline
+                </div>
+
+                <ul class="timeline-list">
+                    <?php if ($status === 'Cancelled'): ?>
+                        <li class="timeline-item active">
+                            <h6>Request Submitted</h6>
+                            <p>You requested to book this equipment. (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
+                        </li>
+                        <li class="timeline-item active">
+                            <h6>Booking Cancelled</h6>
+                            <p>You cancelled this equipment booking before delivery.</p>
+                        </li>
+                    <?php else: ?>
+                    <li class="timeline-item active">
+                        <h6>Request Submitted</h6>
+                        <p>You have requested to book this equipment. (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
+                    </li>
+                    <li class="timeline-item <?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'active' : ''; ?>">
+                        <h6>Lender Review & Approval</h6>
+                        <p><?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'Lender has reviewed and accepted your request.' : 'Waiting for lender approval.'; ?></p>
+                    </li>
+                    <li class="timeline-item <?php echo in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'active' : ''; ?>">
+                        <h6>Equipment Delivery</h6>
+                        <p><?php echo in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'Equipment has been delivered.' : 'Pending delivery execution by the lender.'; ?></p>
+                    </li>
+                    <li class="timeline-item <?php echo in_array($status, ['Returned', 'Completed']) ? 'active' : ''; ?>">
+                        <h6>Equipment Return</h6>
+                        <p><?php echo in_array($status, ['Returned', 'Completed']) ? 'Equipment returned to lender.' : 'Return will be recorded after the lender collects the equipment.'; ?></p>
+                    </li>
+                    <li class="timeline-item <?php echo ($status === 'Completed') ? 'active' : ''; ?>">
+                        <h6>Rental Completed</h6>
+                        <p><?php echo ($status === 'Completed') ? 'Rental process successfully finished.' : 'Waiting for return confirmation.'; ?></p>
+                    </li>
+                    <?php endif; ?>
+                </ul>
             </div>
 
         </div>
 
+        <!-- Right Column: Order Summary & Actions -->
+        <div class="col-lg-4">
+            <div class="content-card">
+                <div class="card-title-custom">
+                    <i class="fa-solid fa-receipt text-success"></i> Order Summary
+                </div>
+
+                <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                    <span class="text-muted">Price per Day</span>
+                    <span class="fw-bold">₹<?php echo number_format((float)($booking['price_per_day'] ?? 0), 2); ?></span>
+                </div>
+                <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                    <span class="text-muted">Total Days</span>
+                    <span class="fw-bold"><?php echo $total_days; ?> Days</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                    <span class="text-muted">Total Rent</span>
+                    <span class="fw-bold text-success">₹<?php echo number_format((float)$booking['total_amount'], 2); ?></span>
+                </div>
+                <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
+                    <span class="text-muted">Advance Paid</span>
+                    <span class="fw-bold">₹<?php echo number_format((float)$booking['advance_amount'], 2); ?></span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-3" style="font-size: 14px;">
+                    <span class="fw-bold">Remaining Amount (COD)</span>
+                    <span class="fw-bold text-danger">₹<?php echo number_format((float)($booking['total_amount'] - $booking['advance_amount']), 2); ?></span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted" style="font-size: 12px;">Payment Method</span>
+                    <div><span class="badge bg-light text-dark border">Cash on Delivery</span></div>
+                </div>
+
+                <button class="btn btn-light border w-100 fw-bold mb-2" style="font-size: 13px;">
+                    <i class="fa-solid fa-user me-1"></i> View Lender Details
+                </button>
+
+                <a href="tel:<?php echo htmlspecialchars($booking['lender_phone']); ?>" class="btn btn-success w-100 fw-bold mb-2" style="font-size: 13px;">
+                    <i class="fa-solid fa-phone me-1"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?>
+                </a>
+
+                <!-- Cancel Button Section: Only available BEFORE equipment delivery -->
+                <?php if ($status === 'Pending' || $status === 'Accepted'): ?>
+                    <form method="POST" action="booking_details.php?booking_id=<?php echo $booking_id; ?>&lang=<?php echo urlencode($current_lang); ?>" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                        <button type="submit" name="cancel_booking" value="1" class="btn-cancel-booking">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel Booking
+                        </button>
+                    </form>
+                <?php endif; ?>
+
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

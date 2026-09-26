@@ -120,13 +120,13 @@ if ($equipment_id <= 0) {
    ========================================================= */
 $sql = "
     SELECT 
-        i.*,
+        e.*,
         u.full_name AS lender_name,
         u.phone AS lender_phone
-    FROM items i
-    INNER JOIN users u ON i.lender_id = u.user_id
-    WHERE i.item_id = ?
-      AND i.status = 'Available'
+    FROM equipment e
+    INNER JOIN users u ON e.lender_id = u.user_id
+    WHERE e.equipment_id = ?
+      AND e.status = 'Available'
     LIMIT 1
 ";
 
@@ -156,6 +156,7 @@ if (!$equipment) {
    ========================================================= */
 $price_per_day = isset($equipment['price_per_day']) ? floatval($equipment['price_per_day']) : 0;
 $security_deposit = isset($equipment['security_deposit']) ? floatval($equipment['security_deposit']) : 0;
+$total_quantity = isset($equipment['total_quantity']) ? max(1, intval($equipment['total_quantity'])) : 1;
 
 if (isset($equipment['min_rental_days'])) {
     $min_booking_days = intval($equipment['min_rental_days']);
@@ -212,6 +213,9 @@ mysqli_stmt_close($stmt_user);
 
 $renter_display_name = !empty($renter_user['full_name']) ? $renter_user['full_name'] : 'Renter';
 $error_msg = "";
+$success_msg = "";
+$success_request_code = "";
+$success_booking_id = 0;
 
 /* =========================================================
    6. FORM SUBMISSION
@@ -223,13 +227,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone_number = trim($_POST['phone_number'] ?? '');
     $id_number = trim($_POST['id_number'] ?? '');
     $use_registered_address = isset($_POST['use_registered_address']);
+    $terms_accepted = isset($_POST['terms']) && $_POST['terms'] === '1';
 
-    if ($use_registered_address) {
+    if (!$terms_accepted) {
+        $error_msg = "Please agree to the Terms and Conditions before confirming the booking.";
+    }
+
+    if ($error_msg === '' && $use_registered_address) {
         $delivery_address = trim($renter_user['address'] ?? '');
         if ($delivery_address === '') {
             $error_msg = "Your registered address is not available. Please enter a delivery address.";
         }
-    } else {
+    } elseif ($error_msg === '') {
         $state = trim($_POST['address_state'] ?? '');
         $district = trim($_POST['address_district'] ?? '');
         $taluk = trim($_POST['address_taluk'] ?? '');
@@ -270,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error_msg = "Rental duration cannot exceed " . $max_booking_days . " days.";
             } else {
                 $check_sql = "
-                    SELECT COUNT(*) AS booking_count
+                    SELECT COALESCE(SUM(quantity), 0) AS booked_quantity
                     FROM bookings
                     WHERE equipment_id = ?
                       AND status IN ('Pending', 'Accepted', 'Delivered')
@@ -284,8 +293,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $check_data = mysqli_fetch_assoc($check_result);
                 mysqli_stmt_close($check_avail);
 
-                if (intval($check_data['booking_count'] ?? 0) > 0) {
-                    $error_msg = "This equipment is already booked for the selected dates.";
+                $booked_quantity = intval($check_data['booked_quantity'] ?? 0);
+                $available_quantity = max(0, $total_quantity - $booked_quantity);
+
+                if ($quantity > $available_quantity) {
+                    $error_msg = "Only " . $available_quantity . " unit(s) are available for the selected dates.";
                 } else {
                     if (!isset($_FILES['id_proof_doc']) || $_FILES['id_proof_doc']['error'] === UPLOAD_ERR_NO_FILE) {
                         $error_msg = "Please upload your identity proof.";
@@ -341,15 +353,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     );
 
                                     if (mysqli_stmt_execute($insert_stmt)) {
+                                        $booking_id = mysqli_insert_id($conn);
                                         mysqli_stmt_close($insert_stmt);
-                                        echo "<script>
-                                            alert('Booking request submitted successfully! Request Code: " . htmlspecialchars($request_code, ENT_QUOTES) . "');
-                                            window.location.href='my_bookings.php';
-                                        </script>";
-                                        exit();
+
+                                        /* -----------------------------------------
+                                           SEND REQUEST TO THE LENDER
+                                           ----------------------------------------- */
+                                        $lender_id = intval($equipment['lender_id'] ?? 0);
+
+                                        if ($lender_id > 0) {
+                                            $notification_title = 'New Rental Request';
+                                            $notification_message =
+                                                $renter_display_name .
+                                                ' has sent a rental request for ' .
+                                                ($equipment['title'] ?? 'your equipment') .
+                                                '. Request Code: ' . $request_code . '.';
+
+                                            $notification_stmt = mysqli_prepare(
+                                                $conn,
+                                                "INSERT INTO notifications (user_id, title, message, is_read) VALUES (?, ?, ?, 0)"
+                                            );
+
+                                            if ($notification_stmt) {
+                                                mysqli_stmt_bind_param(
+                                                    $notification_stmt,
+                                                    "iss",
+                                                    $lender_id,
+                                                    $notification_title,
+                                                    $notification_message
+                                                );
+                                                mysqli_stmt_execute($notification_stmt);
+                                                mysqli_stmt_close($notification_stmt);
+                                            }
+                                        }
+
+                                        /* Keep the user on the booking page and show a success message here. */
+                                        $success_booking_id = $booking_id;
+                                        $success_request_code = $request_code;
+                                        $success_msg = "Your booking is confirmed! The rental request has been sent to the lender.";
+
                                     } else {
-                                        $error_msg = "Booking could not be saved: " . mysqli_stmt_error($insert_stmt);
+                                        $db_error = mysqli_stmt_error($insert_stmt);
                                         mysqli_stmt_close($insert_stmt);
+
+                                        /* Remove uploaded file if the booking could not be saved. */
+                                        if (isset($destination) && is_file($destination)) {
+                                            @unlink($destination);
+                                        }
+
+                                        $error_msg = "Booking could not be saved: " . $db_error;
                                     }
                                 }
                             } else {
@@ -520,57 +572,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </nav>
 
 <!-- =====================================================
-     RENTAL SIDEBAR INCLUDE WITH INLINE TRANSLATION OVERRIDE
+     COMMON RENTER SIDEBAR
      ===================================================== -->
-<?php 
-$sidebar_file = '';
-if (file_exists('rental_sidebar.php')) {
-    $sidebar_file = 'rental_sidebar.php';
-} elseif (file_exists('renter_sidebar.php')) {
-    $sidebar_file = 'renter_sidebar.php';
-} elseif (file_exists('includes/rental_sidebar.php')) {
-    $sidebar_file = 'includes/rental_sidebar.php';
-}
 
-if (!empty($sidebar_file)) {
-    ob_start();
-    include $sidebar_file;
-    $sidebar_html = ob_get_clean();
-
-    // Translate sidebar without touching sidebar source code
-    $cur_lang = $_SESSION['lang'] ?? 'en';
-
-    if ($cur_lang === 'kn') {
-        $sidebar_map = [
-            'Dashboard'        => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
-            'Browse Equipment' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
-            'My Bookings'      => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
-            'Notifications'    => 'ಅಧಿಸೂಚನೆಗಳು',
-            'My Profile'       => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
-            'Profile'          => 'ಪ್ರೊಫೈಲ್',
-            'Logout'           => 'ನಿರ್ಗಮನ'
-        ];
-        foreach ($sidebar_map as $en_str => $kn_str) {
-            $sidebar_html = str_replace($en_str, $kn_str, $sidebar_html);
-        }
-    } elseif ($cur_lang === 'hi') {
-        $sidebar_map = [
-            'Dashboard'        => 'डैशबोर्ड',
-            'Browse Equipment' => 'उपकरण खोजें',
-            'My Bookings'      => 'मेरी बुकिंग',
-            'Notifications'    => 'अधिसूचनाएं',
-            'My Profile'       => 'मेरी प्रोफ़ाइल',
-            'Profile'          => 'प्रोफ़ाइल',
-            'Logout'           => 'लॉग आउट'
-        ];
-        foreach ($sidebar_map as $en_str => $hi_str) {
-            $sidebar_html = str_replace($en_str, $hi_str, $sidebar_html);
-        }
-    }
-
-    echo $sidebar_html;
-}
-?>
+<?php include 'renter_sidebar.php'; ?>
 
 <!-- =====================================================
      MAIN CONTENT
@@ -586,6 +591,22 @@ if (!empty($sidebar_file)) {
 
         <h2 class="mb-1 text-success fw-bold"><?= __('book_equipment_title'); ?></h2>
         <p class="text-muted mb-4" style="font-size:14px;"><?= __('book_subtitle'); ?></p>
+
+        <?php if (!empty($success_msg)): ?>
+            <div class="alert alert-success border-success alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-start">
+                    <i class="fa-solid fa-circle-check fa-lg me-2 mt-1"></i>
+                    <div>
+                        <div class="fw-bold"><?= htmlspecialchars($success_msg); ?></div>
+                        <?php if (!empty($success_request_code)): ?>
+                            <div class="small mt-1">Request Code: <strong><?= htmlspecialchars($success_request_code); ?></strong></div>
+                        <?php endif; ?>
+                        <div class="small mt-1">You can view this request anytime from <a href="my_bookings.php" class="fw-semibold text-success">My Bookings</a>.</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
 
         <?php if (!empty($error_msg)): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -642,12 +663,11 @@ if (!empty($sidebar_file)) {
                             <div class="col-md-4 mb-3">
                                 <label class="form-label text-muted" style="font-size:12px;"><?= __('lbl_quantity'); ?></label>
                                 <select class="form-select shadow-none" id="quantity" name="quantity">
-                                    <option value="1">1 <?= lang_text('lbl_unit', 'Unit'); ?></option>
-                                    <option value="2">2 <?= lang_text('lbl_units', 'Units'); ?></option>
-                                    <option value="3">3 <?= lang_text('lbl_units', 'Units'); ?></option>
-                                    <option value="4">4 <?= lang_text('lbl_units', 'Units'); ?></option>
-                                    <option value="5">5 <?= lang_text('lbl_units', 'Units'); ?></option>
+                                    <?php for ($qty = 1; $qty <= $total_quantity; $qty++): ?>
+                                        <option value="<?= $qty; ?>"><?= $qty; ?> <?= $qty === 1 ? lang_text('lbl_unit', 'Unit') : lang_text('lbl_units', 'Units'); ?></option>
+                                    <?php endfor; ?>
                                 </select>
+                                <small class="text-muted">Available quantity: <?= $total_quantity; ?></small>
                             </div>
                         </div>
 
@@ -719,7 +739,9 @@ if (!empty($sidebar_file)) {
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted" style="font-size:12px;"><?= __('lbl_gov_id'); ?></label>
+                                <label class="form-label text-muted" style="font-size:12px;">
+                                    <?= __('lbl_gov_id'); ?> <span class="text-danger fw-bold" title="Required">*</span>
+                                </label>
                                 <div class="upload-box" onclick="document.getElementById('id_proof_doc').click()">
                                     <i class="fa-solid fa-cloud-arrow-up text-success fa-2x mb-1"></i>
                                     <p class="mb-0 fw-semibold" style="font-size:13px;"><?= __('lbl_click_upload'); ?></p>
@@ -730,10 +752,14 @@ if (!empty($sidebar_file)) {
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted" style="font-size:12px;"><?= __('lbl_id_number'); ?></label>
+                                <label class="form-label text-muted" style="font-size:12px;">
+                                    <?= __('lbl_id_number'); ?> <span class="text-danger fw-bold" title="Required">*</span>
+                                </label>
                                 <input type="text" class="form-control" name="id_number" required value="<?= htmlspecialchars($_POST['id_number'] ?? ''); ?>">
 
-                                <label class="form-label text-muted mt-3" style="font-size:12px;"><?= __('lbl_phone_number'); ?></label>
+                                <label class="form-label text-muted mt-3" style="font-size:12px;">
+                                    <?= __('lbl_phone_number'); ?> <span class="text-danger fw-bold" title="Required">*</span>
+                                </label>
                                 <input type="text" class="form-control" name="phone_number" required value="<?= htmlspecialchars($_POST['phone_number'] ?? ''); ?>">
                             </div>
                         </div>
@@ -775,13 +801,16 @@ if (!empty($sidebar_file)) {
 
                     <!-- TERMS -->
                     <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <input class="form-check-input" type="checkbox" id="terms" name="terms" value="1" required>
                         <label class="form-check-label text-muted" for="terms" style="font-size:13px;">
-                            <?= __('lbl_agree_terms'); ?>
-                            <a href="terms_conditions.php?lang=<?= urlencode($_SESSION['lang'] ?? 'en'); ?>" target="_blank" rel="noopener noreferrer" class="text-success fw-semibold text-decoration-none" onclick="event.stopPropagation();">
+                            <?= __('lbl_agree_terms'); ?> <span class="text-danger fw-bold" title="Required">*</span>
+                            <a href="terms_privacy.php?lang=<?= urlencode($_SESSION['lang'] ?? 'en'); ?>" target="_blank" rel="noopener noreferrer" class="text-success fw-semibold text-decoration-none" onclick="event.stopPropagation();">
                                 <?= lang_text('lbl_terms_conditions', 'Terms and Conditions'); ?>
                             </a>
                         </label>
+                        <div class="small text-muted mt-1 ms-4">
+                            <span class="text-danger fw-bold">*</span> Required fields
+                        </div>
                     </div>
 
                 </div>
@@ -824,9 +853,9 @@ if (!empty($sidebar_file)) {
                             <?= lang_text('msg_not_charged_now', "You won't be charged now"); ?>
                         </div>
 
-                        <button type="submit" id="submitBtn" class="btn btn-agro w-100 mb-2 d-flex align-items-center justify-content-center gap-2">
-                            <span><?= lang_text('btn_confirm_booking', 'Confirm Booking'); ?></span>
-                            <i class="fa-solid fa-arrow-right"></i>
+                        <button type="submit" id="submitBtn" class="btn btn-agro w-100 mb-2 d-flex align-items-center justify-content-center gap-2" <?= !empty($success_msg) ? 'disabled' : ''; ?>>
+                            <span><?= !empty($success_msg) ? 'Booking Confirmed' : lang_text('btn_confirm_booking', 'Confirm Booking'); ?></span>
+                            <i class="fa-solid <?= !empty($success_msg) ? 'fa-circle-check' : 'fa-arrow-right'; ?>"></i>
                         </button>
 
                         <a href="categories.php" class="btn btn-outline-secondary w-100" style="font-size:13px;">
@@ -848,6 +877,7 @@ const pricePerDay = Number(<?php echo json_encode($price_per_day); ?>);
 const securityDeposit = Number(<?php echo json_encode($security_deposit); ?>);
 const minBookingDays = Number(<?php echo json_encode($min_booking_days); ?>);
 const maxBookingDays = Number(<?php echo json_encode($max_booking_days); ?>);
+const totalQuantity = Number(<?php echo json_encode($total_quantity); ?>);
 
 const langLabels = {
     day: <?php echo json_encode(lang_text('lbl_day', 'Day')); ?>,

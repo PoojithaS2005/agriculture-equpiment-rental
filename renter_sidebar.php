@@ -8,6 +8,8 @@ function renter_sidebar_link($page, $language)
 {
     return $page . '?lang=' . urlencode($language);
 }
+require_once 'includes/lang.php';
+
 ?>
 
 <style>
@@ -152,127 +154,127 @@ function renter_sidebar_link($page, $language)
 
         <div>
             <strong class="renter-brand-name">
-                AGRICULTURE
-            </strong>
+    <?= __('brand_main'); ?>
+</strong>
 
-            <span class="renter-brand-subtitle">
-                EQUIPMENT RENTAL SYSTEM
-            </span>
+<span class="renter-brand-subtitle">
+    <?= __('brand_sub'); ?>
+</span>
         </div>
 
     </div>
 
 
     <!-- MENU -->
-    <ul class="renter-nav">
+<ul class="renter-nav">
 
-        <!-- Dashboard -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('renter_dashboard.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'renter_dashboard.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-solid fa-border-all"></i>
-                <span><?= __('dashboard'); ?></span>
-            </a>
-        </li>
-
-
-        <!-- Search Equipment -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('search_equipment.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'search_equipment.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <span><?= __('search_equipment'); ?></span>
-            </a>
-        </li>
+    <!-- Dashboard -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('renter_dashboard.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'renter_dashboard.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-solid fa-border-all"></i>
+            <span><?= __('dashboard'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- Categories -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('categories.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'categories.php' || $current_page === 'category_items.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-solid fa-layer-group"></i>
-                <span><?= __('categories'); ?></span>
-            </a>
-        </li>
+    <!-- Search Equipment -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('search_equipment.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'search_equipment.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span><?= __('search_equipment'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- Notifications -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('notifications.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'notifications.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-regular fa-bell"></i>
-                <span>Notifications</span>
-            </a>
-        </li>
+    <!-- Categories -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('categories.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'categories.php' || $current_page === 'category_items.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-solid fa-layer-group"></i>
+            <span><?= __('categories'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- Recommended -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('recommended.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'recommended.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-regular fa-thumbs-up"></i>
-                <span><?= __('recommended'); ?></span>
-            </a>
-        </li>
+    <!-- Notifications -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('notifications.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'notifications.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-regular fa-bell"></i>
+            <span><?= __('notifications'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- My Bookings -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('my_bookings.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'my_bookings.php' || $current_page === 'booking_details.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-regular fa-calendar-check"></i>
-                <span><?= __('my_bookings'); ?></span>
-            </a>
-        </li>
+    <!-- Recommended -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('recommended.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'recommended.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-regular fa-thumbs-up"></i>
+            <span><?= __('recommended'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- Rental History -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('rental_history.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'rental_history.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span><?= __('rental_history'); ?></span>
-            </a>
-        </li>
+    <!-- My Bookings -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('my_bookings.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'my_bookings.php' || $current_page === 'booking_details.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-regular fa-calendar-check"></i>
+            <span><?= __('my_bookings'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- My Profile -->
-        <li class="renter-nav-item">
-            <a
-                href="<?= renter_sidebar_link('profile.php', $current_language); ?>"
-                class="renter-nav-link <?= ($current_page === 'profile.php') ? 'active' : ''; ?>"
-            >
-                <i class="fa-regular fa-user"></i>
-                <span>My Profile</span>
-            </a>
-        </li>
+    <!-- Rental History -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('rental_history.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'rental_history.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span><?= __('rental_history'); ?></span>
+        </a>
+    </li>
 
 
-        <!-- Logout -->
-        <li class="renter-nav-item renter-logout">
-            <a
-                href="logout.php"
-                class="renter-nav-link renter-logout-link"
-            >
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span><?= __('logout'); ?></span>
-            </a>
-        </li>
+    <!-- My Profile -->
+    <li class="renter-nav-item">
+        <a
+            href="<?= renter_sidebar_link('profile.php', $current_language); ?>"
+            class="renter-nav-link <?= ($current_page === 'profile.php') ? 'active' : ''; ?>"
+        >
+            <i class="fa-regular fa-user"></i>
+            <span><?= __('my_profile'); ?></span>
+        </a>
+    </li>
 
-    </ul>
+
+    <!-- Logout -->
+    <li class="renter-nav-item renter-logout">
+        <a
+            href="logout.php"
+            class="renter-nav-link renter-logout-link"
+        >
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span><?= __('logout'); ?></span>
+        </a>
+    </li>
+
+</ul>
 
 </div>

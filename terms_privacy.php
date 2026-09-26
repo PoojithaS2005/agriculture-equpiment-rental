@@ -77,6 +77,7 @@ $page = [
 'notice_text'=>'This page describes the rules for using the project system. It does not replace any legal agreement between a lender and renter. Users should follow applicable local laws and safe equipment practices.',
 'back'=>'Back to Register'
 ],
+
 'kn'=>[
 'title'=>'ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು ಹಾಗೂ ಗೌಪ್ಯತಾ ನೀತಿ',
 'brand_main'=>'ಕೃಷಿ','brand_sub'=>'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
@@ -138,6 +139,7 @@ $page = [
 'notice_text'=>'ಈ ಪುಟವು ಈ ಪ್ರಾಜೆಕ್ಟ್ ವ್ಯವಸ್ಥೆಯನ್ನು ಬಳಸುವ ನಿಯಮಗಳನ್ನು ವಿವರಿಸುತ್ತದೆ. ಇದು ಸಾಲದಾತ ಮತ್ತು ಬಾಡಿಗೆದಾರರ ನಡುವಿನ ಯಾವುದೇ ಕಾನೂನು ಒಪ್ಪಂದಕ್ಕೆ ಪರ್ಯಾಯವಲ್ಲ. ಅನ್ವಯಿಸುವ ಸ್ಥಳೀಯ ಕಾನೂನುಗಳು ಮತ್ತು ಸುರಕ್ಷಿತ ಉಪಕರಣ ಬಳಕೆಯ ನಿಯಮಗಳನ್ನು ಪಾಲಿಸಿ.',
 'back'=>'ನೋಂದಣಿಗೆ ಹಿಂತಿರುಗಿ'
 ],
+
 'hi'=>[
 'title'=>'नियम और शर्तें तथा गोपनीयता नीति',
 'brand_main'=>'कृषि','brand_sub'=>'उपकरण किराया प्रणाली',
@@ -202,6 +204,51 @@ $page = [
 ];
 
 $t = $page[$current_lang];
+
+
+/* ===== BACK BUTTON LOGIC ===== */
+
+$from = $_GET['from'] ?? 'register';
+
+if ($from === 'login') {
+
+    $back_page = 'login.php?lang=' . urlencode($current_lang);
+
+    if ($current_lang === 'kn') {
+        $back_text = 'ಲಾಗಿನ್‌ಗೆ ಹಿಂತಿರುಗಿ';
+    } elseif ($current_lang === 'hi') {
+        $back_text = 'लॉगिन पर वापस जाएं';
+    } else {
+        $back_text = 'Back to Login';
+    }
+
+} elseif ($from === 'rent_now') {
+
+    $equipment_id = isset($_GET['equipment_id']) ? intval($_GET['equipment_id']) : 0;
+
+    $back_page = 'rent_now.php?equipment_id=' . $equipment_id . '&lang=' . urlencode($current_lang);
+
+    if ($current_lang === 'kn') {
+        $back_text = 'ಬಾಡಿಗೆಗೆ ಹಿಂತಿರುಗಿ';
+    } elseif ($current_lang === 'hi') {
+        $back_text = 'किराए पर वापस जाएं';
+    } else {
+        $back_text = 'Back to Rent Now';
+    }
+
+} else {
+
+    $back_page = 'register.php?lang=' . urlencode($current_lang);
+
+    if ($current_lang === 'kn') {
+        $back_text = 'ನೋಂದಣಿಗೆ ಹಿಂತಿರುಗಿ';
+    } elseif ($current_lang === 'hi') {
+        $back_text = 'पंजीकरण पर वापस जाएं';
+    } else {
+        $back_text = 'Back to Register';
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($current_lang); ?>">
@@ -209,8 +256,10 @@ $t = $page[$current_lang];
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($t['title']); ?></title>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <style>
 :root{--green:#2d6a4f;--dark:#1b4332;--light:#f4f9f5}
 body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f8faf9;color:#333}
@@ -233,59 +282,117 @@ li{margin-bottom:9px;line-height:1.55}
 .back:hover{background:var(--dark);color:#fff}
 </style>
 </head>
+
 <body>
+
 <nav class="navbar">
 <div class="container py-2">
+
 <a class="navbar-brand d-flex align-items-center gap-3" href="index.php?lang=<?= urlencode($current_lang); ?>">
 <div class="brand-logo-icon"><i class="fa-solid fa-tractor"></i></div>
-<div><div class="brand-text-main"><?= htmlspecialchars($t['brand_main']); ?></div><div class="brand-text-sub"><?= htmlspecialchars($t['brand_sub']); ?></div></div>
+
+<div>
+<div class="brand-text-main"><?= htmlspecialchars($t['brand_main']); ?></div>
+<div class="brand-text-sub"><?= htmlspecialchars($t['brand_sub']); ?></div>
+</div>
 </a>
+
 <div class="d-flex align-items-center float-end" style="margin-top:-42px;">
-<div class="language-box"><i class="fa-solid fa-globe"></i>
+
+<div class="language-box">
+<i class="fa-solid fa-globe"></i>
+
 <select onchange="location.href=this.value;">
 <option value="terms_privacy.php?lang=en" <?= $current_lang==='en'?'selected':''; ?>>English</option>
 <option value="terms_privacy.php?lang=kn" <?= $current_lang==='kn'?'selected':''; ?>>ಕನ್ನಡ</option>
 <option value="terms_privacy.php?lang=hi" <?= $current_lang==='hi'?'selected':''; ?>>हिंदी</option>
-</select></div>
-<a class="nav-link" href="index.php?lang=<?= urlencode($current_lang); ?>"><?= htmlspecialchars($t['home']); ?></a>
-<a class="nav-link" href="register.php?lang=<?= urlencode($current_lang); ?>"><?= htmlspecialchars($t['register']); ?></a>
-<a class="nav-link" href="login.php?lang=<?= urlencode($current_lang); ?>"><?= htmlspecialchars($t['login']); ?></a>
+</select>
+
+</div>
+
+<a class="nav-link" href="index.php?lang=<?= urlencode($current_lang); ?>">
+<?= htmlspecialchars($t['home']); ?>
+</a>
+
+<a class="nav-link" href="register.php?lang=<?= urlencode($current_lang); ?>">
+<?= htmlspecialchars($t['register']); ?>
+</a>
+
+<a class="nav-link" href="login.php?lang=<?= urlencode($current_lang); ?>">
+<?= htmlspecialchars($t['login']); ?>
+</a>
+
 </div>
 </div>
 </nav>
 
 <main class="container">
+
 <div class="page-card">
+
 <h1><?= htmlspecialchars($t['heading']); ?></h1>
+
 <p class="intro"><?= htmlspecialchars($t['intro']); ?></p>
 
 <h2><?= htmlspecialchars($t['terms_heading']); ?></h2>
 
 <h3><?= htmlspecialchars($t['general']); ?></h3>
-<ul><?php foreach($t['general_points'] as $p): ?><li><?= htmlspecialchars($p); ?></li><?php endforeach; ?></ul>
+<ul>
+<?php foreach($t['general_points'] as $p): ?>
+<li><?= htmlspecialchars($p); ?></li>
+<?php endforeach; ?>
+</ul>
 
 <h3><?= htmlspecialchars($t['lender']); ?></h3>
-<ul><?php foreach($t['lender_points'] as $p): ?><li><?= htmlspecialchars($p); ?></li><?php endforeach; ?></ul>
+<ul>
+<?php foreach($t['lender_points'] as $p): ?>
+<li><?= htmlspecialchars($p); ?></li>
+<?php endforeach; ?>
+</ul>
 
 <h3><?= htmlspecialchars($t['renter']); ?></h3>
-<ul><?php foreach($t['renter_points'] as $p): ?><li><?= htmlspecialchars($p); ?></li><?php endforeach; ?></ul>
+<ul>
+<?php foreach($t['renter_points'] as $p): ?>
+<li><?= htmlspecialchars($p); ?></li>
+<?php endforeach; ?>
+</ul>
 
 <h3><?= htmlspecialchars($t['safety']); ?></h3>
-<ul><?php foreach($t['safety_points'] as $p): ?><li><?= htmlspecialchars($p); ?></li><?php endforeach; ?></ul>
+<ul>
+<?php foreach($t['safety_points'] as $p): ?>
+<li><?= htmlspecialchars($p); ?></li>
+<?php endforeach; ?>
+</ul>
 
 <h2 id="privacy"><?= htmlspecialchars($t['privacy_heading']); ?></h2>
+
 <p><?= htmlspecialchars($t['privacy_intro']); ?></p>
-<ul><?php foreach($t['privacy_points'] as $p): ?><li><?= htmlspecialchars($p); ?></li><?php endforeach; ?></ul>
+
+<ul>
+<?php foreach($t['privacy_points'] as $p): ?>
+<li><?= htmlspecialchars($p); ?></li>
+<?php endforeach; ?>
+</ul>
 
 <div class="notice">
-<strong><i class="fa-solid fa-circle-info"></i> <?= htmlspecialchars($t['notice']); ?></strong>
-<p class="mb-0 mt-2"><?= htmlspecialchars($t['notice_text']); ?></p>
+<strong>
+<i class="fa-solid fa-circle-info"></i>
+<?= htmlspecialchars($t['notice']); ?>
+</strong>
+
+<p class="mb-0 mt-2">
+<?= htmlspecialchars($t['notice_text']); ?>
+</p>
 </div>
 
-<a class="back" href="register.php?lang=<?= urlencode($current_lang); ?>">
-<i class="fa-solid fa-arrow-left me-2"></i><?= htmlspecialchars($t['back']); ?>
+<!-- UPDATED BACK BUTTON -->
+<a class="back" href="<?= htmlspecialchars($back_page); ?>">
+<i class="fa-solid fa-arrow-left me-2"></i>
+<?= htmlspecialchars($back_text); ?>
 </a>
+
 </div>
 </main>
+
 </body>
 </html>

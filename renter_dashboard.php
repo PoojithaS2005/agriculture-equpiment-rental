@@ -19,6 +19,47 @@ $user_query = "SELECT full_name, email, COALESCE(address, 'Not Specified') AS ad
 $user_res = mysqli_query($conn, $user_query);
 $user_info = mysqli_fetch_assoc($user_res);
 
+// Translate database category names using the centralized language file.
+function dashboard_category_label($category_name) {
+    $key = strtolower(trim($category_name));
+    $category_keys = [
+        'tractor' => 'tractor',
+        'harvesting' => 'harvesting',
+        'irrigation' => 'irrigation',
+        'tillage' => 'tillage',
+        'seeding' => 'seeding',
+        'spraying' => 'spraying'
+    ];
+
+    if (isset($category_keys[$key])) {
+        $translated = __($category_keys[$key]);
+        return ($translated !== $category_keys[$key]) ? $translated : $category_name;
+    }
+
+    return $category_name;
+}
+
+// Translate booking status using the centralized language file.
+function dashboard_status_label($status) {
+    $key = strtolower(trim($status));
+    $status_keys = [
+        'pending' => 'pending_approval',
+        'accepted' => 'accepted',
+        'delivered' => 'delivered',
+        'returned' => 'returned',
+        'completed' => 'completed',
+        'rejected' => 'rejected',
+        'overdue' => 'overdue'
+    ];
+
+    if (isset($status_keys[$key])) {
+        $translated = __($status_keys[$key]);
+        return ($translated !== $status_keys[$key]) ? $translated : ucfirst($status);
+    }
+
+    return ucfirst($status);
+}
+
 // 2. Fetch Notifications Data
 $notif_count_sql = "SELECT COUNT(*) AS total FROM notifications WHERE user_id = '$user_id' AND is_read = 0";
 $notif_count_res = mysqli_query($conn, $notif_count_sql);
@@ -219,7 +260,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                 <!-- Location Display -->
                 <div class="small text-secondary fw-semibold d-none d-lg-flex align-items-center gap-1">
                     <i class="fa-solid fa-location-dot text-danger"></i>
-                    <span><?= htmlspecialchars((trim(($user_info['city'] ?? '') . (!empty($user_info['district']) ? ', ' . $user_info['district'] : '') . (!empty($user_info['state']) ? ', ' . $user_info['state'] : '')) ?: ($user_info['address'] ?? 'Location not set'))); ?></span>
+                    <span><?= htmlspecialchars($user_info['address'] ?? 'Devanahalli, Bengaluru Rural'); ?></span>
                 </div>
 
                 <!-- Language Switcher Dropdown -->
@@ -235,7 +276,7 @@ $recent_res = mysqli_query($conn, $recent_query);
 
                 <!-- DYNAMIC NOTIFICATIONS DROPDOWN -->
                 <div class="dropdown border-start ps-3">
-                    <button class="btn btn-light border-0 position-relative p-2 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                    <button class="btn btn-light border-0 position-relative p-2 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="<?= htmlspecialchars(__('notifications')); ?>">
                         <i class="fa-regular fa-bell text-secondary fa-lg"></i>
 
                         <?php if ($unread_count > 0): ?>
@@ -248,7 +289,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width: 320px; max-height: 350px; overflow-y: auto;">
 
                         <li class="dropdown-header fw-bold border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
-                            <span class="text-dark">Notifications</span>
+                            <span class="text-dark"><?= htmlspecialchars(__('notifications')); ?></span>
 
                             <?php if ($unread_count > 0): ?>
                                 <span class="badge bg-danger-subtle text-danger small"><?= $unread_count; ?> New</span>
@@ -283,7 +324,7 @@ $recent_res = mysqli_query($conn, $recent_query);
 
                             <li class="text-center text-muted py-4 small">
                                 <i class="fa-regular fa-bell-slash d-block fa-2x mb-2 opacity-50"></i>
-                                No notifications found
+                                <?= htmlspecialchars(__('no_notifications')); ?>
                             </li>
 
                         <?php endif; ?>
@@ -291,8 +332,8 @@ $recent_res = mysqli_query($conn, $recent_query);
                     </ul>
                 </div>
 
-                <!-- Profile Badge -->
-                <div class="d-flex align-items-center gap-2 border-start ps-3">
+                <!-- Profile Badge - opens My Profile -->
+                <a href="profile.php" class="d-flex align-items-center gap-2 border-start ps-3 text-decoration-none text-dark" title="<?= htmlspecialchars(__('my_profile')); ?>">
                     <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" 
                          style="width: 36px; height: 36px; font-size: 0.9rem;">
 
@@ -307,11 +348,11 @@ $recent_res = mysqli_query($conn, $recent_query);
                         </div>
 
                         <span class="text-muted" style="font-size: 0.75rem;">
-                            Renter
+                            <?= htmlspecialchars(__('renter_role')); ?>
                         </span>
 
                     </div>
-                </div>
+                </a>
 
             </div>
         </div>
@@ -435,7 +476,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                 <?php while ($cat = mysqli_fetch_assoc($cat_res)): ?>
 
                     <?php 
-                        $cat_name = $cat['category_name'];
+                        $cat_name = dashboard_category_label($cat['category_name']);
 
                         $q_equip = "SELECT COUNT(*) AS total 
                                     FROM equipment 
@@ -475,7 +516,7 @@ $recent_res = mysqli_query($conn, $recent_query);
 
                 <div class="col-12">
                     <div class="text-muted small p-2 bg-white rounded border text-center">
-                        No Categories Available Yet
+                        <?= htmlspecialchars(__('no_categories')); ?>
                     </div>
                 </div>
 
@@ -506,11 +547,11 @@ $recent_res = mysqli_query($conn, $recent_query);
                     <thead class="table-light">
 
                         <tr>
-                            <th>Equipment</th>
-                            <th>Booking ID</th>
-                            <th>From - To</th>
-                            <th>Status</th>
-                            <th>Amount</th>
+                            <th><?= htmlspecialchars(__('table_col_equipment')); ?></th>
+                            <th><?= htmlspecialchars(__('booking_id')); ?></th>
+                            <th><?= htmlspecialchars(__('from_to')); ?></th>
+                            <th><?= htmlspecialchars(__('table_col_status')); ?></th>
+                            <th><?= htmlspecialchars(__('amount')); ?></th>
                         </tr>
 
                     </thead>
@@ -538,7 +579,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                                 <td>
 
                                     <span class="badge bg-<?= ($row['status'] == 'confirmed') ? 'success' : (($row['status'] == 'pending') ? 'warning' : 'secondary'); ?>">
-                                        <?= ucfirst($row['status']); ?>
+                                        <?= htmlspecialchars(dashboard_status_label($row['status'])); ?>
                                     </span>
 
                                 </td>

@@ -7,6 +7,8 @@ if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
 
+require_once __DIR__ . '/includes/smtp_config.php';
+
 /*
  * PHPMailer - manual installation
  * Keep your Gmail App Password private.
@@ -29,8 +31,6 @@ $error = '';
  *
  * Do NOT use your normal Gmail password here.
  */
-$smtp_username = 'agrirental78@gmail.com';
-$smtp_app_password = 'lwiikmmigqghekcp';
 
 // Determine current step based on form submission
 if (isset($_POST['step'])) {

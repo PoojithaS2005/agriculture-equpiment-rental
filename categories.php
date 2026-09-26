@@ -1,14 +1,6 @@
 <?php
 session_start();
 
-/* =========================================================
-   LANGUAGE HANDLING & PERSISTENCE
-   ========================================================= */
-if (isset($_GET['lang'])) {
-    $_SESSION['lang'] = $_GET['lang'];
-}
-$current_lang = $_SESSION['lang'] ?? 'en';
-
 require_once 'includes/lang.php';
 
 if (file_exists('includes/config.php')) {
@@ -25,7 +17,7 @@ $cat_res = mysqli_query($conn, $cat_query);
 ?>
 
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars($current_lang); ?>">
+<html lang="<?= $current_lang; ?>">
 
 <head>
     <meta charset="UTF-8">
@@ -138,53 +130,8 @@ $cat_res = mysqli_query($conn, $cat_query);
 
 <body>
 
-    <!-- Common Renter Sidebar with Dynamic Translation -->
-    <?php 
-    $sidebar_file = '';
-    if (file_exists('renter_sidebar.php')) {
-        $sidebar_file = 'renter_sidebar.php';
-    } elseif (file_exists('rental_sidebar.php')) {
-        $sidebar_file = 'rental_sidebar.php';
-    } elseif (file_exists('includes/renter_sidebar.php')) {
-        $sidebar_file = 'includes/renter_sidebar.php';
-    }
-
-    if (!empty($sidebar_file)) {
-        ob_start();
-        include $sidebar_file;
-        $sidebar_html = ob_get_clean();
-
-        if ($current_lang === 'kn') {
-            $sidebar_map = [
-                'Dashboard'        => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
-                'Browse Equipment' => 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
-                'My Bookings'      => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
-                'Notifications'    => 'ಅಧಿಸೂಚನೆಗಳು',
-                'My Profile'       => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
-                'Profile'          => 'ಪ್ರೊಫೈಲ್',
-                'Logout'           => 'ನಿರ್ಗಮನ'
-            ];
-            foreach ($sidebar_map as $en_str => $kn_str) {
-                $sidebar_html = str_replace($en_str, $kn_str, $sidebar_html);
-            }
-        } elseif ($current_lang === 'hi') {
-            $sidebar_map = [
-                'Dashboard'        => 'डैशबोर्ड',
-                'Browse Equipment' => 'उपकरण खोजें',
-                'My Bookings'      => 'मेरी बुकिंग',
-                'Notifications'    => 'अधिसूचनाएं',
-                'My Profile'       => 'मेरी प्रोफ़ाइल',
-                'Profile'          => 'प्रोफ़ाइल',
-                'Logout'           => 'लॉग आउट'
-            ];
-            foreach ($sidebar_map as $en_str => $hi_str) {
-                $sidebar_html = str_replace($en_str, $hi_str, $sidebar_html);
-            }
-        }
-
-        echo $sidebar_html;
-    }
-    ?>
+    <!-- Common Renter Sidebar -->
+    <?php include 'renter_sidebar.php'; ?>
 
     <!-- MAIN CONTAINER -->
     <div class="main-wrapper">
@@ -304,7 +251,7 @@ $cat_res = mysqli_query($conn, $cat_query);
                         <li class="breadcrumb-item">
 
                             <a
-                                href="renter_dashboard.php?lang=<?= urlencode($current_lang); ?>"
+                                href="renter_dashboard.php"
                                 class="text-muted text-decoration-none"
                             >
                                 <?php echo __('home', 'Home'); ?>
@@ -393,21 +340,14 @@ $cat_res = mysqli_query($conn, $cat_query);
                         ? __($desc_key, $original_desc)
                         : $original_desc;
 
-                    // Flexible counting logic
+                    // Equipment is the single source of truth.
                     $base_name = rtrim(strtolower($original_name), 's');
                     $searchTerm = '%' . $base_name . '%';
-
-                    $q_items = "SELECT COUNT(*) AS total FROM items WHERE LOWER(category) LIKE '$searchTerm'";
-                    $res_items = mysqli_query($conn, $q_items);
-                    $row_items = mysqli_fetch_assoc($res_items);
-                    $count_items = $row_items['total'] ?? 0;
 
                     $q_equip = "SELECT COUNT(*) AS total FROM equipment WHERE LOWER(category) LIKE '$searchTerm'";
                     $res_equip = mysqli_query($conn, $q_equip);
                     $row_equip = mysqli_fetch_assoc($res_equip);
-                    $count_equip = $row_equip['total'] ?? 0;
-
-                    $eq_count = max($count_items, $count_equip);
+                    $eq_count = (int)($row_equip['total'] ?? 0);
 
                     if (str_contains($lower_name, 'tractor')) {
 
@@ -506,7 +446,7 @@ $cat_res = mysqli_query($conn, $cat_query);
                                 </span>
 
                                 <a
-                                    href="category_items.php?category=<?= urlencode($original_name); ?>&lang=<?= urlencode($current_lang); ?>"
+                                    href="category_items.php?category=<?= urlencode($original_name); ?>"
                                     class="text-success fw-bold text-decoration-none small d-flex align-items-center gap-1"
                                 >
                                     <?php echo __('view_equipment', 'View Equipment'); ?>

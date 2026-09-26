@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$equipment_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$equipment_id = isset($_GET['id']) ? intval($_GET['id']) : (isset($_GET['equipment_id']) ? intval($_GET['equipment_id']) : 0);
 
 // Fetch Equipment Details using exact columns
 $stmt = $conn->prepare("SELECT * FROM equipment WHERE equipment_id = ?");
@@ -91,8 +91,8 @@ $back_page = (
         
         .top-banner { background: #0e7490; color: white; padding: 15px 20px; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
         
-        .img-preview-container { height: 350px; width: 100%; background: #f1f5f9; position: relative; border-bottom: 1px solid #e2e8f0; }
-        .img-preview-container img { width: 100%; height: 100%; object-fit: cover; }
+        .img-preview-container { height: 350px; width: 100%; background: #f1f5f9; position: relative; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
+        .img-preview-container img { width: 95%; height: 100%; object-fit: cover; }
         
         .content-body { padding: 30px; }
         .equipment-title { font-size: 26px; font-weight: bold; color: #0f172a; margin-bottom: 20px; }
@@ -135,14 +135,31 @@ $back_page = (
 
         <div class="img-preview-container">
             <?php 
-                $img_path = !empty($eq['image']) ? 'uploads/' . htmlspecialchars($eq['image']) : '';
-                $has_valid_img = !empty($eq['image']) && file_exists($img_path);
+                $raw_img = trim($eq['image'] ?? '');
+                $img_path = '';
+                $has_valid_img = false;
+
+                if (!empty($raw_img)) {
+                    if (file_exists(__DIR__ . '/uploads/' . $raw_img)) {
+                        $img_path = 'uploads/' . $raw_img;
+                        $has_valid_img = true;
+                    } elseif (file_exists(__DIR__ . '/' . $raw_img)) {
+                        $img_path = $raw_img;
+                        $has_valid_img = true;
+                    } elseif (file_exists(__DIR__ . '/uploads/equipment/' . $raw_img)) {
+                        $img_path = 'uploads/equipment/' . $raw_img;
+                        $has_valid_img = true;
+                    } elseif (preg_match('/^https?:\/\//i', $raw_img)) {
+                        $img_path = $raw_img;
+                        $has_valid_img = true;
+                    }
+                }
             ?>
             <?php if ($has_valid_img): ?>
-                <img src="<?php echo $img_path; ?>" alt="Equipment Image">
+                <img src="<?php echo htmlspecialchars($img_path); ?>" alt="<?php echo htmlspecialchars($eq['title'] ?? 'Equipment Image'); ?>">
             <?php else: ?>
                 <div class="d-flex align-items-center justify-content-center h-100 text-muted">
-                    <i class="fa-solid fa-tractor fa-3x"></i>
+                    <i class="fa-solid fa-image fa-3x text-secondary opacity-50"></i>
                 </div>
             <?php endif; ?>
         </div>
@@ -194,6 +211,11 @@ $back_page = (
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('price_per_day_spec'); ?></div>
                     <div class="spec-value price-highlight">₹<?php echo number_format($eq['price_per_day'] ?? 0, 2); ?></div>
+                </div>
+
+                <div class="spec-box">
+                    <div class="spec-label">Quantity Available</div>
+                    <div class="spec-value"><?php echo (int)($eq['total_quantity'] ?? 1); ?> unit(s)</div>
                 </div>
 
                 <div class="spec-box">

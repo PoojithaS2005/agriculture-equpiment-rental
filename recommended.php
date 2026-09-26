@@ -109,7 +109,7 @@ if (
 }
 
 /*
- * User information
+ * Logged-in user information
  */
 $user_name = $_SESSION['name']
     ?? $_SESSION['full_name']
@@ -147,23 +147,12 @@ if ($user_stmt) {
             $user_name = $user['full_name'];
         }
 
-        if (
-            isset($user['location']) &&
-            !empty($user['location'])
-        ) {
-            $user_location = $user['location'];
-
-        } elseif (
-            isset($user['address']) &&
-            !empty($user['address'])
-        ) {
+        if (!empty($user['address'])) {
             $user_location = $user['address'];
-
-        } elseif (
-            isset($user['city']) &&
-            !empty($user['city'])
-        ) {
+        } elseif (!empty($user['city'])) {
             $user_location = $user['city'];
+        } elseif (!empty($user['district'])) {
+            $user_location = $user['district'];
         }
     }
 
@@ -230,15 +219,21 @@ if ($wishlist_check_stmt) {
 }
 
 /*
- * Read recommended equipment from the real equipment table.
+ * Query recommended equipment joined with lender address from users table
  */
 $sql = "
     SELECT
         e.*,
-        re.recommendation_id
+        re.recommendation_id,
+        COALESCE(
+            NULLIF(TRIM(u.address), ''),
+            CONCAT_WS(', ', NULLIF(u.city, ''), NULLIF(u.district, ''), NULLIF(u.state, ''))
+        ) AS equipment_location
     FROM equipment e
     LEFT JOIN recommended_equipment re
         ON re.equipment_id = e.equipment_id
+    INNER JOIN users u
+        ON e.lender_id = u.user_id
     WHERE
         e.status = 'Available'
         AND (
@@ -857,7 +852,7 @@ function getImagePath($image)
                     if ($current_lang === 'kn') {
                         echo 'ಕನ್ನಡ';
                     } elseif ($current_lang === 'hi') {
-                        echo 'हिन्दी';
+                        echo 'ಹಿन्दी';
                     } else {
                         echo 'English';
                     }
@@ -878,7 +873,7 @@ function getImagePath($image)
                     </a>
 
                     <a href="?lang=hi">
-                        हिन्दी
+                        ಹಿन्दी
                     </a>
 
                 </div>
@@ -962,13 +957,7 @@ function getImagePath($image)
                     </h1>
 
                     <p>
-
-                        <?= htmlspecialchars(
-                            __('recommended_description'),
-                            ENT_QUOTES,
-                            'UTF-8'
-                        ) ?>
-
+                        Equipments that are recommended to you by the lender
                     </p>
 
                 </div>
@@ -1015,43 +1004,12 @@ function getImagePath($image)
                                 $row['image'] ?? ''
                             );
 
-                        $price = 0;
-
-                        if (
-                            isset(
-                                $row['price_per_day']
-                            )
-                        ) {
-                            $price =
-                                $row['price_per_day'];
-
-                        } elseif (
-                            isset(
-                                $row['daily_rate']
-                            )
-                        ) {
-                            $price =
-                                $row['daily_rate'];
-
-                        } elseif (
-                            isset(
-                                $row['rent_per_day']
-                            )
-                        ) {
-                            $price =
-                                $row['rent_per_day'];
-
-                        } elseif (
-                            isset(
-                                $row['price']
-                            )
-                        ) {
-                            $price =
-                                $row['price'];
-                        }
+                        $price =
+                            $row['price_per_day']
+                            ?? 0;
 
                         $location =
-                            $row['location']
+                            $row['equipment_location']
                             ?? '';
 
                         if (empty($location)) {
@@ -1064,20 +1022,11 @@ function getImagePath($image)
                             ?? '4.5';
 
                         $reviews =
-                            $row['review_count']
-                            ?? $row['reviews']
+                            $row['rating_count']
                             ?? 0;
 
-                        $equipment_id = 0;
-
-                        if (
-                            isset(
-                                $row['equipment_id']
-                            )
-                        ) {
-                            $equipment_id =
-                                (int) $row['equipment_id'];
-                        }
+                        $equipment_id =
+                            (int) ($row['equipment_id'] ?? 0);
 
                         $is_wishlisted =
                             in_array(

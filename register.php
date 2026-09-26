@@ -861,7 +861,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                        for="termsCheck">
 
                                     <?= htmlspecialchars($t['agree']); ?>
-                                    <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>"
+                                    <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>">
+</a>
                                        class="text-success fw-semibold text-decoration-none">
                                         <?= htmlspecialchars($t['terms']); ?>
                                     </a>

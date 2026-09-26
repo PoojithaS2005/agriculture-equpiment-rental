@@ -211,7 +211,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
         /* BANNER IMAGE CONTAINER - PREVENTS CUTOFF */
         .eq-img-container {
             width: 100%;
-            height: 200px;
+            height: 300px;
             background-color: #f1f5f9;
             display: flex;
             align-items: center;
@@ -222,10 +222,10 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
         .eq-img-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Entire image fits inside without cropping */
+            object-fit: cover; /* Complete image fits inside without cropping */
             object-position: center;
             display: block;
-            padding: 4px; /* Optional subtle padding so edges don't touch card borders */
+            padding: 4px;
         }
 
         .eq-card-body {
@@ -491,26 +491,26 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
             <?php while ($eq = mysqli_fetch_assoc($result)): ?>
 
                 <?php
-                $eq_id = $eq['equipment_id'] ?? $eq['id'] ?? $eq['eq_id'] ?? 0;
+                $eq_id = $eq['equipment_id'] ?? 0;
 
-                // Determine image path accurately
-                $raw_img = $eq['equipment_image'] ?? $eq['image'] ?? $eq['image_path'] ?? $eq['photo'] ?? '';
-                $imgSrc = 'images/tractor.png'; // default fallback
+                // Determine equipment image path accurately from equipment.image
+                $raw_img = trim($eq['image'] ?? '');
+                $imgSrc = '';
+                $has_valid_img = false;
 
                 if (!empty($raw_img)) {
-                    $raw_img = trim($raw_img);
-                    if (file_exists(__DIR__ . '/' . $raw_img) || preg_match('/^https?:\/\//i', $raw_img)) {
-                        $imgSrc = $raw_img;
-                    } elseif (file_exists(__DIR__ . '/uploads/' . $raw_img)) {
+                    if (file_exists(__DIR__ . '/uploads/' . $raw_img)) {
                         $imgSrc = 'uploads/' . $raw_img;
+                        $has_valid_img = true;
+                    } elseif (file_exists(__DIR__ . '/' . $raw_img)) {
+                        $imgSrc = $raw_img;
+                        $has_valid_img = true;
                     } elseif (file_exists(__DIR__ . '/uploads/equipment/' . $raw_img)) {
                         $imgSrc = 'uploads/equipment/' . $raw_img;
-                    } else {
-                        if (strpos($raw_img, '/') === false) {
-                            $imgSrc = 'uploads/' . $raw_img;
-                        } else {
-                            $imgSrc = $raw_img;
-                        }
+                        $has_valid_img = true;
+                    } elseif (preg_match('/^https?:\/\//i', $raw_img)) {
+                        $imgSrc = $raw_img;
+                        $has_valid_img = true;
                     }
                 }
                 ?>
@@ -525,13 +525,18 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 
                         <div class="eq-img-container">
 
-                            <img src="<?= htmlspecialchars($imgSrc); ?>"
-                                 alt="<?= htmlspecialchars(
-                                     $eq['title']
-                                     ?? $eq['equipment_title']
-                                     ?? 'Equipment'
-                                 ); ?>"
-                                 onerror="this.onerror=null; this.src='images/tractor.png';">
+                            <?php if ($has_valid_img): ?>
+                                <img src="<?= htmlspecialchars($imgSrc); ?>"
+                                     alt="<?= htmlspecialchars(
+                                         $eq['title']
+                                         ?? $eq['equipment_title']
+                                         ?? 'Equipment'
+                                     ); ?>">
+                            <?php else: ?>
+                                <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                    <i class="fa-solid fa-image fa-2x text-secondary opacity-50"></i>
+                                </div>
+                            <?php endif; ?>
 
                         </div>
 
@@ -590,8 +595,8 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
                                     <span class="text-dark fw-bold">
 
                                         ₹<?= number_format(
-                                            $eq['price']
-                                            ?? $eq['price_per_day']
+                                            $eq['price_per_day']
+                                            ?? $eq['price']
                                             ?? 0
                                         ); ?>
 

@@ -46,7 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $wrorking_width    = trim($_POST['wrorking_width'] ?? '');
     $equipment_condition = trim($_POST['equipment_condition'] ?? '');
     $price_per_day     = floatval($_POST['price_per_day'] ?? 0);
-    $min_booking_days  = intval($_POST['min_booking_days'] ?? 1);
+    $security_deposit = floatval($_POST['security_deposit'] ?? 0);
+    $total_quantity = max(1, intval($_POST['total_quantity'] ?? 1));
+    $min_booking_days  = max(1, intval($_POST['min_booking_days'] ?? 1));
+    $max_booking_days = max($min_booking_days, intval($_POST['max_booking_days'] ?? 30));
     $service_location  = trim($_POST['service_location'] ?? '');
     $distance_km       = floatval($_POST['distance_km'] ?? 0);
     $description       = trim($_POST['description'] ?? '');
@@ -69,11 +72,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $update_stmt = $conn->prepare("UPDATE equipment SET title=?, category=?, status=?, brand_model=?, power_hp=?, drive_type=?, model_year=?, fuel_type=?, working_width=?, equipment_condition=?, price_per_day=?, min_booking_days=?, service_location=?, distance_km=?, description=?, image=?, is_featured=? WHERE equipment_id=? AND lender_id=?");
+    $update_stmt = $conn->prepare("UPDATE equipment SET title=?, category=?, status=?, brand_model=?, power_hp=?, drive_type=?, model_year=?, fuel_type=?, working_width=?, equipment_condition=?, price_per_day=?, security_deposit=?, total_quantity=?, min_booking_days=?, max_booking_days=?, service_location=?, distance_km=?, description=?, image=?, is_featured=? WHERE equipment_id=? AND lender_id=?");
     
     $update_stmt->bind_param(
-        "ssssssssssdisdssiii",
-        $title, $category, $status, $brand_model, $power_hp, $drive_type, $model_year, $fuel_type, $wrorking_width, $equipment_condition, $price_per_day, $min_booking_days, $service_location, $distance_km, $description, $image_name, $is_featured, $equipment_id, $lender_id
+        "ssssisisssddiiisdssiii",
+        $title, $category, $status, $brand_model, $power_hp, $drive_type,
+        $model_year, $fuel_type, $wrorking_width, $equipment_condition,
+        $price_per_day, $security_deposit, $total_quantity, $min_booking_days,
+        $max_booking_days, $service_location, $distance_km, $description,
+        $image_name, $is_featured, $equipment_id, $lender_id
     );
 
     if ($update_stmt->execute()) {
@@ -192,6 +199,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="col-md-6">
                         <label class="form-label fw-bold"><?php echo __('price_per_day_label'); ?></label>
                         <input type="number" step="0.01" name="price_per_day" class="form-control" value="<?php echo htmlspecialchars($eq['price_per_day'] ?? 0); ?>" required>
+
+                        <label class="form-label fw-bold mt-3">Security Deposit</label>
+                        <input type="number" step="0.01" min="0" name="security_deposit" class="form-control" value="<?php echo htmlspecialchars($eq['security_deposit'] ?? 0); ?>">
+
+                        <label class="form-label fw-bold mt-3">Total Quantity</label>
+                        <input type="number" min="1" name="total_quantity" class="form-control" value="<?php echo htmlspecialchars($eq['total_quantity'] ?? 1); ?>" required>
+
+                        <label class="form-label fw-bold mt-3">Maximum Booking Days</label>
+                        <input type="number" min="1" name="max_booking_days" class="form-control" value="<?php echo htmlspecialchars($eq['max_booking_days'] ?? 30); ?>">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold"><?php echo __('min_booking_days_label'); ?></label>

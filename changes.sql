@@ -208,3 +208,47 @@ WHERE LOWER(TRIM(`address`)) IN ('mysuru', 'mysore');
 
 UPDATE `users` SET `city` = 'Hassan', `district` = 'Hassan', `state` = 'Karnataka'
 WHERE LOWER(TRIM(`address`)) LIKE 'hassan%';
+
+-- Add lender-specified equipment quantity.
+-- Existing equipment records receive 1 unit by default.
+ALTER TABLE equipment
+ADD COLUMN total_quantity INT NOT NULL DEFAULT 1 AFTER price_per_day;
+
+
+ALTER TABLE equipment
+ADD COLUMN security_deposit DECIMAL(10,2) NOT NULL DEFAULT 0.00
+AFTER price_per_day;
+
+ALTER TABLE equipment
+ADD COLUMN max_booking_days INT(11) DEFAULT 30
+AFTER min_booking_days;
+
+-- 2. Optional one-time migration of existing values from the old items table.
+-- Matching uses lender/title/category/price/image because item_id and equipment_id
+-- are independent AUTO_INCREMENT values and must NOT be assumed equal.
+UPDATE equipment e
+LEFT JOIN items i
+  ON i.lender_id = e.lender_id
+ AND i.title = e.title
+ AND i.category = e.category
+ AND i.price_per_day = e.price_per_day
+ AND (i.image = e.image OR i.image = '')
+SET e.security_deposit = COALESCE(i.security_deposit, e.security_deposit),
+    e.max_booking_days = COALESCE(i.max_rental_days, e.max_booking_days)
+WHERE i.item_id IS NOT NULL;
+
+-- 3. Keep existing inventory safe. Each equipment row represents its total inventory.
+UPDATE equipment SET total_quantity = 1 WHERE total_quantity IS NULL OR total_quantity < 1;
+
+
+ALTER TABLE bookings
+MODIFY status ENUM(
+    'Pending',
+    'Accepted',
+    'Rejected',
+    'Delivered',
+    'Returned',
+    'Completed',
+    'Overdue',
+    'Cancelled'
+) NOT NULL DEFAULT 'Pending';

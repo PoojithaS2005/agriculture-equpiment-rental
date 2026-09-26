@@ -148,7 +148,12 @@ if ($active_tab === 'upcoming') {
     ";
 } elseif ($active_tab === 'cancelled') {
     $sql .= "
-        AND (b.status = 'Rejected' OR b.status = 'Overdue')
+        AND (
+            b.status = 'Cancelled'
+            OR b.status = 'Canceled'
+            OR b.status = 'Rejected'
+            OR b.status = 'Overdue'
+        )
     ";
 }
 
@@ -523,7 +528,8 @@ if ($stmt) {
 
 <body>
 
-<?php include __DIR__ . '/renter_sidebar.php'; ?>
+<!-- SHARED LENDER SIDEBAR -->
+<?php include __DIR__ . '/lender_sidebar.php'; ?>
 
 <!-- Main Content Area -->
 <div class="main-content">
@@ -761,13 +767,15 @@ if ($stmt) {
             } elseif ($st === 'Delivered') {
                 $badge_class = 'status-ongoing';
                 $status_icon = 'fa-spinner fa-spin';
-            } elseif ($st === 'Returned') {
+            } elseif ($st === 'Returned' || $st === 'Completed') {
                 $badge_class = 'status-completed';
                 $status_icon = 'fa-circle-check';
-            } elseif ($st === 'Completed') {
-                $badge_class = 'status-completed';
-                $status_icon = 'fa-circle-check';
-            } elseif ($st === 'Rejected' || $st === 'Overdue') {
+            } elseif (
+                $st === 'Rejected' ||
+                $st === 'Overdue' ||
+                $st === 'Cancelled' ||
+                $st === 'Canceled'
+            ) {
                 $badge_class = 'status-cancelled';
                 $status_icon = 'fa-circle-xmark';
             }
