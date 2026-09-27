@@ -528,8 +528,8 @@ if ($stmt) {
 
 <body>
 
-<!-- SHARED LENDER SIDEBAR -->
-<?php include __DIR__ . '/lender_sidebar.php'; ?>
+<!-- SHARED RENTER SIDEBAR -->
+<?php include __DIR__ . '/renter_sidebar.php'; ?>
 
 <!-- Main Content Area -->
 <div class="main-content">

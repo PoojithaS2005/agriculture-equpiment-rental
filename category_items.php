@@ -614,7 +614,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
 
                                     <!-- VIEW DETAILS -->
 
-                                    <a href="equipment_details.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&lang=<?= urlencode($current_lang); ?>"
+                                    <a href="equipment_details.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&from=category_items&category_id=<?= $category_id; ?>&lang=<?= urlencode($current_lang); ?>"
                                        class="btn btn-outline-secondary btn-sm w-50">
 
                                         <?= htmlspecialchars($view_details_label); ?>

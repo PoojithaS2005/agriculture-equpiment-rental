@@ -624,7 +624,7 @@ if (!empty($search_query)) {
 |--------------------------------------------------------------------------
 */
 
-function display_equipment_card($eq, $current_lang, $lang_param)
+function display_equipment_card($eq, $current_lang, $lang_param, $search_query = '')
 {
     $img_path = !empty($eq['image'])
         ? 'uploads/' . $eq['image']
@@ -754,6 +754,8 @@ function display_equipment_card($eq, $current_lang, $lang_param)
             <a
                 href="equipment_details.php?id=<?php
                     echo $eq['equipment_id'];
+                ?>&from=search_equipment&q=<?php
+                    echo urlencode($search_query);
                 ?><?php
                     echo $lang_param;
                 ?>"

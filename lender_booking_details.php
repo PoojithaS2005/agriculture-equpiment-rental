@@ -6,13 +6,23 @@ require_once 'includes/config.php';
 /* =========================================================
    LANGUAGE
    ========================================================= */
-if (isset($_GET['lang']) && !empty($_GET['lang'])) {
+$allowed_languages = ['en', 'kn', 'hi'];
+
+if (isset($_GET['lang']) && in_array($_GET['lang'], $allowed_languages, true)) {
     $_SESSION['lang'] = $_GET['lang'];
+    $_SESSION['language'] = $_GET['lang'];
+}
+
+$current_lang = $_SESSION['lang'] ?? $_SESSION['language'] ?? 'en';
+
+if (!in_array($current_lang, $allowed_languages, true)) {
+    $current_lang = 'en';
+    $_SESSION['lang'] = 'en';
+    $_SESSION['language'] = 'en';
 }
 
 require_once 'includes/lang.php';
 
-$current_lang = $_SESSION['lang'] ?? 'en';
 $lang_param = '?lang=' . urlencode($current_lang);
 
 
@@ -473,21 +483,7 @@ if (!empty($booking['equipment_image'])) {
    BACK PAGE
    ========================================================= */
 
-if ($status === 'Pending') {
-
-    $back_page = 'rental_request.php';
-
-} elseif (
-    $status === 'Accepted' ||
-    $status === 'Delivered'
-) {
-
-    $back_page = 'active_rentals.php';
-
-} else {
-
-    $back_page = 'rental_history.php';
-}
+$back_page = 'lender_rental_history.php';
 
 ?>
 <!DOCTYPE html>
@@ -535,99 +531,6 @@ if ($status === 'Pending') {
             font-weight: 500;
         }
 
-        /* ================= SIDEBAR ================= */
-
-        .sidebar {
-            width: 260px;
-            background: #fff;
-            min-height: 100vh;
-            padding: 20px;
-            border-right: 1px solid #e0e0e0;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .logo i {
-            font-size: 28px;
-            color: #198754;
-        }
-
-        .logo-text-main {
-            display: block;
-            font-size: 15px;
-            font-weight: 900;
-            color: #198754;
-            letter-spacing: .3px;
-        }
-
-        .logo-text-sub {
-            display: block;
-            font-size: 10px;
-            font-weight: 800;
-            color: #198754;
-            margin-top: 2px;
-        }
-
-        .nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .nav-item {
-            margin-bottom: 7px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 14px;
-            color: #334155;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            transition: .2s;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: #198754;
-            color: #fff;
-        }
-
-        .nav-link-content {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        .nav-link-content i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .badge-count {
-            background: #dc3545;
-            color: #fff;
-            border-radius: 50px;
-            padding: 2px 8px;
-            font-size: 10px;
-            font-weight: 900;
-        }
-
-        /* ================= MAIN ================= */
-
         .main-content {
             margin-left: 260px;
             padding: 20px 30px;
@@ -658,7 +561,7 @@ if ($status === 'Pending') {
         }
 
         .profile-btn:hover {
-            background: #198754;
+            background: #0f4c5c;
             color: #fff;
         }
 
@@ -674,7 +577,7 @@ if ($status === 'Pending') {
         }
 
         .breadcrumb-custom a {
-            color: #198754;
+            color: #0f4c5c;
             text-decoration: none;
             font-weight: 700;
         }
@@ -733,7 +636,7 @@ if ($status === 'Pending') {
         }
 
         .card-title i {
-            color: #198754;
+            color: #0f4c5c;
         }
 
         /* ================= EQUIPMENT ================= */
@@ -832,7 +735,7 @@ if ($status === 'Pending') {
             height: 55px;
             border-radius: 50%;
             background: #d1fae5;
-            color: #198754;
+            color: #0f4c5c;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -857,7 +760,7 @@ if ($status === 'Pending') {
             align-items: center;
             gap: 7px;
             margin-top: 8px;
-            background: #198754;
+            background: #0f4c5c;
             color: #fff;
             text-decoration: none;
             padding: 7px 12px;
@@ -867,7 +770,7 @@ if ($status === 'Pending') {
         }
 
         .contact-btn:hover {
-            background: #157347;
+            background: #0f4c5c;
             color: #fff;
         }
 
@@ -919,24 +822,24 @@ if ($status === 'Pending') {
         }
 
         .status-accepted {
-            background: #e0f2fe;
-            color: #0284c7;
+            background: #f1f5f9;
+            color: #0f4c5c;
         }
 
         .status-delivered {
-            background: #fef3c7;
-            color: #d97706;
+            background: #f1f5f9;
+            color: #0f4c5c;
         }
 
         .status-returned {
-            background: #dcfce7;
-            color: #16a34a;
+            background: #f1f5f9;
+            color: #0f4c5c;
         }
 
         .status-rejected,
         .status-overdue {
-            background: #fee2e2;
-            color: #dc2626;
+            background: #f1f5f9;
+            color: #0f4c5c;
         }
 
         /* ================= TIMELINE ================= */
@@ -981,12 +884,12 @@ if ($status === 'Pending') {
         }
 
         .timeline-step.completed .step-icon {
-            background: #198754;
+            background: #0f4c5c;
             color: #fff;
         }
 
         .timeline-step.current .step-icon {
-            background: #0284c7;
+            background: #0f4c5c;
             color: #fff;
         }
 
@@ -1018,22 +921,22 @@ if ($status === 'Pending') {
         }
 
         .btn-accept {
-            background: #198754;
+            background: #0f4c5c;
             color: #fff;
         }
 
         .btn-reject {
-            background: #fee2e2;
-            color: #dc2626;
+            background: #f1f5f9;
+            color: #0f4c5c;
         }
 
         .btn-delivered {
-            background: #0284c7;
+            background: #0f4c5c;
             color: #fff;
         }
 
         .btn-returned {
-            background: #198754;
+            background: #0f4c5c;
             color: #fff;
         }
 
@@ -1050,7 +953,7 @@ if ($status === 'Pending') {
         .completed-message {
             background: #dcfce7;
             border: 1px solid #bbf7d0;
-            color: #166534;
+            color: #0f4c5c;
             padding: 13px;
             border-radius: 10px;
             text-align: center;
@@ -1076,7 +979,7 @@ if ($status === 'Pending') {
         }
 
         .summary-row .amount {
-            color: #198754;
+            color: #0f4c5c;
             font-weight: 900;
         }
 
@@ -1099,25 +1002,6 @@ if ($status === 'Pending') {
         }
 
         @media(max-width: 768px) {
-
-            .sidebar {
-                width: 75px;
-                padding: 15px 10px;
-            }
-
-            .logo-text-main,
-            .logo-text-sub,
-            .nav-link span {
-                display: none;
-            }
-
-            .nav-link {
-                justify-content: center;
-            }
-
-            .nav-link-content {
-                justify-content: center;
-            }
 
             .main-content {
                 margin-left: 75px;
@@ -1154,6 +1038,29 @@ if ($status === 'Pending') {
             }
         }
 
+        /* ================= BLUE THEME ================= */
+
+        .text-danger,
+        .text-success,
+        .text-primary {
+            color: #0f4c5c !important;
+        }
+
+        .bg-success,
+        .bg-danger {
+            background-color: #0f4c5c !important;
+        }
+
+        .btn-outline-success {
+            color: #0f4c5c !important;
+            border-color: #0f4c5c !important;
+        }
+
+        .btn-outline-success:hover {
+            background: #0f4c5c !important;
+            color: #fff !important;
+        }
+
     </style>
 
 </head>
@@ -1161,259 +1068,7 @@ if ($status === 'Pending') {
 <body>
 
 
-<!-- =====================================================
-     SIDEBAR
-     ===================================================== -->
-
-<div class="sidebar">
-
-    <div class="logo">
-
-        <i class="fa-solid fa-tractor"></i>
-
-        <div>
-
-            <span class="logo-text-main">
-                AGRICULTURE
-            </span>
-
-            <span class="logo-text-sub">
-                EQUIPMENT RENTAL
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <ul class="nav-list">
-
-        <li class="nav-item">
-
-            <a
-                href="lender_dashboard.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-chart-line"></i>
-
-                    <span>
-                        <?php echo __('dashboard'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="add_equipment.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-circle-plus"></i>
-
-                    <span>
-                        <?php echo __('add_equipment'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="my_equipment.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-list"></i>
-
-                    <span>
-                        <?php echo __('my_equipment'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="rental_request.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-
-                    <span>
-                        <?php echo __('rental_requests'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="active_rentals.php<?php echo $lang_param; ?>"
-                class="nav-link active"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-truck-ramp-box"></i>
-
-                    <span>
-                        <?php echo __('active_rentals'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="rental_history.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-
-                    <span>
-                        <?php echo __('rental_history'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="reviews.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-star"></i>
-
-                    <span>
-                        <?php echo __('reviews'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="total_earnings.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-wallet"></i>
-
-                    <span>
-                        <?php echo __('total_earnings'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li class="nav-item">
-
-            <a
-                href="profile.php<?php echo $lang_param; ?>"
-                class="nav-link"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-user"></i>
-
-                    <span>
-                        <?php echo __('my_profile'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-
-        <li
-            class="nav-item"
-            style="margin-top:25px;"
-        >
-
-            <a
-                href="logout.php"
-                class="nav-link"
-                style="color:#dc2626;"
-            >
-
-                <span class="nav-link-content">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    <span>
-                        <?php echo __('logout'); ?>
-                    </span>
-
-                </span>
-
-            </a>
-
-        </li>
-
-    </ul>
-
-</div>
+<?php include 'lender_sidebar.php'; ?>
 
 
 <!-- =====================================================
@@ -1994,17 +1649,6 @@ if ($status === 'Pending') {
 
                         </p>
 
-
-                        <a
-                            href="tel:<?php echo htmlspecialchars($phone_number); ?>"
-                            class="contact-btn"
-                        >
-
-                            <i class="fa-solid fa-phone"></i>
-
-                            <?php echo __('lbd_contact_renter'); ?>
-
-                        </a>
 
                     </div>
 
@@ -2666,7 +2310,15 @@ if ($status === 'Pending') {
 
                             <div class="completed-message">
                                 <i class="fa-solid fa-circle-check me-1"></i>
-                                Rental completed. The renter has confirmed the return.
+                                <?php
+                                if ($current_lang === 'kn') {
+                                    echo 'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ. ಬಾಡಿಗೆದಾರರು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.';
+                                } elseif ($current_lang === 'hi') {
+                                    echo 'किराया पूरा हो गया है। किराएदार ने वापसी की पुष्टि कर दी है।';
+                                } else {
+                                    echo 'Rental completed. The renter has confirmed the return.';
+                                }
+                                ?>
                             </div>
 
                         <!-- REJECTED -->
@@ -2677,9 +2329,9 @@ if ($status === 'Pending') {
                             <div
                                 class="completed-message"
                                 style="
-                                background:#fee2e2;
-                                color:#991b1b;
-                                border-color:#fecaca;
+                                background:#f1f5f9;
+                                color:#0f4c5c;
+                                border-color:#e2e8f0;
                                 "
                             >
 

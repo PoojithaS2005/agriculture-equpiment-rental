@@ -64,16 +64,31 @@ if ($reviews_stmt) {
     $reviews_stmt->close();
 }
 
-/*
- * Renter -> renter dashboard
- * Lender -> My Equipment
- */
-$back_page = (
-    isset($_SESSION['user_type']) &&
-    $_SESSION['user_type'] === 'renter'
-)
-    ? 'renter_dashboard.php'
-    : 'my_equipment.php';
+$from = $_GET['from'] ?? '';
+
+if ($from === 'recommended') {
+    $back_page = 'recommended.php?lang=' . urlencode($current_lang);
+    $back_text = ($current_lang === 'kn') ? 'ಶಿಫಾರಸುಗಳಿಗೆ ಹಿಂತಿರುಗಿ' : (($current_lang === 'hi') ? 'अनुशंसित पर वापस जाएं' : 'Back to Recommended');
+} elseif ($from === 'search_equipment') {
+    $search_q = $_GET['q'] ?? '';
+    $back_page = 'search_equipment.php?q=' . urlencode($search_q) . '&lang=' . urlencode($current_lang);
+    $back_text = ($current_lang === 'kn') ? 'ಉಪಕರಣ ಹುಡುಕಾಟಕ್ಕೆ ಹಿಂತಿರುಗಿ' : (($current_lang === 'hi') ? 'उपकरण खोज पर वापस जाएं' : 'Back to Search Equipment');
+} elseif ($from === 'category_items') {
+    $category_id = isset($_GET['category_id']) ? intval($_GET['category_id']) : 0;
+    $back_page = 'category_items.php?category_id=' . $category_id . '&lang=' . urlencode($current_lang);
+    $back_text = ($current_lang === 'kn') ? 'ವರ್ಗಕ್ಕೆ ಹಿಂತಿರುಗಿ' : (($current_lang === 'hi') ? 'श्रेणी पर वापस जाएं' : 'Back to Category');
+} elseif ($from === 'my_equipment') {
+    $back_page = 'my_equipment.php?lang=' . urlencode($current_lang);
+    $back_text = ($current_lang === 'kn') ? 'ನನ್ನ ಉಪಕರಣಗಳಿಗೆ ಹಿಂತಿರುಗಿ' : (($current_lang === 'hi') ? 'मेरे उपकरण पर वापस जाएं' : 'Back to My Equipment');
+} else {
+    if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'renter') {
+        $back_page = 'renter_dashboard.php?lang=' . urlencode($current_lang);
+        $back_text = ($current_lang === 'kn') ? 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ' : (($current_lang === 'hi') ? 'डैशबोर्ड पर वापस जाएं' : 'Back to Dashboard');
+    } else {
+        $back_page = 'my_equipment.php?lang=' . urlencode($current_lang);
+        $back_text = ($current_lang === 'kn') ? 'ನನ್ನ ಉಪಕರಣಗಳಿಗೆ ಹಿಂತಿರುಗಿ' : (($current_lang === 'hi') ? 'मेरे उपकरण पर वापस जाएं' : 'Back to My Equipment');
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -125,11 +140,11 @@ $back_page = (
             <span><i class="fa-solid fa-circle-info me-2"></i> <?php echo __('equipment_details_title'); ?></span>
             <div class="d-flex align-items-center gap-2">
                 <select class="lang-select text-dark" onchange="location = this.value;">
-                    <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&lang=en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>🌐 English</option>
-                    <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&lang=hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>🌐 हिन्दी</option>
-                    <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&lang=kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>🌐 ಕನ್ನಡ</option>
+                    <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&from=<?php echo urlencode($from); ?>&q=<?php echo urlencode($_GET['q'] ?? ''); ?>&category_id=<?php echo intval($_GET['category_id'] ?? 0); ?>&lang=en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>🌐 English</option>
+                    <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&from=<?php echo urlencode($from); ?>&q=<?php echo urlencode($_GET['q'] ?? ''); ?>&category_id=<?php echo intval($_GET['category_id'] ?? 0); ?>&lang=hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>🌐 हिन्दी</option>
+                    <option value="equipment_details.php?id=<?php echo $equipment_id; ?>&from=<?php echo urlencode($from); ?>&q=<?php echo urlencode($_GET['q'] ?? ''); ?>&category_id=<?php echo intval($_GET['category_id'] ?? 0); ?>&lang=kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>🌐 ಕನ್ನಡ</option>
                 </select>
-                <a href="<?php echo $back_page; ?>" class="btn btn-sm btn-light fw-bold text-dark"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo __('back_to_my_equipment'); ?></a>
+                <a href="<?php echo $back_page; ?>" class="btn btn-sm btn-light fw-bold text-dark"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo htmlspecialchars($back_text); ?></a>
             </div>
         </div>
 
@@ -284,7 +299,7 @@ $back_page = (
         </div>
 
         <div class="action-footer">
-            <a href="<?php echo $back_page; ?>" class="btn btn-secondary btn-sm px-4"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo __('back_btn'); ?></a>
+            <a href="<?php echo $back_page; ?>" class="btn btn-secondary btn-sm px-4"><i class="fa-solid fa-arrow-left me-1"></i> <?php echo htmlspecialchars($back_text); ?></a>
             <?php if ($is_owner): ?>
                 <a href="edit_equipment.php?id=<?php echo $eq['equipment_id']; ?>" class="btn btn-warning btn-sm px-4 fw-bold text-dark" style="background-color: #f59e0b; border-color: #d97706;"><i class="fa-solid fa-pen-to-square me-1"></i> <?php echo __('edit_equipment_btn'); ?></a>
             <?php endif; ?>

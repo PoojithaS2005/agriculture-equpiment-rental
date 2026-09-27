@@ -547,7 +547,7 @@ $translations = [
         'booking_details_subtitle' => 'Track your equipment rental status and lender details.',
         'lender_details_title' => 'Lender Details',
         'lender_details_subtitle' => 'View complete contact and verification info for the equipment lender.',
-        
+        'back_to_bookings_details' => 'Back to Booking Details',
         // Cards & Sections
         'booking_info' => 'Booking Information',
         'booking_status' => 'Booking Status',
@@ -586,7 +586,7 @@ $translations = [
         'pending_delivery_desc' => 'Pending delivery execution by the lender.',
         'expected_return_date' => 'Expected Return Date',
         'return_instruction_desc' => 'Please return the equipment on or before this date in good condition.',
-        
+        'back_to_booking_details'=> 'Back to Booking Details',
         // Important Notes Content
         'note_1' => 'Ensure the equipment is operated carefully and used only for intended agricultural purposes.',
         'note_2' => 'Return the equipment on or before the agreed end date to avoid late penalty charges.',
@@ -1499,7 +1499,7 @@ $translations = [
         'booking_details_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆ ಸ್ಥಿತಿ ಮತ್ತು ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.',
         'lender_details_title' => 'ಸಾಲದಾತರ ವಿವರಗಳು',
         'lender_details_subtitle' => 'ಉಪಕರಣ ಸಾಲದಾತರ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಮತ್ತು ಪರಿಶೀಲನೆ ಮಾಹಿತಿಯನ್ನು ವೀಕ್ಷಿಸಿ.',
-        
+        'back_to_bookings_details' => 'ಬುಕಿಂಗ್ ವಿವರಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
         // Cards & Sections
         'booking_info' => 'ಬುಕಿಂಗ್ ಮಾಹಿತಿ',
         'booking_status' => 'ಬುಕಿಂಗ್ ಸ್ಥಿತಿ',
@@ -2462,7 +2462,7 @@ $translations = [
         'booking_details_subtitle' => 'अपनी उपकरण किराये की स्थिति और ऋणदाता विवरण को ट्रैक करें।',
         'lender_details_title' => 'ऋणदाता विवरण',
         'lender_details_subtitle' => 'उपकरण ऋणदाता के लिए पूर्ण संपर्क और सत्यापन जानकारी देखें।',
-        
+        'back_to_bookings_details' => 'बुकिंग विवरण पर वापस जाएं',
         // Cards & Sections
         'booking_info' => 'बुकिंग की जानकारी',
         'booking_status' => 'बुकिंग की स्थिति',

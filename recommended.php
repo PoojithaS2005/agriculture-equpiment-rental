@@ -1207,7 +1207,7 @@ function getImagePath($image)
                                 <?php if ($equipment_id > 0): ?>
 
                                     <a
-                                        href="equipment_details.php?id=<?= urlencode($equipment_id) ?>"
+                                        href="equipment_details.php?id=<?= urlencode($equipment_id) ?>&from=recommended&lang=<?= urlencode($current_lang) ?>"
                                         class="view-btn"
                                     >
 

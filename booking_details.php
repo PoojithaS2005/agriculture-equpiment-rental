@@ -122,6 +122,7 @@ $sql = "
         e.service_location,
         e.image AS equipment_image,
         e.price_per_day,
+        e.lender_id AS lender_id,
         u.full_name AS lender_name,
         u.phone AS lender_phone,
         u.email AS lender_email
@@ -177,13 +178,148 @@ $end_ts = strtotime($booking['end_date']);
 $total_days = max(1, ceil(($end_ts - $start_ts) / 86400) + 1);
 $status = $booking['status'];
 $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $status === 'Cancelled';
+
+// Translated labels/text used by the booking status and rental timeline.
+$booking_ui = [
+    'en' => [
+        'submitted' => 'Submitted', 'pending_approval' => 'Pending Approval', 'accepted' => 'Accepted',
+        'delivered' => 'Delivered', 'returned' => 'Returned', 'completed' => 'Completed', 'cancelled' => 'Cancelled',
+        'request_submitted' => 'Request Submitted', 'booking_cancelled' => 'Booking Cancelled',
+        'cancelled_message' => 'You cancelled this equipment booking before delivery.',
+        'request_message' => 'You have requested to book this equipment.',
+        'accepted_message' => 'Lender has reviewed and accepted your request.',
+        'waiting_approval' => 'Waiting for lender approval.',
+        'delivered_message' => 'Equipment has been delivered.',
+        'pending_delivery' => 'Pending delivery execution by the lender.',
+        'returned_message' => 'Equipment returned to lender.',
+        'pending_return' => 'Return will be recorded after the lender collects the equipment.',
+        'completed_message' => 'Rental process successfully finished.',
+        'waiting_completion' => 'Waiting for return confirmation.',
+        'days' => 'Days', 'cancel_booking' => 'Cancel Booking',
+        'confirm_cancel' => 'Are you sure you want to cancel this booking?',
+        'lender_review' => 'Lender Review & Approval', 'equipment_delivery' => 'Equipment Delivery', 'equipment_return' => 'Equipment Return',
+        'booking_details_status' => 'Booking Details & Status',
+        'track_status_lender' => 'Track your equipment rental status and lender details.',
+        'dashboard' => 'Dashboard',
+        'my_bookings' => 'My Bookings',
+        'booking_details' => 'Booking Details',
+        'back_my_bookings' => 'Back to My Bookings',
+        'cancelled_alert' => 'You have cancelled this equipment booking.',
+        'booking_information' => 'Booking Information',
+        'category' => 'Category',
+        'equipment_alt' => 'Equipment',
+        'delivery_address' => 'Delivery Address',
+        'order_summary' => 'Order Summary',
+        'price_per_day' => 'Price per Day',
+        'total_days' => 'Total Days',
+        'total_rent' => 'Total Rent',
+        'advance_paid' => 'Advance Paid',
+        'remaining_cod' => 'Remaining Amount (COD)',
+        'payment_method' => 'Payment Method',
+        'cash_on_delivery' => 'Cash on Delivery',
+        'view_lender_details' => 'View Lender Details',
+        'cancel_booking_btn' => 'Cancel Booking',
+        'booking_status' => 'Booking Status',
+        'rental_timeline' => 'Rental Timeline',
+        'rental_completed' => 'Rental Completed',
+    ],
+    'kn' => [
+        'submitted' => 'ಸಲ್ಲಿಸಲಾಗಿದೆ', 'pending_approval' => 'ಅನುಮೋದನೆ ಬಾಕಿಯಿದೆ', 'accepted' => 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+        'delivered' => 'ತಲುಪಿಸಲಾಗಿದೆ', 'returned' => 'ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ', 'completed' => 'ಪೂರ್ಣಗೊಂಡಿದೆ', 'cancelled' => 'ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+        'request_submitted' => 'ವಿನಂತಿಯನ್ನು ಸಲ್ಲಿಸಲಾಗಿದೆ', 'booking_cancelled' => 'ಬುಕಿಂಗ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+        'cancelled_message' => 'ವಿತರಣೆಯ ಮೊದಲು ನೀವು ಈ ಉಪಕರಣದ ಬುಕಿಂಗ್ ಅನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದೀರಿ.',
+        'request_message' => 'ಈ ಉಪಕರಣವನ್ನು ಬುಕ್ ಮಾಡಲು ನೀವು ವಿನಂತಿಸಿದ್ದೀರಿ.',
+        'accepted_message' => 'ಸಾಲದಾತರು ನಿಮ್ಮ ವಿನಂತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಸ್ವೀಕರಿಸಿದ್ದಾರೆ.',
+        'waiting_approval' => 'ಸಾಲದಾತರ ಪರಿಶೀಲನೆ ಮತ್ತು ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ.',
+        'delivered_message' => 'ಉಪಕರಣವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ತಲುಪಿಸಲಾಗಿದೆ.',
+        'pending_delivery' => 'ಸಾಲದಾತರಿಂದ ವಿತರಣೆಯ ಕಾರ್ಯಗತಗೊಳಿಸುವಿಕೆ ಬಾಕಿಯಿದೆ.',
+        'returned_message' => 'ಉಪಕರಣವನ್ನು ಸಾಲದಾತರಿಗೆ ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ.',
+        'pending_return' => 'ಸಾಲದಾತರು ಉಪಕರಣವನ್ನು ಸಂಗ್ರಹಿಸಿದ ನಂತರ ಹಿಂತಿರುಗಿಸುವಿಕೆಯನ್ನು ದಾಖಲಿಸಲಾಗುತ್ತದೆ.',
+        'completed_message' => 'ಬಾಡಿಗೆ ಪ್ರಕ್ರಿಯೆಯು ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ.',
+        'waiting_completion' => 'ಹಿಂತಿರುಗಿಸುವಿಕೆಯ ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ.',
+        'days' => 'ದಿನಗಳು', 'cancel_booking' => 'ಬುಕಿಂಗ್ ರದ್ದುಮಾಡಿ',
+        'confirm_cancel' => 'ಈ ಬುಕಿಂಗ್ ಅನ್ನು ರದ್ದುಗೊಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿದ್ದೀರಾ?',
+        'lender_review' => 'ಸಾಲದಾತರ ಪರಿಶೀಲನೆ ಮತ್ತು ಅನುಮೋದನೆ', 'equipment_delivery' => 'ಉಪಕರಣ ವಿತರಣೆ', 'equipment_return' => 'ಉಪಕರಣ ಹಿಂತಿರುಗಿಸುವಿಕೆ',
+        'booking_details_status' => 'ಬುಕಿಂಗ್ ವಿವರಗಳು ಮತ್ತು ಸ್ಥಿತಿ',
+        'track_status_lender' => 'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆ ಸ್ಥಿತಿ ಮತ್ತು ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.',
+        'dashboard' => 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        'my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
+        'booking_details' => 'ಬುಕಿಂಗ್ ವಿವರಗಳು',
+        'back_my_bookings' => 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
+        'cancelled_alert' => 'ನೀವು ಈ ಉಪಕರಣದ ಬುಕಿಂಗ್ ಅನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದೀರಿ.',
+        'booking_information' => 'ಬುಕಿಂಗ್ ಮಾಹಿತಿ',
+        'category' => 'ವರ್ಗ',
+        'equipment_alt' => 'ಉಪಕರಣ',
+        'delivery_address' => 'ವಿತರಣಾ ವಿಳಾಸ',
+        'order_summary' => 'ಆರ್ಡರ್ ಸಾರಾಂಶ',
+        'price_per_day' => 'ಪ್ರತಿ ದಿನದ ಬೆಲೆ',
+        'total_days' => 'ಒಟ್ಟು ದಿನಗಳು',
+        'total_rent' => 'ಒಟ್ಟು ಬಾಡಿಗೆ',
+        'advance_paid' => 'ಮುಂಗಡ ಪಾವತಿ',
+        'remaining_cod' => 'ಉಳಿದ ಮೊತ್ತ (COD)',
+        'payment_method' => 'ಪಾವತಿ ವಿಧಾನ',
+        'cash_on_delivery' => 'ಕ್ಯಾಶ್ ಆನ್ ಡೆಲಿವರಿ',
+        'view_lender_details' => 'ಸಾಲದಾತರ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+        'cancel_booking_btn' => 'ಬುಕಿಂಗ್ ರದ್ದುಮಾಡಿ',
+        'booking_status' => 'ಬುಕಿಂಗ್ ಸ್ಥಿತಿ',
+        'rental_timeline' => 'ಬಾಡಿಗೆ ಸಮಯರೇಖೆ',
+        'rental_completed' => 'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
+    ],
+    'hi' => [
+        'submitted' => 'सबमिट किया गया', 'pending_approval' => 'अनुमोदन लंबित', 'accepted' => 'स्वीकृत',
+        'delivered' => 'डिलीवर किया गया', 'returned' => 'वापस किया गया', 'completed' => 'पूरा हुआ', 'cancelled' => 'रद्द किया गया',
+        'request_submitted' => 'अनुरोध सबमिट किया गया', 'booking_cancelled' => 'बुकिंग रद्द की गई',
+        'cancelled_message' => 'डिलीवरी से पहले आपने इस उपकरण की बुकिंग रद्द कर दी है।',
+        'request_message' => 'आपने इस उपकरण को बुक करने का अनुरोध किया है।',
+        'accepted_message' => 'लेंडर ने आपके अनुरोध की समीक्षा करके उसे स्वीकार कर लिया है।',
+        'waiting_approval' => 'लेंडर की समीक्षा और पुष्टि की प्रतीक्षा है।',
+        'delivered_message' => 'उपकरण सफलतापूर्वक डिलीवर कर दिया गया है।',
+        'pending_delivery' => 'लेंडर द्वारा डिलीवरी की प्रक्रिया लंबित है।',
+        'returned_message' => 'उपकरण लेंडर को वापस कर दिया गया है।',
+        'pending_return' => 'लेंडर द्वारा उपकरण लेने के बाद वापसी दर्ज की जाएगी।',
+        'completed_message' => 'किराये की प्रक्रिया सफलतापूर्वक पूरी हो गई है।',
+        'waiting_completion' => 'वापसी की पुष्टि की प्रतीक्षा है।',
+        'days' => 'दिन', 'cancel_booking' => 'बुकिंग रद्द करें',
+        'confirm_cancel' => 'क्या आप वाकई इस बुकिंग को रद्द करना चाहते हैं?',
+        'lender_review' => 'लेंडर की समीक्षा और अनुमोदन', 'equipment_delivery' => 'उपकरण की डिलीवरी', 'equipment_return' => 'उपकरण की वापसी',
+        'booking_details_status' => 'बुकिंग विवरण और स्थिति',
+        'track_status_lender' => 'अपने उपकरण किराये की स्थिति और लेंडर के विवरण को ट्रैक करें।',
+        'dashboard' => 'डैशबोर्ड',
+        'my_bookings' => 'मेरी बुकिंग',
+        'booking_details' => 'बुकिंग विवरण',
+        'back_my_bookings' => 'मेरी बुकिंग पर वापस जाएं',
+        'cancelled_alert' => 'आपने इस उपकरण की बुकिंग रद्द कर दी है।',
+        'booking_information' => 'बुकिंग जानकारी',
+        'category' => 'श्रेणी',
+        'equipment_alt' => 'उपकरण',
+        'delivery_address' => 'डिलीवरी पता',
+        'order_summary' => 'ऑर्डर सारांश',
+        'price_per_day' => 'प्रति दिन कीमत',
+        'total_days' => 'कुल दिन',
+        'total_rent' => 'कुल किराया',
+        'advance_paid' => 'अग्रिम भुगतान',
+        'remaining_cod' => 'शेष राशि (COD)',
+        'payment_method' => 'भुगतान विधि',
+        'cash_on_delivery' => 'कैश ऑन डिलीवरी',
+        'view_lender_details' => 'लेंडर विवरण देखें',
+        'cancel_booking_btn' => 'बुकिंग रद्द करें',
+        'booking_status' => 'बुकिंग स्थिति',
+        'rental_timeline' => 'किराये की समयरेखा',
+        'rental_completed' => 'किराया पूरा हुआ',
+    ]
+];
+$bt = $booking_ui[$current_lang] ?? $booking_ui['en'];
+$status_labels = [
+    'Pending' => $bt['pending_approval'], 'Accepted' => $bt['accepted'], 'Delivered' => $bt['delivered'],
+    'Returned' => $bt['returned'], 'Completed' => $bt['completed'], 'Cancelled' => $bt['cancelled'], 'Rejected' => $current_lang === 'kn' ? 'ತಿರಸ್ಕರಿಸಲಾಗಿದೆ' : ($current_lang === 'hi' ? 'अस्वीकृत' : 'Rejected'), 'Overdue' => $current_lang === 'kn' ? 'ಅವಧಿ ಮೀರಿದೆ' : ($current_lang === 'hi' ? 'अवधि समाप्त' : 'Overdue')
+];
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($current_lang, ENT_QUOTES, 'UTF-8'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Details - Agriculture Equipment Rental System</title>
+    <title><?php echo htmlspecialchars($bt['booking_details']); ?> - Agriculture Equipment Rental System</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -519,25 +655,25 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
 
     <!-- Header Section -->
     <div class="breadcrumb-nav">
-        <a href="dashboard.php<?php echo $lang_param; ?>">Dashboard</a> &gt; 
-        <a href="my_bookings.php<?php echo $lang_param; ?>">My Bookings</a> &gt; 
-        <span>Booking Details</span>
+        <a href="dashboard.php<?php echo $lang_param; ?>"><?php echo htmlspecialchars($bt['dashboard']); ?></a> &gt; 
+        <a href="my_bookings.php<?php echo $lang_param; ?>"><?php echo htmlspecialchars($bt['my_bookings']); ?></a> &gt; 
+        <span><?php echo htmlspecialchars($bt['booking_details']); ?></span>
     </div>
 
     <div class="page-header-container">
         <div>
-            <h1 class="page-header"><?php echo htmlspecialchars(__('booking_details') === 'booking_details' ? 'Booking Details & Status' : __('booking_details')); ?></h1>
-            <div class="page-subtitle">Track your equipment rental status and lender details.</div>
+            <h1 class="page-header"><?php echo htmlspecialchars($bt['booking_details_status']); ?></h1>
+            <div class="page-subtitle"><?php echo htmlspecialchars($bt['track_status_lender']); ?></div>
         </div>
         <a href="my_bookings.php<?php echo $lang_param; ?>" class="btn-back">
-            &larr; Back to My Bookings
+            &larr; <?php echo htmlspecialchars($bt['back_my_bookings']); ?>
         </a>
     </div>
 
     <?php if ($status === 'Cancelled'): ?>
         <div class="alert alert-danger d-flex align-items-center" role="alert" style="border-radius: 10px; font-size: 13px; font-weight: 600;">
             <i class="fa-solid fa-circle-xmark me-2"></i>
-            You have cancelled this equipment booking.
+            <?php echo htmlspecialchars($bt['cancelled_alert']); ?>
         </div>
     <?php endif; ?>
 
@@ -548,7 +684,7 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
             <!-- Booking Information Card -->
             <div class="content-card">
                 <div class="card-title-custom">
-                    <i class="fa-solid fa-circle-info text-success"></i> Booking Information
+                    <i class="fa-solid fa-circle-info text-success"></i> <?php echo htmlspecialchars($bt['booking_information']); ?>
                 </div>
 
                 <div class="equipment-box">
@@ -556,7 +692,7 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
                     $img_path = !empty($booking['equipment_image']) ? 'uploads/' . $booking['equipment_image'] : '';
                     if (!empty($booking['equipment_image']) && file_exists(__DIR__ . '/' . $img_path)): 
                     ?>
-                        <img src="<?php echo htmlspecialchars($img_path); ?>" class="equipment-img" alt="Equipment">
+                        <img src="<?php echo htmlspecialchars($img_path); ?>" class="equipment-img" alt="<?php echo htmlspecialchars($bt['equipment_alt']); ?>">
                     <?php else: ?>
                         <div class="equipment-img d-flex align-items-center justify-content-center text-muted">
                             <i class="fa-solid fa-tractor fa-2x"></i>
@@ -566,7 +702,7 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
                     <div>
                         <h5 class="fw-bold mb-1" style="font-size: 16px;"><?php echo htmlspecialchars($booking['equipment_title']); ?></h5>
                         <p class="text-muted mb-1" style="font-size: 12px;">
-                            Category: <strong><?php echo htmlspecialchars($booking['equipment_category']); ?></strong>
+                            <?php echo htmlspecialchars($bt['category']); ?>: <strong><?php echo htmlspecialchars($booking['equipment_category']); ?></strong>
                         </p>
                         <p class="text-muted mb-0" style="font-size: 12px;">
                             <i class="fa-solid fa-location-dot text-danger me-1"></i>
@@ -577,33 +713,33 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
 
                 <div class="meta-grid">
                     <div class="meta-item">
-                        <label>Booking ID</label>
+                        <label><?php echo htmlspecialchars(__('booking_id')); ?></label>
                         <span><i class="fa-solid fa-barcode me-1 text-muted"></i> <?php echo htmlspecialchars($booking['request_code']); ?></span>
                     </div>
                     <div class="meta-item">
-                        <label>Booking Date</label>
+                        <label><?php echo htmlspecialchars(__('booking_date')); ?></label>
                         <span><i class="fa-solid fa-calendar me-1 text-muted"></i> <?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?></span>
                     </div>
                     <div class="meta-item">
-                        <label>Lender Name</label>
+                        <label><?php echo htmlspecialchars(__('lender_name')); ?></label>
                         <span><i class="fa-solid fa-user me-1 text-muted"></i> <?php echo htmlspecialchars($booking['lender_name']); ?></span>
                     </div>
                     <div class="meta-item">
-                        <label>Phone Number</label>
+                        <label><?php echo htmlspecialchars(__('phone_number')); ?></label>
                         <span><i class="fa-solid fa-phone me-1 text-muted"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?></span>
                     </div>
                 </div>
 
                 <div class="info-pill d-flex justify-content-between align-items-center">
                     <div>
-                        <i class="fa-solid fa-calendar-days me-1 text-muted"></i> <strong>Rental Period</strong><br>
+                        <i class="fa-solid fa-calendar-days me-1 text-muted"></i> <strong><?php echo htmlspecialchars(__('rental_period')); ?></strong><br>
                         <span class="text-muted"><?php echo date('d M Y', strtotime($booking['start_date'])); ?> – <?php echo date('d M Y', strtotime($booking['end_date'])); ?></span>
                     </div>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-bold"><?php echo $total_days; ?> Days</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-bold"><?php echo $total_days; ?> <?php echo htmlspecialchars($bt['days']); ?></span>
                 </div>
 
                 <div class="info-pill">
-                    <i class="fa-solid fa-location-dot me-1 text-danger"></i> <strong>Delivery Address</strong><br>
+                    <i class="fa-solid fa-location-dot me-1 text-danger"></i> <strong><?php echo htmlspecialchars($bt['delivery_address']); ?></strong><br>
                     <span class="text-muted"><?php echo htmlspecialchars($booking['service_location']); ?></span>
                 </div>
             </div>
@@ -612,10 +748,10 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
             <div class="content-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="card-title-custom mb-0">
-                        <i class="fa-solid fa-bars-progress text-success"></i> Booking Status
+                        <i class="fa-solid fa-bars-progress text-success"></i> <?php echo htmlspecialchars($bt['booking_status']); ?>
                     </div>
                     <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-1 fw-bold">
-                        <?php echo htmlspecialchars($status); ?>
+                        <?php echo htmlspecialchars($status_labels[$status] ?? $status); ?>
                     </span>
                 </div>
 
@@ -623,42 +759,42 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
                     <div class="stepper">
                         <div class="step completed">
                             <div class="step-circle"><i class="fa-solid fa-check"></i></div>
-                            <div class="step-label">Submitted</div>
+                            <div class="step-label"><?php echo htmlspecialchars($bt['submitted']); ?></div>
                         </div>
                         <div class="step completed">
                             <div class="step-circle"><i class="fa-solid fa-check"></i></div>
-                            <div class="step-label">Pending Approval</div>
+                            <div class="step-label"><?php echo htmlspecialchars($bt['pending_approval']); ?></div>
                         </div>
                         <div class="step active">
                             <div class="step-circle"><i class="fa-solid fa-xmark"></i></div>
-                            <div class="step-label">Cancelled</div>
+                            <div class="step-label"><?php echo htmlspecialchars($bt['cancelled']); ?></div>
                         </div>
                     </div>
                 <?php else: ?>
                 <div class="stepper">
                     <div class="step <?php echo in_array($status, ['Pending', 'Accepted', 'Delivered', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
                         <div class="step-circle"><i class="fa-solid fa-check"></i></div>
-                        <div class="step-label">Submitted</div>
+                        <div class="step-label"><?php echo htmlspecialchars($bt['submitted']); ?></div>
                     </div>
                     <div class="step <?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
                         <div class="step-circle"><i class="fa-solid fa-check"></i></div>
-                        <div class="step-label">Pending Approval</div>
+                        <div class="step-label"><?php echo htmlspecialchars($bt['pending_approval']); ?></div>
                     </div>
                     <div class="step <?php echo ($status === 'Accepted') ? 'active' : (in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'completed' : ''); ?>">
                         <div class="step-circle">3</div>
-                        <div class="step-label">Accepted</div>
+                        <div class="step-label"><?php echo htmlspecialchars($bt['accepted']); ?></div>
                     </div>
                     <div class="step <?php echo ($status === 'Delivered') ? 'active' : (in_array($status, ['Returned', 'Completed']) ? 'completed' : ''); ?>">
                         <div class="step-circle">4</div>
-                        <div class="step-label">Delivered</div>
+                        <div class="step-label"><?php echo htmlspecialchars($bt['delivered']); ?></div>
                     </div>
                     <div class="step <?php echo ($status === 'Returned') ? 'active' : ($status === 'Completed' ? 'completed' : ''); ?>">
                         <div class="step-circle">5</div>
-                        <div class="step-label">Returned</div>
+                        <div class="step-label"><?php echo htmlspecialchars($bt['returned']); ?></div>
                     </div>
                     <div class="step <?php echo ($status === 'Completed') ? 'completed' : ''; ?>">
                         <div class="step-circle">6</div>
-                        <div class="step-label">Completed</div>
+                        <div class="step-label"><?php echo htmlspecialchars($bt['completed']); ?></div>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -667,39 +803,39 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
             <!-- Rental Timeline -->
             <div class="content-card">
                 <div class="card-title-custom">
-                    <i class="fa-solid fa-timeline text-success"></i> Rental Timeline
+                    <i class="fa-solid fa-timeline text-success"></i> <?php echo htmlspecialchars($bt['rental_timeline']); ?>
                 </div>
 
                 <ul class="timeline-list">
                     <?php if ($status === 'Cancelled'): ?>
                         <li class="timeline-item active">
-                            <h6>Request Submitted</h6>
-                            <p>You requested to book this equipment. (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
+                            <h6><?php echo htmlspecialchars($bt['request_submitted']); ?></h6>
+                            <p><?php echo htmlspecialchars($bt['request_message']); ?> (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
                         </li>
                         <li class="timeline-item active">
-                            <h6>Booking Cancelled</h6>
-                            <p>You cancelled this equipment booking before delivery.</p>
+                            <h6><?php echo htmlspecialchars($bt['booking_cancelled']); ?></h6>
+                            <p><?php echo htmlspecialchars($bt['cancelled_message']); ?></p>
                         </li>
                     <?php else: ?>
                     <li class="timeline-item active">
-                        <h6>Request Submitted</h6>
-                        <p>You have requested to book this equipment. (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
+                        <h6><?php echo htmlspecialchars($bt['request_submitted']); ?></h6>
+                        <p><?php echo htmlspecialchars($bt['request_message']); ?> (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
                     </li>
                     <li class="timeline-item <?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'active' : ''; ?>">
-                        <h6>Lender Review & Approval</h6>
-                        <p><?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'Lender has reviewed and accepted your request.' : 'Waiting for lender approval.'; ?></p>
+                        <h6><?php echo htmlspecialchars($bt['lender_review']); ?></h6>
+                        <p><?php echo htmlspecialchars(in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? $bt['accepted_message'] : $bt['waiting_approval']); ?></p>
                     </li>
                     <li class="timeline-item <?php echo in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'active' : ''; ?>">
-                        <h6>Equipment Delivery</h6>
-                        <p><?php echo in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'Equipment has been delivered.' : 'Pending delivery execution by the lender.'; ?></p>
+                        <h6><?php echo htmlspecialchars($bt['equipment_delivery']); ?></h6>
+                        <p><?php echo htmlspecialchars(in_array($status, ['Delivered', 'Returned', 'Completed']) ? $bt['delivered_message'] : $bt['pending_delivery']); ?></p>
                     </li>
                     <li class="timeline-item <?php echo in_array($status, ['Returned', 'Completed']) ? 'active' : ''; ?>">
-                        <h6>Equipment Return</h6>
-                        <p><?php echo in_array($status, ['Returned', 'Completed']) ? 'Equipment returned to lender.' : 'Return will be recorded after the lender collects the equipment.'; ?></p>
+                        <h6><?php echo htmlspecialchars($bt['equipment_return']); ?></h6>
+                        <p><?php echo htmlspecialchars(in_array($status, ['Returned', 'Completed']) ? $bt['returned_message'] : $bt['pending_return']); ?></p>
                     </li>
                     <li class="timeline-item <?php echo ($status === 'Completed') ? 'active' : ''; ?>">
-                        <h6>Rental Completed</h6>
-                        <p><?php echo ($status === 'Completed') ? 'Rental process successfully finished.' : 'Waiting for return confirmation.'; ?></p>
+                        <h6><?php echo htmlspecialchars($bt['rental_completed']); ?></h6>
+                        <p><?php echo htmlspecialchars(($status === 'Completed') ? $bt['completed_message'] : $bt['waiting_completion']); ?></p>
                     </li>
                     <?php endif; ?>
                 </ul>
@@ -707,53 +843,51 @@ $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $st
 
         </div>
 
-        <!-- Right Column: Order Summary & Actions -->
+        <!-- Right Column: <?php echo htmlspecialchars($bt['order_summary']); ?> & Actions -->
         <div class="col-lg-4">
             <div class="content-card">
                 <div class="card-title-custom">
-                    <i class="fa-solid fa-receipt text-success"></i> Order Summary
+                    <i class="fa-solid fa-receipt text-success"></i> <?php echo htmlspecialchars($bt['order_summary']); ?>
                 </div>
 
                 <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
-                    <span class="text-muted">Price per Day</span>
+                    <span class="text-muted"><?php echo htmlspecialchars($bt['price_per_day']); ?></span>
                     <span class="fw-bold">₹<?php echo number_format((float)($booking['price_per_day'] ?? 0), 2); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
-                    <span class="text-muted">Total Days</span>
-                    <span class="fw-bold"><?php echo $total_days; ?> Days</span>
+                    <span class="text-muted"><?php echo htmlspecialchars($bt['total_days']); ?></span>
+                    <span class="fw-bold"><?php echo $total_days; ?> <?php echo htmlspecialchars($bt['days']); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
-                    <span class="text-muted">Total Rent</span>
+                    <span class="text-muted"><?php echo htmlspecialchars($bt['total_rent']); ?></span>
                     <span class="fw-bold text-success">₹<?php echo number_format((float)$booking['total_amount'], 2); ?></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2" style="font-size: 13px;">
-                    <span class="text-muted">Advance Paid</span>
+                    <span class="text-muted"><?php echo htmlspecialchars($bt['advance_paid']); ?></span>
                     <span class="fw-bold">₹<?php echo number_format((float)$booking['advance_amount'], 2); ?></span>
                 </div>
                 <hr>
                 <div class="d-flex justify-content-between mb-3" style="font-size: 14px;">
-                    <span class="fw-bold">Remaining Amount (COD)</span>
+                    <span class="fw-bold"><?php echo htmlspecialchars($bt['remaining_cod']); ?></span>
                     <span class="fw-bold text-danger">₹<?php echo number_format((float)($booking['total_amount'] - $booking['advance_amount']), 2); ?></span>
                 </div>
 
                 <div class="mb-3">
-                    <span class="text-muted" style="font-size: 12px;">Payment Method</span>
-                    <div><span class="badge bg-light text-dark border">Cash on Delivery</span></div>
+                    <span class="text-muted" style="font-size: 12px;"><?php echo htmlspecialchars($bt['payment_method']); ?></span>
+                    <div><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($bt['cash_on_delivery']); ?></span></div>
                 </div>
 
-                <button class="btn btn-light border w-100 fw-bold mb-2" style="font-size: 13px;">
-                    <i class="fa-solid fa-user me-1"></i> View Lender Details
-                </button>
-
-                <a href="tel:<?php echo htmlspecialchars($booking['lender_phone']); ?>" class="btn btn-success w-100 fw-bold mb-2" style="font-size: 13px;">
-                    <i class="fa-solid fa-phone me-1"></i> <?php echo htmlspecialchars($booking['lender_phone']); ?>
-                </a>
+                <a href="lender_details.php?booking_id=<?php echo $booking_id; ?>&lang=<?php echo urlencode($current_lang); ?>"
+   class="btn btn-light border w-100 fw-bold mb-2"
+   style="font-size: 13px;">
+    <i class="fa-solid fa-user me-1"></i> <?php echo htmlspecialchars($bt['view_lender_details']); ?>
+</a>
 
                 <!-- Cancel Button Section: Only available BEFORE equipment delivery -->
                 <?php if ($status === 'Pending' || $status === 'Accepted'): ?>
-                    <form method="POST" action="booking_details.php?booking_id=<?php echo $booking_id; ?>&lang=<?php echo urlencode($current_lang); ?>" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                    <form method="POST" action="booking_details.php?booking_id=<?php echo $booking_id; ?>&lang=<?php echo urlencode($current_lang); ?>" onsubmit="return confirm(<?php echo json_encode($bt['confirm_cancel']); ?>);">
                         <button type="submit" name="cancel_booking" value="1" class="btn-cancel-booking">
-                            <i class="fa-solid fa-xmark me-1"></i> Cancel Booking
+                            <i class="fa-solid fa-xmark me-1"></i> <?php echo htmlspecialchars($bt['cancel_booking_btn']); ?>
                         </button>
                     </form>
                 <?php endif; ?>
