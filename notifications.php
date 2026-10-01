@@ -178,6 +178,80 @@ function notification_title_key(string $title): string
     return 'notifications_title';
 }
 
+/*
+ * Notification-specific translations.
+ * These are kept here because the current includes/lang.php does not
+ * contain all of the notification keys used by this page.
+ */
+function notification_text(string $key, string $lang): string
+{
+    $translations = [
+        'en' => [
+            'notifications_title' => 'Notifications',
+            'equipment_delivered' => 'Equipment Delivered',
+            'equipment_returned' => 'Equipment Returned',
+            'rental_accepted' => 'Rental Request Accepted',
+            'rental_rejected' => 'Rental Request Rejected',
+            'rental_completed' => 'Rental Completed',
+            'rental_overdue' => 'Rental Overdue',
+            'new_rental_request' => 'New Rental Request',
+            'delivery_confirmation_required' => 'Please confirm that you received the equipment.',
+            'return_confirmation_required' => 'Please confirm that the equipment was collected.',
+            'booking_request_accepted' => 'Your rental request has been accepted.',
+            'booking_request_rejected' => 'Your rental request has been rejected.',
+            'booking_completed_message' => 'Your rental has been completed.',
+            'notification_default' => 'You have a new notification.',
+            'mark_all_read' => 'Mark All as Read',
+            'mark_read' => 'Mark as Read',
+            'no_notifications' => 'No notifications found.',
+        ],
+        'hi' => [
+            'notifications_title' => 'सूचनाएं',
+            'equipment_delivered' => 'उपकरण वितरित किया गया',
+            'equipment_returned' => 'उपकरण वापस किया गया',
+            'rental_accepted' => 'किराये का अनुरोध स्वीकार किया गया',
+            'rental_rejected' => 'किराये का अनुरोध अस्वीकार किया गया',
+            'rental_completed' => 'किराया पूरा हुआ',
+            'rental_overdue' => 'किराया अतिदेय है',
+            'new_rental_request' => 'नया किराये का अनुरोध',
+            'delivery_confirmation_required' => 'कृपया पुष्टि करें कि आपको उपकरण प्राप्त हो गया है।',
+            'return_confirmation_required' => 'कृपया पुष्टि करें कि उपकरण एकत्र कर लिया गया है।',
+            'booking_request_accepted' => 'आपका किराये का अनुरोध स्वीकार कर लिया गया है।',
+            'booking_request_rejected' => 'आपका किराये का अनुरोध अस्वीकार कर दिया गया है।',
+            'booking_completed_message' => 'आपका किराया पूरा हो गया है।',
+            'notification_default' => 'आपके पास एक नई सूचना है।',
+            'mark_all_read' => 'सभी को पढ़ा हुआ चिन्हित करें',
+            'mark_read' => 'पढ़ा हुआ चिन्हित करें',
+            'no_notifications' => 'कोई सूचना नहीं मिली।',
+        ],
+        'kn' => [
+            'notifications_title' => 'ಅಧಿಸೂಚನೆಗಳು',
+            'equipment_delivered' => 'ಉಪಕರಣ ವಿತರಿಸಲಾಗಿದೆ',
+            'equipment_returned' => 'ಉಪಕರಣ ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+            'rental_accepted' => 'ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+            'rental_rejected' => 'ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
+            'rental_completed' => 'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
+            'rental_overdue' => 'ಬಾಡಿಗೆ ಅವಧಿ ಮೀರಿದೆ',
+            'new_rental_request' => 'ಹೊಸ ಬಾಡಿಗೆ ವಿನಂತಿ',
+            'delivery_confirmation_required' => 'ನೀವು ಉಪಕರಣವನ್ನು ಸ್ವೀಕರಿಸಿದ್ದೀರಿ ಎಂಬುದನ್ನು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
+            'return_confirmation_required' => 'ಉಪಕರಣವನ್ನು ಸಂಗ್ರಹಿಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
+            'booking_request_accepted' => 'ನಿಮ್ಮ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ.',
+            'booking_request_rejected' => 'ನಿಮ್ಮ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.',
+            'booking_completed_message' => 'ನಿಮ್ಮ ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ.',
+            'notification_default' => 'ನಿಮಗೆ ಹೊಸ ಅಧಿಸೂಚನೆ ಇದೆ.',
+            'mark_all_read' => 'ಎಲ್ಲವನ್ನೂ ಓದಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
+            'mark_read' => 'ಓದಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
+            'no_notifications' => 'ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
+        ],
+    ];
+
+    if (!isset($translations[$lang])) {
+        $lang = 'en';
+    }
+
+    return $translations[$lang][$key] ?? $translations['en'][$key] ?? $key;
+}
+
 function notification_message(string $title, string $message, string $lang): string
 {
     $t = strtolower(trim($title));
@@ -205,14 +279,16 @@ function notification_message(string $title, string $message, string $lang): str
     }
 
     if ($key === null) {
-        return $message !== '' ? $message : __('notification_default');
+        return $message !== ''
+            ? $message
+            : notification_text('notification_default', $lang);
     }
 
-    $translated = __($key);
+    $translated = notification_text($key, $lang);
 
     // Keep the booking/request code from the database notification.
-    if (preg_match('/(?:booking|request)\s+([A-Z0-9-]+)/i', $message, $match)) {
-        $translated .= ' (' . htmlspecialchars($match[1], ENT_QUOTES, 'UTF-8') . ')';
+    if (preg_match('/\b(?:REQ|BK)[-]?[A-Z0-9-]+\b/i', $message, $match)) {
+        $translated .= ' (' . htmlspecialchars($match[0], ENT_QUOTES, 'UTF-8') . ')';
     }
 
     return $translated;
@@ -261,7 +337,7 @@ function notification_icon(string $title): string
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        <?php echo htmlspecialchars(__('notifications_title'), ENT_QUOTES, 'UTF-8'); ?>
+        <?php echo htmlspecialchars(notification_text('notifications_title', $current_lang), ENT_QUOTES, 'UTF-8'); ?>
         - Agriculture Equipment Rental System
     </title>
 
@@ -588,7 +664,7 @@ function notification_icon(string $title): string
         <div class="page-header-row">
 
             <h1 class="page-header">
-                <?php echo htmlspecialchars(__('notifications_title'), ENT_QUOTES, 'UTF-8'); ?>
+                <?php echo htmlspecialchars(notification_text('notifications_title', $current_lang), ENT_QUOTES, 'UTF-8'); ?>
             </h1>
 
             <?php if ($notif_count > 0): ?>
@@ -609,7 +685,7 @@ function notification_icon(string $title): string
 
                     <button type="submit" class="btn-read-all">
                         <i class="fa-solid fa-check-double me-1"></i>
-                        <?php echo htmlspecialchars(__('mark_all_read'), ENT_QUOTES, 'UTF-8'); ?>
+                        <?php echo htmlspecialchars(notification_text('mark_all_read', $current_lang), ENT_QUOTES, 'UTF-8'); ?>
                     </button>
 
                 </form>
@@ -625,7 +701,7 @@ function notification_icon(string $title): string
                 <i class="fa-regular fa-bell"></i>
 
                 <h5>
-                    <?php echo htmlspecialchars(__('no_notifications'), ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars(notification_text('no_notifications', $current_lang), ENT_QUOTES, 'UTF-8'); ?>
                 </h5>
 
             </div>
@@ -641,7 +717,7 @@ function notification_icon(string $title): string
                     $notification['title'] ?? ''
                 );
 
-                $display_title = __($title_key);
+                $display_title = notification_text($title_key, $current_lang);
 
                 $display_message = notification_message(
                     $notification['title'] ?? '',
@@ -717,7 +793,7 @@ function notification_icon(string $title): string
                                 >
 
                                 <button type="submit" class="btn-mark-read">
-                                    <?php echo htmlspecialchars(__('mark_read'), ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars(notification_text('mark_read', $current_lang), ENT_QUOTES, 'UTF-8'); ?>
                                 </button>
 
                             </form>

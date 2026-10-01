@@ -7,7 +7,16 @@ if (file_exists('includes/config.php')) {
     include('includes/config.php');
 }
 
-require_once __DIR__ . '/includes/smtp_config.php';
+// Optional SMTP configuration.
+// This file is not required for the Security Question recovery method.
+// If OTP recovery is used, configure these variables in smtp_config.php.
+$smtp_username = '';
+$smtp_app_password = '';
+
+$smtp_config_file = __DIR__ . '/includes/smtp_config.php';
+if (file_exists($smtp_config_file)) {
+    require_once $smtp_config_file;
+}
 
 /*
  * PHPMailer - manual installation
@@ -64,7 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_find_account']
 
             // Send the OTP through Gmail SMTP using PHPMailer.
             if (!empty($user['email'])) {
-                $mail = new PHPMailer(true);
+                if (empty($smtp_username) || empty($smtp_app_password)) {
+                    $error = 'OTP email is not configured. Please use Security Question or configure includes/smtp_config.php.';
+                    $step = 1;
+                } else {
+                    $mail = new PHPMailer(true);
 
                 try {
                     $mail->isSMTP();
@@ -89,9 +102,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_find_account']
 
                     $mail->send();
                     $step = 2;
-                } catch (Exception $e) {
-                    $error = 'Unable to send the OTP email. Please check the Gmail/PHPMailer settings.';
-                    $step = 1;
+                    } catch (Exception $e) {
+                        $error = 'Unable to send the OTP email. Please check the Gmail/PHPMailer settings.';
+                        $step = 1;
+                    }
                 }
             } else {
                 $error = 'No email address is registered for this account.';
@@ -172,11 +186,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
     $confirm_password = $_POST['confirm_password'];
     $user_id = $_SESSION['reset_user_id'];
 
+    $password_is_valid =
+        strlen($new_password) >= 8 &&
+        preg_match('/[A-Z]/', $new_password) &&
+        preg_match('/[0-9]/', $new_password) &&
+        preg_match('/[^A-Za-z0-9]/', $new_password);
+
     if ($new_password !== $confirm_password) {
         $error = __('err_pwd_mismatch');
         $step = 4;
-    } elseif (strlen($new_password) < 6) {
-        $error = __('err_pwd_length');
+    } elseif (!$password_is_valid) {
+        $error = 'Password must contain at least 8 characters, 1 capital letter, 1 number, and 1 special character.';
         $step = 4;
     } else {
         $password_hash = password_hash($new_password, PASSWORD_BCRYPT);
@@ -239,6 +259,155 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
         .btn-brand-green { background-color: var(--brand-green); color: #fff; border-radius: 10px; padding: 12px; font-weight: 600; border: none; }
         .btn-brand-green:hover { background-color: var(--brand-green-hover); color: #fff; }
         .question-box { background: #f4f9f5; border: 1px solid #dce1e5; border-radius: 10px; padding: 12px; font-weight: 600; color: var(--brand-green); }
+
+        /* Password policy */
+        .password-rules {
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: #f8faf9;
+            border: 1px solid #dce1e5;
+            border-radius: 10px;
+            font-size: 0.84rem;
+        }
+
+        .password-rule {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+            color: #dc3545;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .password-rule::before {
+            content: "•";
+            font-size: 1.25rem;
+            line-height: 0.8;
+            color: #dc3545;
+        }
+
+        .password-rule.valid {
+            color: #198754;
+        }
+
+        .password-rule.valid::before {
+            color: #198754;
+        }
+
+
+        /* Password show/hide button */
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-input-group .password-field {
+            padding-right: 45px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 5;
+        }
+
+        .password-toggle:hover {
+            color: #2d6a4f;
+        }
+
+        .password-toggle:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        /* Bright password warning popup */
+        .password-warning-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .password-warning-overlay.show {
+            display: flex;
+        }
+
+        .password-warning-box {
+            width: 100%;
+            max-width: 430px;
+            background: #ffffff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+            animation: passwordPopupIn 0.2s ease-out;
+        }
+
+        .password-warning-header {
+            background: #dc3545;
+            color: #ffffff;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .password-warning-body {
+            padding: 20px;
+            color: #333;
+        }
+
+        .password-warning-body ul {
+            margin: 10px 0 0;
+            padding-left: 22px;
+        }
+
+        .password-warning-body li {
+            margin: 7px 0;
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .password-warning-footer {
+            padding: 0 20px 20px;
+        }
+
+        .password-warning-footer button {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            background: #dc3545;
+            color: #ffffff;
+            padding: 11px;
+            font-weight: 700;
+        }
+
+        .password-warning-footer button:hover {
+            background: #b02a37;
+        }
+
+        @keyframes passwordPopupIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -332,13 +501,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
                     <input type="hidden" name="step" value="4">
                     <div class="mb-3">
                         <label class="form-label small fw-semibold text-secondary"><?= __('new_password'); ?></label>
-                        <input type="password" name="new_password" class="form-control" minlength="6" required>
+
+                        <div class="password-input-group">
+                            <input type="password"
+                                   id="newPassword"
+                                   name="new_password"
+                                   class="form-control password-field"
+                                   minlength="8"
+                                   required
+                                   autocomplete="new-password">
+
+                            <button type="button"
+                                    class="password-toggle"
+                                    id="toggleNewPassword"
+                                    aria-label="Show password"
+                                    title="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+
+                        <div class="password-rules" id="passwordRules">
+                            <div class="password-rule" id="lengthRule">At least 8 characters</div>
+                            <div class="password-rule" id="capitalRule">At least 1 capital letter (A-Z)</div>
+                            <div class="password-rule" id="numberRule">At least 1 number (0-9)</div>
+                            <div class="password-rule" id="specialRule">At least 1 special character</div>
+                        </div>
                     </div>
+
                     <div class="mb-4">
                         <label class="form-label small fw-semibold text-secondary"><?= __('confirm_password'); ?></label>
-                        <input type="password" name="confirm_password" class="form-control" minlength="6" required>
+
+                        <div class="password-input-group">
+                            <input type="password"
+                                   id="confirmPassword"
+                                   name="confirm_password"
+                                   class="form-control password-field"
+                                   minlength="8"
+                                   required
+                                   autocomplete="new-password">
+
+                            <button type="button"
+                                    class="password-toggle"
+                                    id="toggleConfirmPassword"
+                                    aria-label="Show password"
+                                    title="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" name="action_reset_password" class="btn btn-brand-green w-100"><?= __('reset_btn'); ?></button>
+
+                    <button type="submit"
+                            name="action_reset_password"
+                            id="resetPasswordButton"
+                            class="btn btn-brand-green w-100">
+                        <?= __('reset_btn'); ?>
+                    </button>
                 </form>
             <?php endif; ?>
 
@@ -350,6 +567,168 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_reset_password
 
         </div>
     </div>
+
+
+    <!-- Bright password warning popup -->
+    <div class="password-warning-overlay" id="passwordWarningOverlay">
+        <div class="password-warning-box" role="alertdialog" aria-modal="true" aria-labelledby="passwordWarningTitle">
+            <div class="password-warning-header">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="passwordWarningTitle">Password Requirements</span>
+            </div>
+
+            <div class="password-warning-body">
+                <strong>Please correct the following password requirements:</strong>
+                <ul id="missingPasswordRules"></ul>
+            </div>
+
+            <div class="password-warning-footer">
+                <button type="button" id="closePasswordWarning">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('newPassword');
+            const confirmInput = document.getElementById('confirmPassword');
+            const form = passwordInput ? passwordInput.closest('form') : null;
+
+            if (!passwordInput || !form) {
+                return;
+            }
+
+            const lengthRule = document.getElementById('lengthRule');
+            const capitalRule = document.getElementById('capitalRule');
+            const numberRule = document.getElementById('numberRule');
+            const specialRule = document.getElementById('specialRule');
+
+            const overlay = document.getElementById('passwordWarningOverlay');
+            const missingList = document.getElementById('missingPasswordRules');
+            const closeButton = document.getElementById('closePasswordWarning');
+
+            function setupPasswordToggle(inputId, buttonId) {
+                const input = document.getElementById(inputId);
+                const button = document.getElementById(buttonId);
+
+                if (!input || !button) {
+                    return;
+                }
+
+                button.addEventListener('click', function () {
+                    const icon = button.querySelector('i');
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                        button.setAttribute('aria-label', 'Hide password');
+                        button.setAttribute('title', 'Hide password');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                        button.setAttribute('aria-label', 'Show password');
+                        button.setAttribute('title', 'Show password');
+                    }
+                });
+            }
+
+            setupPasswordToggle('newPassword', 'toggleNewPassword');
+            setupPasswordToggle('confirmPassword', 'toggleConfirmPassword');
+
+            function checkPassword(password) {
+                return {
+                    length: password.length >= 8,
+                    capital: /[A-Z]/.test(password),
+                    number: /[0-9]/.test(password),
+                    special: /[^A-Za-z0-9]/.test(password)
+                };
+            }
+
+            function updateRule(element, valid) {
+                element.classList.toggle('valid', valid);
+            }
+
+            function updatePasswordRules() {
+                const result = checkPassword(passwordInput.value);
+
+                updateRule(lengthRule, result.length);
+                updateRule(capitalRule, result.capital);
+                updateRule(numberRule, result.number);
+                updateRule(specialRule, result.special);
+
+                return result;
+            }
+
+            function showPasswordWarning(result) {
+                missingList.innerHTML = '';
+
+                const missingRules = [];
+
+                if (!result.length) {
+                    missingRules.push('At least 8 characters');
+                }
+                if (!result.capital) {
+                    missingRules.push('At least 1 capital letter (A-Z)');
+                }
+                if (!result.number) {
+                    missingRules.push('At least 1 number (0-9)');
+                }
+                if (!result.special) {
+                    missingRules.push('At least 1 special character');
+                }
+
+                missingRules.forEach(function (rule) {
+                    const li = document.createElement('li');
+                    li.textContent = rule;
+                    missingList.appendChild(li);
+                });
+
+                overlay.classList.add('show');
+                closeButton.focus();
+            }
+
+            function closePasswordWarning() {
+                overlay.classList.remove('show');
+                passwordInput.focus();
+            }
+
+            passwordInput.addEventListener('input', updatePasswordRules);
+
+            closeButton.addEventListener('click', closePasswordWarning);
+
+            overlay.addEventListener('click', function (event) {
+                if (event.target === overlay) {
+                    closePasswordWarning();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && overlay.classList.contains('show')) {
+                    closePasswordWarning();
+                }
+            });
+
+            form.addEventListener('submit', function (event) {
+                const result = updatePasswordRules();
+
+                if (!result.length || !result.capital || !result.number || !result.special) {
+                    event.preventDefault();
+                    showPasswordWarning(result);
+                    return;
+                }
+
+                if (confirmInput && passwordInput.value !== confirmInput.value) {
+                    event.preventDefault();
+                    alert('Passwords do not match.');
+                    confirmInput.focus();
+                }
+            });
+
+            updatePasswordRules();
+        });
+    </script>
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

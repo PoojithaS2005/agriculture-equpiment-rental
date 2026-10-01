@@ -76,11 +76,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= __('login'); ?> - <?= __('title'); ?></title>
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
+
     <style>
         :root {
             --brand-green: #2d6a4f;
@@ -316,6 +318,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #444;
         }
 
+        /* Terms & Privacy links */
+        .terms-box a {
+            color: var(--brand-green);
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .terms-box a:hover {
+            color: var(--brand-green-hover);
+        }
+
         /* Footer */
         .footer-bottom {
             background-color: var(--brand-green);
@@ -341,7 +355,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="brand-text-sub">EQUIPMENT RENTAL SYSTEM</div>
                 </div>
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -349,20 +363,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center me-4">
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php"><i class="fa-solid fa-house me-1"></i> <?= __('home'); ?></a>
+                        <a class="nav-link" href="index.php">
+                            <i class="fa-solid fa-house me-1"></i> <?= __('home'); ?>
+                        </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="how-it-works.php"><i class="fa-solid fa-info-circle me-1"></i> <?= __('how_it_works'); ?></a>
+                        <a class="nav-link" href="how-it-works.php">
+                            <i class="fa-solid fa-info-circle me-1"></i> <?= __('how_it_works'); ?>
+                        </a>
                     </li>
                 </ul>
 
                 <!-- DYNAMIC LANGUAGE DROPDOWN -->
                 <div class="d-flex align-items-center gap-2">
                     <i class="fa-solid fa-globe text-secondary"></i>
+
                     <select class="lang-dropdown fw-bold text-success" onchange="location = this.value;">
-                        <option value="?lang=en" <?= ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
-                        <option value="?lang=kn" <?= ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ (Kannada)</option>
-                        <option value="?lang=hi" <?= ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी (Hindi)</option>
+                        <option value="?lang=en" <?= ($current_lang === 'en') ? 'selected' : ''; ?>>
+                            English
+                        </option>
+
+                        <option value="?lang=kn" <?= ($current_lang === 'kn') ? 'selected' : ''; ?>>
+                            ಕನ್ನಡ (Kannada)
+                        </option>
+
+                        <option value="?lang=hi" <?= ($current_lang === 'hi') ? 'selected' : ''; ?>>
+                            हिंदी (Hindi)
+                        </option>
                     </select>
                 </div>
             </div>
@@ -372,7 +400,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- MAIN SIDE-BY-SIDE CONTENT -->
     <div class="container my-4">
         <div class="row align-items-center g-4">
-            
+
             <!-- LEFT COLUMN: Image & Text -->
             <div class="col-lg-6">
                 <h1 class="welcome-title mb-2"><?= __('welcome_back'); ?></h1>
@@ -394,6 +422,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <span class="feature-sub"><?= __('trusted_desc'); ?></span>
                         </div>
                     </div>
+
                     <div class="col-4 border-start border-end">
                         <div class="d-flex flex-column align-items-center">
                             <div class="feature-icon-box">
@@ -403,6 +432,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <span class="feature-sub"><?= __('quality_desc'); ?></span>
                         </div>
                     </div>
+
                     <div class="col-4">
                         <div class="d-flex flex-column align-items-center">
                             <div class="feature-icon-box">
@@ -418,7 +448,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- RIGHT COLUMN: Login Form Box -->
             <div class="col-lg-6">
                 <div class="login-card">
-                    
+
                     <div class="avatar-circle">
                         <i class="fa-regular fa-user"></i>
                     </div>
@@ -426,66 +456,132 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <h3 class="text-center login-heading"><?= __('login'); ?></h3>
 
                     <?php if($error != ""): ?>
-                        <div class="alert alert-danger py-2 text-center small"><?php echo $error; ?></div>
+                        <div class="alert alert-danger py-2 text-center small">
+                            <?php echo $error; ?>
+                        </div>
                     <?php endif; ?>
 
                     <form method="POST" action="" autocomplete="off">
-                        
+
                         <!-- Hidden inputs trick Chrome away from real inputs -->
                         <input type="text" style="display:none" name="fake_username_autofill"/>
                         <input type="password" style="display:none" name="fake_password_autofill"/>
 
                         <!-- Email / Phone -->
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-secondary"><?= __('email_or_phone'); ?></label>
+                            <label class="form-label small fw-semibold text-secondary">
+                                <?= __('email_or_phone'); ?>
+                            </label>
+
                             <div class="input-icon-wrapper">
                                 <i class="fa-regular fa-user input-icon-left"></i>
-                                <input type="text" name="login_input" class="form-control" placeholder="<?= __('enter_email_phone'); ?>" autocomplete="off" required>
+
+                                <input type="text"
+                                       name="login_input"
+                                       class="form-control"
+                                       placeholder="<?= __('enter_email_phone'); ?>"
+                                       autocomplete="off"
+                                       required>
                             </div>
                         </div>
 
                         <!-- Password -->
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold text-secondary"><?= __('password'); ?></label>
+                            <label class="form-label small fw-semibold text-secondary">
+                                <?= __('password'); ?>
+                            </label>
+
                             <div class="input-icon-wrapper">
                                 <i class="fa-solid fa-lock input-icon-left"></i>
-                                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="<?= __('enter_password'); ?>" autocomplete="new-password" required>
-                                <i class="fa-regular fa-eye input-icon-right" id="togglePassword"></i>
+
+                                <input type="password"
+                                       name="password"
+                                       id="passwordInput"
+                                       class="form-control"
+                                       placeholder="<?= __('enter_password'); ?>"
+                                       autocomplete="new-password"
+                                       required>
+
+                                <i class="fa-regular fa-eye input-icon-right"
+                                   id="togglePassword"
+                                   title="Show password"
+                                   aria-label="Show password"></i>
                             </div>
                         </div>
 
                         <!-- Remember Me & Forgot Password -->
                         <div class="d-flex justify-content-between align-items-center mb-4 small">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="rememberMe">
-                                <label class="form-check-label text-secondary" for="rememberMe"><?= __('remember_me'); ?></label>
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="rememberMe">
+
+                                <label class="form-check-label text-secondary"
+                                       for="rememberMe">
+                                    <?= __('remember_me'); ?>
+                                </label>
                             </div>
-                            <a href="forgot_password.php" class="text-success text-decoration-none fw-semibold"><?= __('forgot_password'); ?></a>
+
+                            <a href="forgot_password.php?lang=<?= urlencode($current_lang); ?>"
+                               class="text-success text-decoration-none fw-semibold">
+                                <?= __('forgot_password'); ?>
+                            </a>
                         </div>
 
                         <!-- Login Button -->
                         <button type="submit" class="btn btn-brand-green w-100 mb-3">
-                            <?= __('login'); ?> <span class="arrow-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                            <?= __('login'); ?>
+
+                            <span class="arrow-icon">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </span>
                         </button>
                     </form>
 
                     <!-- OR Divider -->
                     <div class="d-flex align-items-center my-3">
                         <hr class="flex-grow-1 my-0 text-muted">
-                        <span class="px-3 small text-muted fw-semibold">OR</span>
+
+                        <span class="px-3 small text-muted fw-semibold">
+                            OR
+                        </span>
+
                         <hr class="flex-grow-1 my-0 text-muted">
                     </div>
 
                     <!-- Register Link -->
-                    <a href="register.php" class="btn-outline-register mb-4">
-                        <i class="fa-solid fa-user-plus me-2 text-success"></i> <?= __('dont_have_account'); ?> <strong class="text-success"><?= __('register'); ?></strong>
+                    <a href="register.php?lang=<?= urlencode($current_lang); ?>"
+                       class="btn-outline-register mb-4">
+
+                        <i class="fa-solid fa-user-plus me-2 text-success"></i>
+
+                        <?= __('dont_have_account'); ?>
+
+                        <strong class="text-success">
+                            <?= __('register'); ?>
+                        </strong>
                     </a>
 
-                    <!-- Terms Box -->
+                    <!-- TERMS & PRIVACY LINKS -->
                     <div class="terms-box d-flex align-items-center gap-3">
-                        <i class="fa-solid fa-shield-check text-success fa-lg"></i>
+                        <i class="fa-solid fa-shield-halved text-success fa-lg"></i>
+
                         <div>
                             <?= __('terms_notice'); ?>
+
+                            <div class="mt-1">
+                                <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>#terms"
+                                   target="_self">
+                                    Terms &amp; Conditions
+                                </a>
+
+                                <span class="mx-1">and</span>
+
+                                <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>#privacy"
+                                   target="_self">
+                                    Privacy Policy
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -502,14 +598,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="row g-4 justify-content-center">
                 <div class="col-md-8 text-center">
-                    <h6 class="fw-bold mb-3 text-success"><?= __('popular_categories'); ?></h6>
+
+                    <h6 class="fw-bold mb-3 text-success">
+                        <?= __('popular_categories'); ?>
+                    </h6>
+
                     <div class="d-flex flex-wrap justify-content-center gap-4 small text-secondary">
-                        <span><i class="fa-solid fa-tractor me-1 text-success"></i> <?= __('tractor'); ?></span>
-                        <span><i class="fa-solid fa-wheat-awn me-1 text-success"></i> <?= __('harvesting'); ?></span>
-                        <span><i class="fa-solid fa-droplet me-1 text-success"></i> <?= __('irrigation'); ?></span>
-                        <span><i class="fa-solid fa-gears me-1 text-success"></i> <?= __('tillage'); ?></span>
-                        <span><i class="fa-solid fa-seedling me-1 text-success"></i> <?= __('seeding'); ?></span>
-                        <span><i class="fa-solid fa-spray-can me-1 text-success"></i> <?= __('spraying'); ?></span>
+
+                        <span>
+                            <i class="fa-solid fa-tractor me-1 text-success"></i>
+                            <?= __('tractor'); ?>
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-wheat-awn me-1 text-success"></i>
+                            <?= __('harvesting'); ?>
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-droplet me-1 text-success"></i>
+                            <?= __('irrigation'); ?>
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-gears me-1 text-success"></i>
+                            <?= __('tillage'); ?>
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-seedling me-1 text-success"></i>
+                            <?= __('seeding'); ?>
+                        </span>
+
+                        <span>
+                            <i class="fa-solid fa-spray-can me-1 text-success"></i>
+                            <?= __('spraying'); ?>
+                        </span>
+
                     </div>
                 </div>
             </div>
@@ -517,22 +642,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="footer-bottom">
             <div class="container">
-                © 2026 <?= __('title'); ?>. <?= __('all_rights_reserved'); ?>
+                © 2026 <?= __('title'); ?>.
+                <?= __('all_rights_reserved'); ?>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS & Eye Icon Script -->
+    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Password Show / Hide -->
     <script>
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#passwordInput');
 
-        togglePassword.addEventListener('click', function () {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            this.classList.toggle('fa-eye-slash');
-        });
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function () {
+
+                const type =
+                    password.getAttribute('type') === 'password'
+                        ? 'text'
+                        : 'password';
+
+                password.setAttribute('type', type);
+
+                if (type === 'text') {
+                    this.classList.remove('fa-eye');
+                    this.classList.add('fa-eye-slash');
+                    this.setAttribute('title', 'Hide password');
+                    this.setAttribute('aria-label', 'Hide password');
+                } else {
+                    this.classList.remove('fa-eye-slash');
+                    this.classList.add('fa-eye');
+                    this.setAttribute('title', 'Show password');
+                    this.setAttribute('aria-label', 'Show password');
+                }
+            });
+        }
     </script>
+
 </body>
 </html>

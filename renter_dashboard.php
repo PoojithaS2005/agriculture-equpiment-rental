@@ -274,9 +274,11 @@ $recent_res = mysqli_query($conn, $recent_query);
                     </select>
                 </div>
 
-                <!-- DYNAMIC NOTIFICATIONS DROPDOWN -->
-                <div class="dropdown border-start ps-3">
-                    <button class="btn btn-light border-0 position-relative p-2 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="<?= htmlspecialchars(__('notifications')); ?>">
+                <!-- NOTIFICATIONS -->
+                <div class="border-start ps-3">
+                    <a href="notifications.php?lang=<?= urlencode($current_lang); ?>"
+                       class="btn btn-light border-0 position-relative p-2 rounded-circle"
+                       title="<?= htmlspecialchars(__('notifications')); ?>">
                         <i class="fa-regular fa-bell text-secondary fa-lg"></i>
 
                         <?php if ($unread_count > 0): ?>
@@ -284,52 +286,7 @@ $recent_res = mysqli_query($conn, $recent_query);
                                 <?= $unread_count; ?>
                             </span>
                         <?php endif; ?>
-                    </button>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width: 320px; max-height: 350px; overflow-y: auto;">
-
-                        <li class="dropdown-header fw-bold border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
-                            <span class="text-dark"><?= htmlspecialchars(__('notifications')); ?></span>
-
-                            <?php if ($unread_count > 0): ?>
-                                <span class="badge bg-danger-subtle text-danger small"><?= $unread_count; ?> New</span>
-                            <?php endif; ?>
-                        </li>
-
-                        <?php if ($notif_list_res && mysqli_num_rows($notif_list_res) > 0): ?>
-
-                            <?php while ($notif = mysqli_fetch_assoc($notif_list_res)): ?>
-
-                                <li class="mb-1">
-                                    <a class="dropdown-item rounded p-2 text-wrap small <?= ($notif['is_read'] == 0) ? 'bg-light border-start border-3 border-success fw-semibold' : 'text-muted'; ?>" href="#">
-
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <strong class="text-dark" style="font-size: 0.82rem;"><?= htmlspecialchars($notif['title']); ?></strong>
-
-                                            <span class="text-muted" style="font-size: 0.65rem;">
-                                                <?= date('M d, g:i a', strtotime($notif['created_at'])); ?>
-                                            </span>
-                                        </div>
-
-                                        <div class="text-secondary" style="font-size: 0.78rem; line-height: 1.3;">
-                                            <?= htmlspecialchars($notif['message']); ?>
-                                        </div>
-
-                                    </a>
-                                </li>
-
-                            <?php endwhile; ?>
-
-                        <?php else: ?>
-
-                            <li class="text-center text-muted py-4 small">
-                                <i class="fa-regular fa-bell-slash d-block fa-2x mb-2 opacity-50"></i>
-                                <?= htmlspecialchars(__('no_notifications')); ?>
-                            </li>
-
-                        <?php endif; ?>
-
-                    </ul>
+                    </a>
                 </div>
 
                 <!-- Profile Badge - opens My Profile -->
