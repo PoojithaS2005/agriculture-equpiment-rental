@@ -837,6 +837,16 @@ if ($stmt) {
                         </strong>
                     </p>
 
+                    <?php if ($st === 'Pending' || $st === 'Accepted'): ?>
+                        <div class="delivery-notice">
+                            <div class="delivery-notice-title">
+                                <i class="fa-solid fa-truck"></i>
+                                Delivery Update
+                            </div>
+                            Your equipment will be delivered on the date decided by the lender.
+                        </div>
+                    <?php endif; ?>
+
                 </div>
 
                 <!-- Booking Details -->

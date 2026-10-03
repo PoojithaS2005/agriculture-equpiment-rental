@@ -141,6 +141,8 @@ $page = [
 
 'notice_text' => 'This page describes the rules for using the project system. It does not replace any legal agreement between a lender and renter. Users should follow applicable local laws and safe equipment practices.',
 
+'agree_checkbox' => 'I agree to the Terms & Conditions and Privacy Policy',
+
 'back' => 'Back to Register'
 
 ],
@@ -268,6 +270,8 @@ $page = [
 'notice' => 'ಮುಖ್ಯ ಸೂಚನೆ',
 
 'notice_text' => 'ಈ ಪುಟವು ಈ ಪ್ರಾಜೆಕ್ಟ್ ವ್ಯವಸ್ಥೆಯನ್ನು ಬಳಸುವ ನಿಯಮಗಳನ್ನು ವಿವರಿಸುತ್ತದೆ. ಇದು ಸಾಲದಾತ ಮತ್ತು ಬಾಡಿಗೆದಾರರ ನಡುವಿನ ಯಾವುದೇ ಕಾನೂನು ಒಪ್ಪಂದಕ್ಕೆ ಪರ್ಯಾಯವಲ್ಲ. ಅನ್ವಯಿಸುವ ಸ್ಥಳೀಯ ಕಾನೂನುಗಳು ಮತ್ತು ಸುರಕ್ಷಿತ ಉಪಕರಣ ಬಳಕೆಯ ನಿಯಮಗಳನ್ನು ಪಾಲಿಸಿ.',
+
+'agree_checkbox' => 'ನಾನು ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು ಹಾಗೂ ಗೌಪ್ಯತಾ ನೀತಿಗೆ ಒಪ್ಪುತ್ತೇನೆ',
 
 'back' => 'ನೋಂದಣಿಗೆ ಹಿಂತಿರುಗಿ'
 
@@ -397,6 +401,8 @@ $page = [
 
 'notice_text' => 'यह पृष्ठ इस प्रोजेक्ट सिस्टम के उपयोग के नियम बताता है। यह ऋणदाता और किरायेदार के बीच किसी कानूनी समझौते का विकल्प नहीं है। लागू स्थानीय कानूनों और सुरक्षित उपकरण उपयोग के नियमों का पालन करें।',
 
+'agree_checkbox' => 'मैं नियम और शर्तों तथा गोपनीयता नीति से सहमत हूँ',
+
 'back' => 'पंजीकरण पर वापस जाएं'
 
 ]
@@ -452,6 +458,12 @@ if ($from === 'login') {
     } else {
         $back_text = 'Back to Register';
     }
+}
+
+$source_query = '&from=' . urlencode($from);
+
+if ($from === 'rent_now') {
+    $source_query .= '&equipment_id=' . intval($equipment_id);
 }
 
 ?>
@@ -593,6 +605,20 @@ li {
     margin-top: 28px;
 }
 
+.agreement-box {
+    background: var(--light);
+    border: 1px solid #d9e8df;
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.agreement-box label {
+    cursor: pointer;
+    color: #334155;
+    font-weight: 600;
+    font-size: 14px;
+}
+
 .back {
     display: inline-flex;
     margin-top: 25px;
@@ -657,21 +683,21 @@ li {
 <select onchange="location.href=this.value;">
 
 <option
-    value="terms_privacy.php?lang=en"
+    value="terms_privacy.php?lang=en<?= $source_query; ?>"
     <?= $current_lang === 'en' ? 'selected' : ''; ?>
 >
     English
 </option>
 
 <option
-    value="terms_privacy.php?lang=kn"
+    value="terms_privacy.php?lang=kn<?= $source_query; ?>"
     <?= $current_lang === 'kn' ? 'selected' : ''; ?>
 >
     ಕನ್ನಡ
 </option>
 
 <option
-    value="terms_privacy.php?lang=hi"
+    value="terms_privacy.php?lang=hi<?= $source_query; ?>"
     <?= $current_lang === 'hi' ? 'selected' : ''; ?>
 >
     हिंदी
@@ -854,11 +880,31 @@ li {
 </div>
 
 
+<!-- AGREEMENT -->
+
+<div class="agreement-box mt-4">
+
+<label class="d-flex align-items-start gap-2">
+    <input
+        type="checkbox"
+        id="agreeTerms"
+        class="form-check-input mt-1"
+    >
+
+    <span>
+        <?= htmlspecialchars($t['agree_checkbox']); ?>
+    </span>
+</label>
+
+</div>
+
+
 <!-- BACK BUTTON -->
 
 <a
     class="back"
     href="<?= htmlspecialchars($back_page); ?>"
+    id="backButton"
 >
 
 <i class="fa-solid fa-arrow-left me-2"></i>
@@ -868,6 +914,65 @@ li {
 </a>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const agreeTerms = document.getElementById('agreeTerms');
+    const backButton = document.getElementById('backButton');
+
+    function returnToSource(accepted) {
+        const opener = window.opener;
+
+        if (opener && !opener.closed) {
+            try {
+                opener.focus();
+
+                if (accepted) {
+                    const source = <?= json_encode($from); ?>;
+
+                    if (source === 'register') {
+                        const termsCheck = opener.document.getElementById('termsCheck');
+
+                        if (termsCheck) {
+                            termsCheck.checked = true;
+                        }
+                    } else if (source === 'rent_now') {
+                        const termsCheck = opener.document.getElementById('terms');
+
+                        if (termsCheck) {
+                            termsCheck.checked = true;
+                        }
+                    }
+                }
+
+                window.close();
+                return;
+            } catch (e) {
+                // Fall back to normal navigation below.
+            }
+        }
+
+        let target = <?= json_encode($back_page); ?>;
+
+        if (accepted) {
+            target += (target.indexOf('?') >= 0 ? '&' : '?') + 'accepted=1';
+        }
+
+        window.location.href = target;
+    }
+
+    agreeTerms.addEventListener('change', function () {
+        if (this.checked) {
+            returnToSource(true);
+        }
+    });
+
+    backButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        returnToSource(false);
+    });
+});
+</script>
 
 </main>
 

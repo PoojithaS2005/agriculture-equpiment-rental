@@ -390,7 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         /* Keep the user on the booking page and show a success message here. */
                                         $success_booking_id = $booking_id;
                                         $success_request_code = $request_code;
-                                        $success_msg = "Your booking is confirmed! The rental request has been sent to the lender.";
+                                        $success_msg = "Booking request submitted successfully! Your rental request has been sent to the lender.";
 
                                     } else {
                                         $db_error = mysqli_stmt_error($insert_stmt);
@@ -800,16 +800,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <!-- TERMS -->
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="terms" name="terms" value="1" required>
-                        <label class="form-check-label text-muted" for="terms" style="font-size:13px;">
-                            <?= __('lbl_agree_terms'); ?> <span class="text-danger fw-bold" title="Required">*</span>
-                            <a href="terms_privacy.php?lang=<?= urlencode($_SESSION['lang'] ?? 'en'); ?>" target="_blank" rel="noopener noreferrer" class="text-success fw-semibold text-decoration-none" onclick="event.stopPropagation();">
+                    <div class="form-check mb-4 p-3 border rounded bg-light">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="terms"
+                               name="terms"
+                               value="1"
+                               required>
+                        <label class="form-check-label" for="terms">
+                            I have read and agree to the
+                            <a href="terms_privacy.php?lang=<?= urlencode($_SESSION['lang'] ?? 'en'); ?>&from=rent_now&equipment_id=<?= intval($equipment_id); ?>"
+                               target="_blank"
+                               class="text-success fw-semibold text-decoration-none">
                                 <?= lang_text('lbl_terms_conditions', 'Terms and Conditions'); ?>
                             </a>
+                            <span class="text-danger fw-bold" title="Required">*</span>
                         </label>
                         <div class="small text-muted mt-1 ms-4">
-                            <span class="text-danger fw-bold">*</span> Required fields
+                            <?= __('lbl_agree_terms'); ?>
                         </div>
                     </div>
 
@@ -854,7 +862,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <button type="submit" id="submitBtn" class="btn btn-agro w-100 mb-2 d-flex align-items-center justify-content-center gap-2" <?= !empty($success_msg) ? 'disabled' : ''; ?>>
-                            <span><?= !empty($success_msg) ? 'Booking Confirmed' : lang_text('btn_confirm_booking', 'Confirm Booking'); ?></span>
+                            <span><?= !empty($success_msg) ? 'Request Submitted' : lang_text('btn_confirm_booking', 'Confirm Booking'); ?></span>
                             <i class="fa-solid <?= !empty($success_msg) ? 'fa-circle-check' : 'fa-arrow-right'; ?>"></i>
                         </button>
 
@@ -1070,6 +1078,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     calculateSummary();
+
+    const bookingForm = document.getElementById('bookingForm');
+    const termsCheckbox = document.getElementById('terms');
+
+    if (bookingForm && termsCheckbox) {
+        bookingForm.addEventListener('submit', function(event) {
+            if (!termsCheckbox.checked) {
+                event.preventDefault();
+                termsCheckbox.focus();
+                alert('Please read and agree to the Terms and Conditions before confirming the booking.');
+                return false;
+            }
+
+            const submitButton = document.getElementById('submitBtn');
+            if (submitButton) {
+                submitButton.disabled = true;
+                const buttonText = submitButton.querySelector('span');
+                if (buttonText) {
+                    buttonText.innerText = 'Submitting...';
+                }
+            }
+        });
+    }
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

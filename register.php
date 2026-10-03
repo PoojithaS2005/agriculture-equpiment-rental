@@ -2052,47 +2052,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-check mb-4 mt-2">
 
                             <input
-                                class="form-check-input"
                                 type="checkbox"
                                 name="terms"
                                 id="termsCheck"
-                                required
+                                value="1"
+                                style="display:none;"
                             >
 
-
-                            <label
-                                class="form-check-label small text-secondary"
-                                for="termsCheck"
+                            <a
+                                href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=register"
+                                class="text-success fw-semibold text-decoration-underline"
+                                target="_blank"
+                               
                             >
 
-                                <?= htmlspecialchars($t['agree']); ?>
+                                <i class="fa-solid fa-arrow-right me-1"></i>
+                                <?= htmlspecialchars($t['terms']); ?>
 
+                            </a>
 
-                                <a
-                                    href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=register"
-                                    class="text-success fw-semibold text-decoration-underline"
-                                    target="_blank"
-                                >
-
-                                    <?= htmlspecialchars($t['terms']); ?>
-
-                                </a>
-
-
+                            <span class="small text-secondary ms-1">
                                 <?= htmlspecialchars($t['and']); ?>
-
-
-                                <a
-                                    href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=register#privacy"
-                                    class="text-success fw-semibold text-decoration-underline"
-                                    target="_blank"
-                                >
-
-                                    <?= htmlspecialchars($t['privacy']); ?>
-
-                                </a>
-
-                            </label>
+                                <?= htmlspecialchars($t['privacy']); ?>
+                            </span>
 
                         </div>
 
@@ -2410,6 +2392,21 @@ passInput.addEventListener(
 registerForm.addEventListener(
     'submit',
     function (event) {
+
+        const termsCheck =
+            document.querySelector('#termsCheck');
+
+        if (!termsCheck.checked) {
+
+            event.preventDefault();
+
+            showPasswordError(
+                <?= json_encode($t['err_terms']); ?>
+            );
+
+            return;
+        }
+
 
         const passwordValid =
             checkPasswordRules();

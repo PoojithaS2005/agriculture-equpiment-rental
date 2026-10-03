@@ -570,15 +570,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <?= __('terms_notice'); ?>
 
                             <div class="mt-1">
-                                <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>#terms"
-                                   target="_self">
+                                <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=login#terms"
+                                   target="_blank">
                                     Terms &amp; Conditions
                                 </a>
 
                                 <span class="mx-1">and</span>
 
-                                <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>#privacy"
-                                   target="_self">
+                                <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=login#privacy"
+                                   target="_blank">
                                     Privacy Policy
                                 </a>
                             </div>

@@ -252,3 +252,7 @@ MODIFY status ENUM(
     'Overdue',
     'Cancelled'
 ) NOT NULL DEFAULT 'Pending';
+
+//altered bookings table
+ALTER TABLE `bookings`
+ADD COLUMN `delivery_date` DATE NULL AFTER `end_date`;

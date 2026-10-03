@@ -35,6 +35,16 @@ $lender_stmt->execute();
 $lender_res = $lender_stmt->get_result()->fetch_assoc();
 $lender_name = $lender_res['full_name'] ?? 'Lender';
 
+$lender_name_parts = preg_split('/\s+/', trim($lender_name));
+if (count($lender_name_parts) >= 2) {
+    $lender_initials = strtoupper(
+        substr($lender_name_parts[0], 0, 1) .
+        substr($lender_name_parts[count($lender_name_parts) - 1], 0, 1)
+    );
+} else {
+    $lender_initials = strtoupper(substr($lender_name_parts[0] ?? 'L', 0, 2));
+}
+
 // Fetch Summary Statistics dynamically
 $stats_query = "SELECT 
     COUNT(b.booking_id) as total_requests,
@@ -124,6 +134,7 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
             display: flex;
             align-items: center;
             gap: 20px;
+            margin-left: auto;
         }
 
         .language-selector select {
@@ -147,7 +158,15 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            object-fit: cover;
+            background: #0f4c5c;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid #0f4c5c;
+            text-transform: uppercase;
         }
 
         .user-info .user-name {
@@ -392,22 +411,11 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
 
     <header class="main-header">
 
-        <div class="logo-container">
-
-            <i class="fa-solid fa-tractor logo-icon"></i>
-
-            <span class="logo-title">
-                AGRICULTURE
-
-                <small>
-                    EQUIPMENT RENTAL SYSTEM
-                </small>
-            </span>
-
-        </div>
-
-
         <div class="header-right-controls">
+
+            <a href="lender_notifications.php?lang=<?php echo urlencode($current_lang); ?>" style="color: #333; text-decoration: none;">
+    <i class="fa-solid fa-bell"></i>
+</a>
 
             <div class="language-selector">
 
@@ -444,11 +452,9 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
 
             <div class="user-profile-menu">
 
-                <img
-                    src="assets/images/default_avatar.png"
-                    alt="Profile"
-                    class="avatar"
-                >
+                <div class="avatar">
+                    <?php echo htmlspecialchars($lender_initials); ?>
+                </div>
 
                 <div class="user-info">
 

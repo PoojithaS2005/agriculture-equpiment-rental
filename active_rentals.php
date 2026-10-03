@@ -1,5 +1,88 @@
 <?php
 session_start();
+require_once 'includes/lang.php';
+
+// Fix the Hindi Active Rentals translations without changing the shared language file.
+// The shared lang.php contains two Hindi dictionaries, so the later one overrides
+// the earlier Active Rentals entries. Restore only the Active Rentals keys needed here.
+$translations['hi'] = array_merge($translations['hi'], [
+    'lender_role' => 'ऋणदाता',
+    'menu_dashboard' => 'डैशबोर्ड',
+    'menu_add_equipment' => 'उपकरण जोड़ें',
+    'menu_my_equipment' => 'मेरे उपकरण',
+    'menu_rental_requests' => 'किराये के अनुरोध',
+    'menu_active_rentals' => 'सक्रिय किराए',
+    'menu_rental_history' => 'किराए का इतिहास',
+    'menu_profile' => 'प्रोफ़ाइल',
+    'menu_logout' => 'लॉग आउट',
+    'sidebar_help_title' => 'सहायता चाहिए?',
+    'sidebar_help_desc' => 'हम किसी भी प्रश्न के लिए आपकी सहायता के लिए यहाँ हैं।',
+    'sidebar_contact_btn' => 'सहायता से संपर्क करें',
+    'page_title_active_rentals' => 'सक्रिय किराए',
+    'page_subtitle_active_rentals' => 'अपने सभी चल रहे उपकरणों के किराए को प्रबंधित और ट्रैक करें।',
+    'stat_total_active' => 'कुल सक्रिय किराए',
+    'stat_ongoing_rentals' => 'चल रहे किराए',
+    'stat_total_equipment' => 'कुल उपकरण',
+    'stat_rented_out' => 'पंजीकृत इकाइयाँ',
+    'stat_total_days' => 'किराए पर दिए गए कुल दिन',
+    'stat_across_rentals' => 'सभी किरायों में',
+    'stat_total_earned' => 'कुल कमाई (अब तक)',
+    'stat_from_active' => 'सक्रिय किरायों से',
+    'table_col_equipment' => 'उपकरण',
+    'table_col_renter' => 'किराएदार विवरण',
+    'table_col_period' => 'किराए की अवधि',
+    'table_col_address' => 'वितरण पता',
+    'table_col_days_left' => 'शेष दिन',
+    'table_col_amount' => 'राशि (कुल)',
+    'table_col_status' => 'स्थिति',
+    'table_col_action' => 'कार्रवाई',
+    'btn_view_details' => 'विवरण देखें',
+    'btn_track_equipment' => 'टरैक करें',
+    'no_active_rentals' => 'आपके खाते में कोई सक्रिय किराया नहीं मिला.'
+]);
+
+// Active Rentals Hindi translations are defined here because lang.php currently
+// contains two top-level Hindi dictionaries, and the later one overrides the first one.
+$active_rentals_hi = [
+    'lender_role' => 'ऋणदाता',
+    'page_title_active_rentals' => 'सक्रिय किराए',
+    'page_subtitle_active_rentals' => 'अपने सभी चल रहे उपकरणों के किराए को प्रबंधित और ट्रैक करें।',
+    'stat_total_active' => 'कुल सक्रिय किराए',
+    'stat_ongoing_rentals' => 'चल रहे किराए',
+    'stat_total_equipment' => 'कुल उपकरण',
+    'stat_rented_out' => 'पंजीकृत इकाइयाँ',
+    'stat_total_days' => 'किराए पर दिए गए कुल दिन',
+    'stat_across_rentals' => 'सभी किरायों में',
+    'stat_total_earned' => 'कुल कमाई (अब तक)',
+    'stat_from_active' => 'सक्रिय किरायों से',
+    'table_col_equipment' => 'उपकरण',
+    'table_col_renter' => 'किराएदार विवरण',
+    'table_col_period' => 'किराए की अवधि',
+    'table_col_address' => 'वितरण पता',
+    'table_col_days_left' => 'शेष दिन',
+    'table_col_amount' => 'राशि (कुल)',
+    'table_col_status' => 'स्थिति',
+    'table_col_action' => 'कार्रवाई',
+    'btn_view_details' => 'विवरण देखें',
+    'btn_track_equipment' => 'उपकरण ट्रैक करें',
+    'no_active_rentals' => 'कोई सक्रिय किराया नहीं है',
+    'days' => 'दिन',
+    'days_left' => 'दिन शेष',
+    'due_today' => 'आज देय',
+    'return_today' => 'आज वापस करें',
+    'overdue' => 'अतिदेय',
+    'return_by' => 'वापसी की तारीख',
+    'returned_on' => 'वापस किया गया',
+    'active' => 'सक्रिय'
+];
+
+function active_rental__(string $key): string {
+    global $current_lang, $active_rentals_hi;
+    if ($current_lang === 'hi' && isset($active_rentals_hi[$key])) {
+        return $active_rentals_hi[$key];
+    }
+    return __($key);
+}
 
 // Database connection configuration
 $host = 'localhost';
@@ -18,6 +101,17 @@ if (!isset($_SESSION['user_id']) || strtolower(trim($_SESSION['role'] ?? '')) !=
     $_SESSION['user_id'] = 7;
 }
 $lender_id = $_SESSION['user_id'];
+
+$lender_name = $_SESSION['full_name'] ?? 'Tejomurthy';
+$name_parts = preg_split('/\s+/', trim($lender_name));
+if (count($name_parts) >= 2) {
+    $lender_initials = strtoupper(
+        substr($name_parts[0], 0, 1) .
+        substr($name_parts[count($name_parts) - 1], 0, 1)
+    );
+} else {
+    $lender_initials = strtoupper(substr($name_parts[0] ?? 'U', 0, 2));
+}
 
 // Fetch Dynamic Summary Statistics for this Lender
 $stats_query = "SELECT 
@@ -40,11 +134,11 @@ $stmt_eq->execute();
 $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($current_lang); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Active Rentals - Agriculture Equipment Rental System</title>
+    <title><?php echo htmlspecialchars(active_rental__('page_title_active_rentals')); ?> - Agriculture Equipment Rental System</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -117,6 +211,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             display: flex;
             align-items: center;
             gap: 20px;
+            margin-left: auto;
         }
 
         .language-selector select {
@@ -162,7 +257,15 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            object-fit: cover;
+            background: #0f4c5c;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 2px solid #0f4c5c;
         }
 
         .user-info .user-name {
@@ -427,52 +530,29 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
     <!-- Top Navigation Header -->
     <header class="main-header">
-        <div class="logo-container">
-            <i class="fa-solid fa-tractor logo-icon"></i>
-            <span class="logo-title">
-                AGRICULTURE
-                <small>EQUIPMENT RENTAL SYSTEM</small>
-            </span>
-        </div>
-
-        <form action="search_equipment.php" method="GET" class="header-search-bar">
-            <i class="fa-solid fa-bars menu-toggle-icon"></i>
-            <i class="fa-solid fa-search search-icon"></i>
-            <input
-                type="text"
-                name="query"
-                id="searchInput"
-                placeholder="Search equipment, renters, bookings..."
-                data-i18n-placeholder="search_placeholder"
-            >
-            <i class="fa-solid fa-microphone mic-icon"></i>
-        </form>
-
         <div class="header-right-controls">
 
             <div class="language-selector">
-                <select id="langSelect" onchange="changeLanguage(this.value)">
-                    <option value="en" selected>English</option>
-                    <option value="kn">ಕನ್ನಡ</option>
-                    <option value="hi">हिंदी</option>
+                <select id="langSelect" onchange="window.location.href='active_rentals.php?lang=' + this.value;">
+                    <option value="en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
+                    <option value="kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ</option>
+                    <option value="hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी</option>
                 </select>
             </div>
 
-            <div class="notification-icon">
+            <a href="lender_notifications.php?lang=<?php echo urlencode($current_lang); ?>" class="notification-icon" style="color: #333; text-decoration: none;" title="Notifications">
                 <i class="fa-regular fa-bell"></i>
                 <span class="badge">3</span>
-            </div>
+            </a>
 
             <div class="user-profile-menu">
-                <img
-                    src="assets/images/default_avatar.png"
-                    alt="Profile"
-                    class="avatar"
-                >
+                <div class="avatar"><?php echo htmlspecialchars($lender_initials); ?></div>
 
                 <div class="user-info">
-                    <span class="user-name">Tejomurthy</span>
-                    <span class="user-role" data-i18n="lender_role">Lender</span>
+                    <span class="user-name"><?php echo htmlspecialchars($lender_name); ?></span>
+                    <span class="user-role">
+                                                <?php echo active_rental__('lender_role'); ?>
+                                            </span>
                 </div>
             </div>
 
@@ -486,21 +566,15 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
             <div class="content-header-row">
                 <div>
-                    <h1 data-i18n="page_title_active_rentals">
-                        Active Rentals
-                    </h1>
+                    <h1>
+                                                <?php echo active_rental__('page_title_active_rentals'); ?>
+                                            </h1>
 
-                    <p data-i18n="page_subtitle_active_rentals">
-                        Manage and track all your ongoing equipment rentals.
-                    </p>
+                    <p>
+                                                <?php echo active_rental__('page_subtitle_active_rentals'); ?>
+                                            </p>
                 </div>
 
-                <button class="btn-download-report">
-                    <i class="fa-solid fa-download"></i>
-                    <span data-i18n="btn_download_report">
-                        Download Report
-                    </span>
-                </button>
             </div>
 
             <!-- Dynamic Summary Cards -->
@@ -512,17 +586,17 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                     </div>
 
                     <div class="stat-details">
-                        <span class="stat-title" data-i18n="stat_total_active">
-                            Total Active Rentals
-                        </span>
+                        <span class="stat-title">
+                                                <?php echo active_rental__('stat_total_active'); ?>
+                                            </span>
 
                         <h2 class="stat-value">
                             <?php echo $stats['total_active']; ?>
                         </h2>
 
-                        <span class="stat-desc" data-i18n="stat_ongoing_rentals">
-                            Ongoing Rentals
-                        </span>
+                        <span class="stat-desc">
+                                                <?php echo active_rental__('stat_ongoing_rentals'); ?>
+                                            </span>
                     </div>
                 </div>
 
@@ -532,17 +606,17 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                     </div>
 
                     <div class="stat-details">
-                        <span class="stat-title" data-i18n="stat_total_equipment">
-                            Total Equipment
-                        </span>
+                        <span class="stat-title">
+                                                <?php echo active_rental__('stat_total_equipment'); ?>
+                                            </span>
 
                         <h2 class="stat-value">
                             <?php echo $eq_stats['total_eq']; ?>
                         </h2>
 
-                        <span class="stat-desc" data-i18n="stat_rented_out">
-                            Registered Units
-                        </span>
+                        <span class="stat-desc">
+                                                <?php echo active_rental__('stat_rented_out'); ?>
+                                            </span>
                     </div>
                 </div>
 
@@ -552,17 +626,17 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                     </div>
 
                     <div class="stat-details">
-                        <span class="stat-title" data-i18n="stat_total_days">
-                            Total Days Rented
-                        </span>
+                        <span class="stat-title">
+                                                <?php echo active_rental__('stat_total_days'); ?>
+                                            </span>
 
                         <h2 class="stat-value">
-                            <?php echo $stats['total_days']; ?> Days
+                            <?php echo $stats['total_days']; ?> <?php echo active_rental__('days'); ?>
                         </h2>
 
-                        <span class="stat-desc" data-i18n="stat_across_rentals">
-                            Across all rentals
-                        </span>
+                        <span class="stat-desc">
+                                                <?php echo active_rental__('stat_across_rentals'); ?>
+                                            </span>
                     </div>
                 </div>
 
@@ -572,17 +646,17 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                     </div>
 
                     <div class="stat-details">
-                        <span class="stat-title" data-i18n="stat_total_earned">
-                            Total Earned (So Far)
-                        </span>
+                        <span class="stat-title">
+                                                <?php echo active_rental__('stat_total_earned'); ?>
+                                            </span>
 
                         <h2 class="stat-value">
                             ₹<?php echo number_format($stats['total_earned'], 2); ?>
                         </h2>
 
-                        <span class="stat-desc" data-i18n="stat_from_active">
-                            From active rentals
-                        </span>
+                        <span class="stat-desc">
+                                                <?php echo active_rental__('stat_from_active'); ?>
+                                            </span>
                     </div>
                 </div>
 
@@ -597,37 +671,37 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
                         <thead>
                             <tr>
-                                <th data-i18n="table_col_equipment">
-                                    Equipment
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_equipment'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_renter">
-                                    Renter Details
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_renter'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_period">
-                                    Rental Period
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_period'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_address">
-                                    Delivery Address
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_address'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_days_left">
-                                    Days Left
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_days_left'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_amount">
-                                    Amount (Total)
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_amount'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_status">
-                                    Status
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_status'); ?>
+                                            </th>
 
-                                <th data-i18n="table_col_action">
-                                    Action
-                                </th>
+                                <th>
+                                                <?php echo active_rental__('table_col_action'); ?>
+                                            </th>
                             </tr>
                         </thead>
 
@@ -670,33 +744,33 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
                                     if ($days_diff > 0) {
 
-                                        $days_left_text = $days_diff . " Days Left";
-                                        $sub_text = "Return by " . date(
+                                        $days_left_text = $days_diff . " " . active_rental__('days_left');
+                                        $sub_text = active_rental__('return_by') . " " . date(
                                             'd M Y',
                                             strtotime($row['end_date'])
                                         );
 
                                         $status_class = 'status-active';
-                                        $status_text = 'Active';
+                                        $status_text = active_rental__('active');
 
                                     } elseif ($days_diff === 0) {
 
-                                        $days_left_text = "Due Today";
-                                        $sub_text = "Return Today";
+                                        $days_left_text = active_rental__('due_today');
+                                        $sub_text = active_rental__('return_today');
 
                                         $status_class = 'status-due';
-                                        $status_text = 'Due Today';
+                                        $status_text = active_rental__('due_today');
 
                                     } else {
 
-                                        $days_left_text = "Overdue";
-                                        $sub_text = "Returned on " . date(
+                                        $days_left_text = active_rental__('overdue');
+                                        $sub_text = active_rental__('returned_on') . " " . date(
                                             'd M Y',
                                             strtotime($row['end_date'])
                                         );
 
                                         $status_class = 'status-overdue';
-                                        $status_text = 'Overdue';
+                                        $status_text = active_rental__('overdue');
                                     }
 
                                     $per_day_price =
@@ -870,8 +944,8 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                                         >
                                             <i class="fa-regular fa-eye"></i>
 
-                                            <span data-i18n="btn_view_details">
-                                                View Details
+                                            <span>
+                                                <?php echo active_rental__('btn_view_details'); ?>
                                             </span>
                                         </button>
 
@@ -881,8 +955,8 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                                         >
                                             <i class="fa-solid fa-location-crosshairs"></i>
 
-                                            <span data-i18n="btn_track_equipment">
-                                                Track
+                                            <span>
+                                                <?php echo active_rental__('btn_track_equipment'); ?>
                                             </span>
                                         </button>
 
@@ -897,15 +971,11 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
                             } else {
 
-                                echo '
-                                <tr>
+                                echo '<tr>
                                     <td
                                         colspan="8"
                                         style="text-align:center; padding:25px;"
-                                        data-i18n="no_active_rentals"
-                                    >
-                                        No active rentals found in your account.
-                                    </td>
+                                    >' . htmlspecialchars(active_rental__('no_active_rentals')) . '</td>
                                 </tr>';
 
                             }

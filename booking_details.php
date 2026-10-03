@@ -111,6 +111,147 @@ if (isset($_POST['cancel_booking'])) {
 
 /*
 |--------------------------------------------------------------------------
+| Handle Renter Delivery Confirmation
+|--------------------------------------------------------------------------
+*/
+if (isset($_POST['confirm_delivery'])) {
+    $confirm_stmt = $conn->prepare("
+        UPDATE bookings
+        SET delivery_confirmed = 1,
+            delivery_confirmed_at = NOW()
+        WHERE booking_id = ?
+          AND renter_id = ?
+          AND status = 'Delivered'
+          AND delivery_confirmed = 0
+    ");
+
+    $confirmed_successfully = false;
+
+    if ($confirm_stmt) {
+        $confirm_stmt->bind_param("ii", $booking_id, $renter_id);
+        $confirm_stmt->execute();
+        $confirmed_successfully = ($confirm_stmt->affected_rows > 0);
+        $confirm_stmt->close();
+    }
+
+    if ($confirmed_successfully) {
+        // Mark the matching delivery notification as read after confirmation.
+        $notification_check = $conn->query("SHOW TABLES LIKE 'notifications'");
+        if ($notification_check && $notification_check->num_rows > 0) {
+            $read_stmt = $conn->prepare("
+                SELECT request_code
+                FROM bookings
+                WHERE booking_id = ? AND renter_id = ?
+                LIMIT 1
+            ");
+            $request_code_for_read = '';
+
+            if ($read_stmt) {
+                $read_stmt->bind_param("ii", $booking_id, $renter_id);
+                $read_stmt->execute();
+                $read_data = $read_stmt->get_result()->fetch_assoc();
+                $request_code_for_read = $read_data['request_code'] ?? '';
+                $read_stmt->close();
+            }
+
+            if ($request_code_for_read !== '') {
+                $mark_read_stmt = $conn->prepare("
+                    UPDATE notifications
+                    SET is_read = 1
+                    WHERE user_id = ?
+                      AND title = 'Equipment Delivered'
+                      AND message LIKE CONCAT('%', ?, '%')
+                      AND is_read = 0
+                ");
+                if ($mark_read_stmt) {
+                    $mark_read_stmt->bind_param("is", $renter_id, $request_code_for_read);
+                    $mark_read_stmt->execute();
+                    $mark_read_stmt->close();
+                }
+            }
+        }
+
+        header("Location: booking_details.php?booking_id=" . $booking_id . "&lang=" . urlencode($current_lang) . "&delivery_confirmed=1");
+        exit();
+    }
+
+    header("Location: booking_details.php?booking_id=" . $booking_id . "&lang=" . urlencode($current_lang) . "&delivery_confirmed=0");
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Handle Renter Return Confirmation
+|--------------------------------------------------------------------------
+*/
+if (isset($_POST['confirm_return'])) {
+    $return_confirm_stmt = $conn->prepare("
+        UPDATE bookings
+        SET return_confirmed = 1,
+            return_confirmed_at = NOW(),
+            status = 'Completed'
+        WHERE booking_id = ?
+          AND renter_id = ?
+          AND status = 'Returned'
+          AND return_confirmed = 0
+    ");
+
+    $return_confirmed_successfully = false;
+
+    if ($return_confirm_stmt) {
+        $return_confirm_stmt->bind_param("ii", $booking_id, $renter_id);
+        $return_confirm_stmt->execute();
+        $return_confirmed_successfully = ($return_confirm_stmt->affected_rows > 0);
+        $return_confirm_stmt->close();
+    }
+
+    if ($return_confirmed_successfully) {
+        // Mark the matching return notification as read after confirmation.
+        $notification_check = $conn->query("SHOW TABLES LIKE 'notifications'");
+        if ($notification_check && $notification_check->num_rows > 0) {
+            $read_stmt = $conn->prepare("
+                SELECT request_code
+                FROM bookings
+                WHERE booking_id = ? AND renter_id = ?
+                LIMIT 1
+            ");
+            $request_code_for_read = '';
+
+            if ($read_stmt) {
+                $read_stmt->bind_param("ii", $booking_id, $renter_id);
+                $read_stmt->execute();
+                $read_data = $read_stmt->get_result()->fetch_assoc();
+                $request_code_for_read = $read_data['request_code'] ?? '';
+                $read_stmt->close();
+            }
+
+            if ($request_code_for_read !== '') {
+                $mark_read_stmt = $conn->prepare("
+                    UPDATE notifications
+                    SET is_read = 1
+                    WHERE user_id = ?
+                      AND title = 'Equipment Returned'
+                      AND message LIKE CONCAT('%', ?, '%')
+                      AND is_read = 0
+                ");
+                if ($mark_read_stmt) {
+                    $mark_read_stmt->bind_param("is", $renter_id, $request_code_for_read);
+                    $mark_read_stmt->execute();
+                    $mark_read_stmt->close();
+                }
+            }
+        }
+
+        header("Location: booking_details.php?booking_id=" . $booking_id . "&lang=" . urlencode($current_lang) . "&return_confirmed=1");
+        exit();
+    }
+
+    header("Location: booking_details.php?booking_id=" . $booking_id . "&lang=" . urlencode($current_lang) . "&return_confirmed=0");
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Fetch Booking & Equipment Details
 |--------------------------------------------------------------------------
 */
@@ -177,6 +318,12 @@ $start_ts = strtotime($booking['start_date']);
 $end_ts = strtotime($booking['end_date']);
 $total_days = max(1, ceil(($end_ts - $start_ts) / 86400) + 1);
 $status = $booking['status'];
+$delivery_is_confirmed = ((int)($booking['delivery_confirmed'] ?? 0) === 1);
+$delivery_confirmation_pending = ($status === 'Delivered' && !$delivery_is_confirmed);
+$delivery_confirmed_notice = isset($_GET['delivery_confirmed']) && $_GET['delivery_confirmed'] === '1';
+$return_is_confirmed = ((int)($booking['return_confirmed'] ?? 0) === 1);
+$return_confirmation_pending = ($status === 'Returned' && !$return_is_confirmed);
+$return_confirmed_notice = isset($_GET['return_confirmed']) && $_GET['return_confirmed'] === '1';
 $just_cancelled = isset($_GET['cancelled']) && $_GET['cancelled'] === '1' && $status === 'Cancelled';
 
 // Translated labels/text used by the booking status and rental timeline.
@@ -222,6 +369,14 @@ $booking_ui = [
         'booking_status' => 'Booking Status',
         'rental_timeline' => 'Rental Timeline',
         'rental_completed' => 'Rental Completed',
+        'delivery_update_title' => 'Delivery Update',
+        'delivery_update_no_date' => 'Your equipment will be delivered on the date decided by the lender.',
+        'delivery_update_with_date' => 'Your equipment will be delivered on {date}, as scheduled by the lender.',
+        'delivery_confirmation_title' => 'Delivery Confirmation Required',
+        'delivery_confirmation_message' => 'The lender has marked this equipment as delivered. Please confirm that you have received the equipment.',
+        'confirm_delivery_btn' => 'Confirm Delivery',
+        'delivery_confirmed_message' => 'You have confirmed that the equipment was delivered.',
+        'delivery_confirmation_success' => 'Delivery confirmed successfully.',
     ],
     'kn' => [
         'submitted' => 'ಸಲ್ಲಿಸಲಾಗಿದೆ', 'pending_approval' => 'ಅನುಮೋದನೆ ಬಾಕಿಯಿದೆ', 'accepted' => 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
@@ -264,6 +419,14 @@ $booking_ui = [
         'booking_status' => 'ಬುಕಿಂಗ್ ಸ್ಥಿತಿ',
         'rental_timeline' => 'ಬಾಡಿಗೆ ಸಮಯರೇಖೆ',
         'rental_completed' => 'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'delivery_update_title' => 'ವಿತರಣೆ ನವೀಕರಣ',
+        'delivery_update_no_date' => 'ಸಾಲದಾತರು ನಿರ್ಧರಿಸಿದ ದಿನಾಂಕದಂದು ನಿಮ್ಮ ಉಪಕರಣವನ್ನು ತಲುಪಿಸಲಾಗುತ್ತದೆ.',
+        'delivery_update_with_date' => 'ಸಾಲದಾತರು ನಿಗದಿಪಡಿಸಿದಂತೆ ನಿಮ್ಮ ಉಪಕರಣವನ್ನು {date} ರಂದು ತಲುಪಿಸಲಾಗುತ್ತದೆ.',
+        'delivery_confirmation_title' => 'ವಿತರಣೆ ದೃಢೀಕರಣ ಅಗತ್ಯವಿದೆ',
+        'delivery_confirmation_message' => 'ಸಾಲದಾತರು ಈ ಉಪಕರಣವನ್ನು ತಲುಪಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿದ್ದಾರೆ. ನೀವು ಉಪಕರಣವನ್ನು ಸ್ವೀಕರಿಸಿದ್ದೀರಿ ಎಂದು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
+        'confirm_delivery_btn' => 'ವಿತರಣೆಯನ್ನು ದೃಢೀಕರಿಸಿ',
+        'delivery_confirmed_message' => 'ಉಪಕರಣವನ್ನು ತಲುಪಿಸಲಾಗಿದೆ ಎಂದು ನೀವು ದೃಢೀಕರಿಸಿದ್ದೀರಿ.',
+        'delivery_confirmation_success' => 'ವಿತರಣೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ದೃಢೀಕರಿಸಲಾಗಿದೆ.',
     ],
     'hi' => [
         'submitted' => 'सबमिट किया गया', 'pending_approval' => 'अनुमोदन लंबित', 'accepted' => 'स्वीकृत',
@@ -306,6 +469,14 @@ $booking_ui = [
         'booking_status' => 'बुकिंग स्थिति',
         'rental_timeline' => 'किराये की समयरेखा',
         'rental_completed' => 'किराया पूरा हुआ',
+        'delivery_update_title' => 'डिलीवरी अपडेट',
+        'delivery_update_no_date' => 'आपका उपकरण लेंडर द्वारा तय की गई तारीख पर डिलीवर किया जाएगा।',
+        'delivery_update_with_date' => 'लेंडर द्वारा निर्धारित कार्यक्रम के अनुसार आपका उपकरण {date} को डिलीवर किया जाएगा।',
+        'delivery_confirmation_title' => 'डिलीवरी की पुष्टि आवश्यक है',
+        'delivery_confirmation_message' => 'लेंडर ने इस उपकरण को डिलीवर किया हुआ चिन्हित किया है। कृपया पुष्टि करें कि आपको उपकरण प्राप्त हो गया है।',
+        'confirm_delivery_btn' => 'डिलीवरी की पुष्टि करें',
+        'delivery_confirmed_message' => 'आपने पुष्टि कर दी है कि उपकरण डिलीवर हो गया है।',
+        'delivery_confirmation_success' => 'डिलीवरी की सफलतापूर्वक पुष्टि हो गई है।',
     ]
 ];
 $bt = $booking_ui[$current_lang] ?? $booking_ui['en'];
@@ -744,6 +915,31 @@ $status_labels = [
                 </div>
             </div>
 
+            <?php if ($status === 'Pending' || $status === 'Accepted'): ?>
+                <div class="content-card" style="border-left: 4px solid #198754; background: #f0fdf4;">
+                    <div class="d-flex align-items-start gap-3">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #d1fae5; color: #198754; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fa-solid fa-truck"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #166534;">
+                                <?php echo htmlspecialchars($bt['delivery_update_title']); ?>
+                            </h6>
+                            <p class="mb-0" style="font-size: 13px; color: #365314; line-height: 1.6;">
+                                <?php
+                                if (!empty($booking['delivery_date'])) {
+                                    $delivery_date_text = date('d M Y', strtotime($booking['delivery_date']));
+                                    echo htmlspecialchars(str_replace('{date}', $delivery_date_text, $bt['delivery_update_with_date']));
+                                } else {
+                                    echo htmlspecialchars($bt['delivery_update_no_date']);
+                                }
+                                ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Booking Status Stepper -->
             <div class="content-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -784,7 +980,7 @@ $status_labels = [
                         <div class="step-circle">3</div>
                         <div class="step-label"><?php echo htmlspecialchars($bt['accepted']); ?></div>
                     </div>
-                    <div class="step <?php echo ($status === 'Delivered') ? 'active' : (in_array($status, ['Returned', 'Completed']) ? 'completed' : ''); ?>">
+                    <div class="step <?php echo ($status === 'Delivered' && $delivery_is_confirmed) ? 'active' : (in_array($status, ['Returned', 'Completed']) ? 'completed' : ''); ?>">
                         <div class="step-circle">4</div>
                         <div class="step-label"><?php echo htmlspecialchars($bt['delivered']); ?></div>
                     </div>
@@ -825,9 +1021,9 @@ $status_labels = [
                         <h6><?php echo htmlspecialchars($bt['lender_review']); ?></h6>
                         <p><?php echo htmlspecialchars(in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? $bt['accepted_message'] : $bt['waiting_approval']); ?></p>
                     </li>
-                    <li class="timeline-item <?php echo in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'active' : ''; ?>">
+                    <li class="timeline-item <?php echo (($status === 'Delivered' && $delivery_is_confirmed) || in_array($status, ['Returned', 'Completed'])) ? 'active' : ''; ?>">
                         <h6><?php echo htmlspecialchars($bt['equipment_delivery']); ?></h6>
-                        <p><?php echo htmlspecialchars(in_array($status, ['Delivered', 'Returned', 'Completed']) ? $bt['delivered_message'] : $bt['pending_delivery']); ?></p>
+                        <p><?php echo htmlspecialchars((($status === 'Delivered' && $delivery_is_confirmed) || in_array($status, ['Returned', 'Completed'])) ? $bt['delivered_message'] : $bt['pending_delivery']); ?></p>
                     </li>
                     <li class="timeline-item <?php echo in_array($status, ['Returned', 'Completed']) ? 'active' : ''; ?>">
                         <h6><?php echo htmlspecialchars($bt['equipment_return']); ?></h6>
@@ -882,6 +1078,108 @@ $status_labels = [
    style="font-size: 13px;">
     <i class="fa-solid fa-user me-1"></i> <?php echo htmlspecialchars($bt['view_lender_details']); ?>
 </a>
+
+                <?php if ($delivery_confirmation_pending): ?>
+                    <div class="alert alert-warning mt-3 mb-2" style="font-size:13px; border-radius:10px;">
+                        <div class="fw-bold mb-1">
+                            <i class="fa-solid fa-truck me-1"></i>
+                            <?php echo htmlspecialchars($bt['delivery_confirmation_title']); ?>
+                        </div>
+                        <div>
+                            <?php echo htmlspecialchars($bt['delivery_confirmation_message']); ?>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="booking_details.php?booking_id=<?php echo $booking_id; ?>&lang=<?php echo urlencode($current_lang); ?>" onsubmit="return confirm(<?php echo json_encode($bt['delivery_confirmation_message']); ?>);">
+                        <button type="submit" name="confirm_delivery" value="1" class="btn btn-success w-100 fw-bold" style="font-size:13px;">
+                            <i class="fa-solid fa-circle-check me-1"></i>
+                            <?php echo htmlspecialchars($bt['confirm_delivery_btn']); ?>
+                        </button>
+                    </form>
+                <?php elseif ($delivery_is_confirmed && $status === 'Delivered'): ?>
+                    <div class="alert alert-success mt-3 mb-2" style="font-size:13px; border-radius:10px;">
+                        <i class="fa-solid fa-circle-check me-1"></i>
+                        <?php echo htmlspecialchars($bt['delivery_confirmed_message']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($delivery_confirmed_notice): ?>
+                    <div class="alert alert-success mt-2 mb-2" style="font-size:13px; border-radius:10px;">
+                        <i class="fa-solid fa-circle-check me-1"></i>
+                        <?php echo htmlspecialchars($bt['delivery_confirmation_success']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($return_confirmation_pending): ?>
+                    <div class="alert alert-warning mt-3 mb-2" style="font-size:13px; border-radius:10px;">
+                        <div class="fw-bold mb-1">
+                            <i class="fa-solid fa-rotate-left me-1"></i>
+                            <?php
+                            if ($current_lang === 'kn') {
+                                echo 'ವಾಪಸಿ ದೃಢೀಕರಣ ಅಗತ್ಯವಿದೆ';
+                            } elseif ($current_lang === 'hi') {
+                                echo 'वापसी की पुष्टि आवश्यक है';
+                            } else {
+                                echo 'Return Confirmation Required';
+                            }
+                            ?>
+                        </div>
+                        <div>
+                            <?php
+                            if ($current_lang === 'kn') {
+                                echo 'ಲ್ಯಾಂಡರ್ ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿದ್ದಾರೆ. ದಯವಿಟ್ಟು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿದ್ದೀರಿ ಎಂದು ದೃಢೀಕರಿಸಿ.';
+                            } elseif ($current_lang === 'hi') {
+                                echo 'लेंडर ने इस उपकरण को वापस किया हुआ चिन्हित किया है। कृपया पुष्टि करें कि उपकरण वापस कर दिया गया है।';
+                            } else {
+                                echo 'The lender has marked this equipment as returned. Please confirm that the equipment has been returned.';
+                            }
+                            ?>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="booking_details.php?booking_id=<?php echo $booking_id; ?>&lang=<?php echo urlencode($current_lang); ?>" onsubmit="return confirm(<?php echo json_encode($current_lang === 'kn' ? 'ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಲು ನೀವು ಖಚಿತವಾಗಿದ್ದೀರಾ?' : ($current_lang === 'hi' ? 'क्या आप वाकई पुष्टि करना चाहते हैं कि उपकरण वापस कर दिया गया है?' : 'Are you sure you want to confirm that the equipment has been returned?')); ?>);">
+                        <button type="submit" name="confirm_return" value="1" class="btn btn-success w-100 fw-bold" style="font-size:13px;">
+                            <i class="fa-solid fa-circle-check me-1"></i>
+                            <?php
+                            if ($current_lang === 'kn') {
+                                echo 'ವಾಪಸಿಯನ್ನು ದೃಢೀಕರಿಸಿ';
+                            } elseif ($current_lang === 'hi') {
+                                echo 'वापसी की पुष्टि करें';
+                            } else {
+                                echo 'Confirm Return';
+                            }
+                            ?>
+                        </button>
+                    </form>
+                <?php elseif ($return_is_confirmed && $status === 'Completed'): ?>
+                    <div class="alert alert-success mt-3 mb-2" style="font-size:13px; border-radius:10px;">
+                        <i class="fa-solid fa-circle-check me-1"></i>
+                        <?php
+                        if ($current_lang === 'kn') {
+                            echo 'ನೀವು ಉಪಕರಣದ ವಾಪಸಿಯನ್ನು ದೃಢೀಕರಿಸಿದ್ದೀರಿ.';
+                        } elseif ($current_lang === 'hi') {
+                            echo 'आपने उपकरण की वापसी की पुष्टि कर दी है।';
+                        } else {
+                            echo 'You have confirmed that the equipment was returned.';
+                        }
+                        ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($return_confirmed_notice): ?>
+                    <div class="alert alert-success mt-2 mb-2" style="font-size:13px; border-radius:10px;">
+                        <i class="fa-solid fa-circle-check me-1"></i>
+                        <?php
+                        if ($current_lang === 'kn') {
+                            echo 'ವಾಪಸಿಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ದೃಢೀಕರಿಸಲಾಗಿದೆ.';
+                        } elseif ($current_lang === 'hi') {
+                            echo 'वापसी की सफलतापूर्वक पुष्टि हो गई है।';
+                        } else {
+                            echo 'Return confirmed successfully.';
+                        }
+                        ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Cancel Button Section: Only available BEFORE equipment delivery -->
                 <?php if ($status === 'Pending' || $status === 'Accepted'): ?>

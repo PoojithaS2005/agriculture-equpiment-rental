@@ -92,11 +92,109 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_status = 'Delivered';
         } elseif ($action === 'returned') {
             $new_status = 'Returned';
+        } elseif ($action === 'save_delivery_date') {
+            $new_status = 'SaveDeliveryDate';
         }
+
+        $delivery_date = trim($_POST['delivery_date'] ?? '');
 
         if ($new_status === '') {
 
             $error = __('lbd_invalid_action');
+
+        } elseif ($new_status === 'SaveDeliveryDate') {
+
+            /*
+             * Save Delivery Date uses the date submitted by the lender.
+             */
+            if ($delivery_date === '') {
+                $error = 'Please select a delivery date.';
+            } else {
+                $delivery_date_check = DateTime::createFromFormat('Y-m-d', $delivery_date);
+
+                if (!$delivery_date_check || $delivery_date_check->format('Y-m-d') !== $delivery_date) {
+                    $error = 'Please select a valid delivery date.';
+                }
+            }
+
+        } elseif ($new_status === 'Delivered') {
+
+            /*
+             * Mark as Delivered must use the delivery date already saved
+             * for this booking. The confirmation form does not need to
+             * submit the date again.
+             */
+            $saved_date_stmt = $conn->prepare("
+                SELECT delivery_date
+                FROM bookings b
+                INNER JOIN equipment e
+                    ON b.equipment_id = e.equipment_id
+                WHERE b.booking_id = ?
+                  AND e.lender_id = ?
+                LIMIT 1
+            ");
+
+            $saved_delivery_date = '';
+
+            if ($saved_date_stmt) {
+                $saved_date_stmt->bind_param('ii', $booking_id, $lender_id);
+                $saved_date_stmt->execute();
+                $saved_date_result = $saved_date_stmt->get_result();
+                $saved_date_row = $saved_date_result ? $saved_date_result->fetch_assoc() : null;
+                $saved_delivery_date = trim($saved_date_row['delivery_date'] ?? '');
+                $saved_date_stmt->close();
+            }
+
+            if ($saved_delivery_date === '') {
+                $error = 'Please save the delivery date before marking the equipment as delivered.';
+            } else {
+                $delivery_date = $saved_delivery_date;
+            }
+
+        }
+
+        if ($error !== '') {
+            // Validation error; do not update the booking.
+        } elseif ($new_status === 'SaveDeliveryDate') {
+
+            $save_date_stmt = $conn->prepare("
+                UPDATE bookings b
+                INNER JOIN equipment e
+                    ON b.equipment_id = e.equipment_id
+                SET b.delivery_date = ?
+                WHERE b.booking_id = ?
+                  AND e.lender_id = ?
+                  AND b.status = 'Accepted'
+            ");
+
+            if ($save_date_stmt) {
+                $save_date_stmt->bind_param(
+                    'sii',
+                    $delivery_date,
+                    $booking_id,
+                    $lender_id
+                );
+
+                if ($save_date_stmt->execute()) {
+                    if ($save_date_stmt->affected_rows > 0) {
+                        if ($current_lang === 'kn') {
+                            $message = 'ವಿತರಣಾ ದಿನಾಂಕವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ.';
+                        } elseif ($current_lang === 'hi') {
+                            $message = 'डिलीवरी की तारीख सफलतापूर्वक सहेज दी गई है।';
+                        } else {
+                            $message = 'Delivery date saved successfully.';
+                        }
+                    } else {
+                        $error = 'The delivery date could not be saved. Please make sure the booking is still accepted.';
+                    }
+                } else {
+                    $error = __('lbd_update_failed');
+                }
+
+                $save_date_stmt->close();
+            } else {
+                $error = __('lbd_database_error');
+            }
 
         } else {
 
@@ -111,6 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 INNER JOIN equipment e
                     ON b.equipment_id = e.equipment_id
                 SET b.status = ?,
+                    b.delivery_date = CASE WHEN ? = 'Delivered' THEN ? ELSE b.delivery_date END,
                     b.delivery_confirmed = CASE WHEN ? = 'Delivered' THEN 0 ELSE b.delivery_confirmed END,
                     b.return_confirmed = CASE WHEN ? = 'Returned' THEN 0 ELSE b.return_confirmed END,
                     b.delivery_confirmed_at = CASE WHEN ? = 'Delivered' THEN NULL ELSE b.delivery_confirmed_at END,
@@ -124,8 +223,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($update_stmt) {
 
                 $update_stmt->bind_param(
-                    "sssssii",
+                    "sssssssii",
                     $new_status,
+                    $new_status,
+                    $delivery_date,
                     $new_status,
                     $new_status,
                     $new_status,
@@ -2188,6 +2289,74 @@ $back_page = 'lender_rental_history.php';
 
                             </div>
 
+
+                            <form method="POST" style="margin-bottom:10px;">
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="<?php
+                                    echo htmlspecialchars(
+                                        $_SESSION['csrf_token']
+                                    );
+                                    ?>"
+                                >
+
+                                <div style="margin-bottom:12px;">
+
+                                    <label
+                                        for="delivery_date"
+                                        style="display:block; margin-bottom:6px; font-size:13px; font-weight:800; color:#334155;"
+                                    >
+                                        <?php
+                                        if ($current_lang === 'kn') {
+                                            echo 'ವಿತರಣಾ ದಿನಾಂಕ';
+                                        } elseif ($current_lang === 'hi') {
+                                            echo 'डिलीवरी की तारीख';
+                                        } else {
+                                            echo 'Delivery Date';
+                                        }
+                                        ?>
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="delivery_date"
+                                        name="delivery_date"
+                                        class="form-control"
+                                        value="<?php echo htmlspecialchars($booking['delivery_date'] ?? ''); ?>"
+                                        min="<?php echo date('Y-m-d'); ?>"
+                                        required
+                                    >
+
+                                </div>
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="save_delivery_date"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="action-btn btn-delivered"
+                                >
+
+                                    <i class="fa-solid fa-floppy-disk"></i>
+
+                                    <?php
+                                    if ($current_lang === 'kn') {
+                                        echo 'ವಿತರಣಾ ದಿನಾಂಕ ಉಳಿಸಿ';
+                                    } elseif ($current_lang === 'hi') {
+                                        echo 'डिलीवरी की तारीख सहेजें';
+                                    } else {
+                                        echo 'Save Delivery Date';
+                                    }
+                                    ?>
+
+                                </button>
+
+                            </form>
 
                             <form
                                 method="POST"
