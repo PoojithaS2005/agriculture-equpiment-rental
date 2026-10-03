@@ -836,6 +836,7 @@ $translations = [
         'booking_completed_message' => 'Delivery and return have both been confirmed. This rental is completed.',
         'notification_default' => 'You have a new notification.',
         'notification_request' => 'Request',
+        'lender_notifications_subtitle' => 'Stay updated with your latest rental activities and notifications.',
 
            // Ratings & Reviews
         'submit_review' => 'Submit Review',
@@ -1790,7 +1791,7 @@ $translations = [
         'booking_completed_message' => 'ವಿತರಣೆ ಮತ್ತು ಹಿಂತಿರುಗಿಸುವಿಕೆ ಎರಡನ್ನೂ ದೃಢೀಕರಿಸಲಾಗಿದೆ. ಈ ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ.',
         'notification_default' => 'ನಿಮಗೆ ಹೊಸ ಅಧಿಸೂಚನೆ ಇದೆ.',
         'notification_request' => 'ವಿನಂತಿ',
-
+          'lender_notifications_subtitle'=>'ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬಾಡಿಗೆ ಚಟುವಟಿಕೆಗಳ ಕುರಿತು ನವೀಕೃತವಾಗಿರಿ.',
 
         // Ratings & Reviews
         'submit_review' => 'ವಿಮರ್ಶೆ ಸಲ್ಲಿಸಿ',
@@ -2752,6 +2753,7 @@ $translations = [
         'booking_completed_message' => 'डिलीवरी और वापसी दोनों की पुष्टि हो गई है। यह किराया पूरा हो गया है।',
         'notification_default' => 'आपके पास एक नई सूचना है।',
         'notification_request' => 'अनुरोध',
+        'lender_notifications_subtitle' => 'अपनी नवीनतम किराये की गतिविधियों और सूचनाओं से अपडेट रहें।',
 
         // Ratings & Reviews
         'submit_review' => 'समीक्षा दें',
@@ -2846,9 +2848,6 @@ $translations = [
 'brand_main' => 'कृषि',
 'brand_sub'  => 'उपकरण किराया प्रणाली',
    
-    
-    ],
-    'hi' => [
         // Lender Rental Request Page
         'lender_role' => 'ऋणदाता',
         'notifications' => 'सूचनाएँ',

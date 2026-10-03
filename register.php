@@ -2063,7 +2063,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=register"
                                 class="text-success fw-semibold text-decoration-underline"
                                 target="_blank"
-                               
+                                rel="opener"
                             >
 
                                 <i class="fa-solid fa-arrow-right me-1"></i>

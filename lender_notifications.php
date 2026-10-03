@@ -161,73 +161,9 @@ function notification_icon($title, $message) {
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 255px;
-            height: 100vh;
-            background: #ffffff;
-            border-right: 1px solid var(--border);
-            padding: 24px 16px;
-            z-index: 1000;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0 10px 24px;
-            font-weight: 800;
-            font-size: 19px;
-            color: var(--teal-dark);
-        }
-
-        .brand i {
-            color: var(--teal);
-            font-size: 23px;
-        }
-
-        .nav-menu {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-item {
-            margin-bottom: 6px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 11px 13px;
-            border-radius: 9px;
-            text-decoration: none;
-            color: #4b5563;
-            font-size: 14px;
-            font-weight: 600;
-            transition: .2s;
-        }
-
-        .nav-link:hover {
-            background: #ecfdf5;
-            color: var(--teal-dark);
-        }
-
-        .nav-link.active {
-            background: #dff7f4;
-            color: var(--teal-dark);
-        }
-
-        .nav-link i {
-            width: 25px;
-            font-size: 15px;
-            margin-right: 8px;
-        }
-
+        /* Offset main content for sidebar layout */
         .main-content {
-            margin-left: 255px;
+            margin-left: 250px;
             min-height: 100vh;
         }
 
@@ -464,14 +400,6 @@ function notification_icon($title, $message) {
         }
 
         @media (max-width: 800px) {
-            .sidebar {
-                width: 210px;
-            }
-
-            .main-content {
-                margin-left: 210px;
-            }
-
             .top-nav {
                 padding: 0 18px;
             }
@@ -482,12 +410,8 @@ function notification_icon($title, $message) {
         }
 
         @media (max-width: 650px) {
-            .sidebar {
-                display: none;
-            }
-
             .main-content {
-                margin-left: 0;
+                margin-left: 250px;
             }
 
             .page-header {
@@ -499,92 +423,7 @@ function notification_icon($title, $message) {
 </head>
 <body>
 
-<!-- Lender Sidebar -->
-<div class="sidebar">
-    <div class="brand">
-        <i class="fa-solid fa-tractor"></i>
-        <span><?php echo htmlspecialchars(__('brand_main') . ' ' . __('brand_sub')); ?></span>
-    </div>
-
-    <ul class="nav-menu">
-        <li class="nav-item">
-            <a href="lender_dashboard.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-gauge"></i>
-                <span><?php echo htmlspecialchars(__('dashboard')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="add_equipment.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-plus-circle"></i>
-                <span><?php echo htmlspecialchars(__('add_equipment')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="my_equipment.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-tractor"></i>
-                <span><?php echo htmlspecialchars(__('my_equipment')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="active_rentals.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-clock"></i>
-                <span><?php echo htmlspecialchars(__('active_rentals')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="rental_request.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-file-circle-check"></i>
-                <span><?php echo htmlspecialchars(__('rental_requests')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="lender_bookings.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-calendar-check"></i>
-                <span><?php echo htmlspecialchars(__('my_bookings')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="rental_history.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span><?php echo htmlspecialchars(__('rental_history')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="reviews.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-star"></i>
-                <span><?php echo htmlspecialchars(__('reviews')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="total_earnings.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-indian-rupee-sign"></i>
-                <span><?php echo htmlspecialchars(__('total_earnings')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="profile.php<?php echo $lang_param; ?>" class="nav-link">
-                <i class="fa-solid fa-user"></i>
-                <span><?php echo htmlspecialchars(__('my_profile')); ?></span>
-            </a>
-        </li>
-
-        <li class="nav-item" style="margin-top: 25px;">
-            <a href="logout.php" class="nav-link" style="color:#dc2626;">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span><?php echo htmlspecialchars(__('logout')); ?></span>
-            </a>
-        </li>
-    </ul>
-</div>
+<?php include 'lender_sidebar.php'; ?>
 
 <div class="main-content">
 

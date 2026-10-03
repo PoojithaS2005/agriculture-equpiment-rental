@@ -919,57 +919,72 @@ li {
 document.addEventListener('DOMContentLoaded', function () {
     const agreeTerms = document.getElementById('agreeTerms');
     const backButton = document.getElementById('backButton');
+    const source = <?= json_encode($from); ?>;
 
-    function returnToSource(accepted) {
+    /*
+     * Keep the existing Back button behavior unchanged.
+     * It can return to the page that opened Terms & Conditions.
+     */
+    function returnToSource() {
         const opener = window.opener;
 
         if (opener && !opener.closed) {
             try {
                 opener.focus();
-
-                if (accepted) {
-                    const source = <?= json_encode($from); ?>;
-
-                    if (source === 'register') {
-                        const termsCheck = opener.document.getElementById('termsCheck');
-
-                        if (termsCheck) {
-                            termsCheck.checked = true;
-                        }
-                    } else if (source === 'rent_now') {
-                        const termsCheck = opener.document.getElementById('terms');
-
-                        if (termsCheck) {
-                            termsCheck.checked = true;
-                        }
-                    }
-                }
-
                 window.close();
                 return;
             } catch (e) {
-                // Fall back to normal navigation below.
+                // Fall back to the existing back-page navigation below.
             }
         }
 
-        let target = <?= json_encode($back_page); ?>;
-
-        if (accepted) {
-            target += (target.indexOf('?') >= 0 ? '&' : '?') + 'accepted=1';
-        }
-
-        window.location.href = target;
+        window.location.href = <?= json_encode($back_page); ?>;
     }
 
+    /*
+     * I AGREE behavior:
+     *
+     * REGISTER: mark the original Register page checkbox as checked
+     * and close only this Terms & Conditions window. Because Register
+     * remains open, all details already entered in the form are kept.
+     *
+     * LOGIN / RENT NOW: do not redirect or close the page. The checkbox
+     * simply remains checked.
+     */
     agreeTerms.addEventListener('change', function () {
-        if (this.checked) {
-            returnToSource(true);
+        if (!this.checked) {
+            return;
+        }
+
+        if (source !== 'register') {
+            return;
+        }
+
+        const opener = window.opener;
+
+        if (opener && !opener.closed) {
+            try {
+                const termsCheck = opener.document.getElementById('termsCheck');
+
+                if (termsCheck) {
+                    termsCheck.checked = true;
+                    termsCheck.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                opener.focus();
+                window.close();
+                return;
+            } catch (e) {
+                // Keep the Terms page open if the original Register page
+                // cannot be accessed. This avoids losing the form data.
+            }
         }
     });
 
+    /* Existing Back button behavior */
     backButton.addEventListener('click', function (event) {
         event.preventDefault();
-        returnToSource(false);
+        returnToSource();
     });
 });
 </script>

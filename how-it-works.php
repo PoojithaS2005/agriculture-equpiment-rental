@@ -14,7 +14,7 @@ if (file_exists('includes/config.php')) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
+
     <style>
         :root {
             --brand-green: #2d6a4f;
@@ -134,7 +134,7 @@ if (file_exists('includes/config.php')) {
                     <div class="brand-text-sub">EQUIPMENT RENTAL SYSTEM</div>
                 </div>
             </a>
-            
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -168,38 +168,43 @@ if (file_exists('includes/config.php')) {
     <div class="bg-light py-5 text-center border-bottom">
         <div class="container">
             <h1 class="fw-bold text-success mb-2"><?= __('how_it_works'); ?></h1>
-            <p class="text-secondary mb-0">Simple steps to rent or list agricultural equipment in your local area.</p>
+            <p class="text-secondary mb-0"><?= __('how_it_works_sub'); ?></p>
         </div>
     </div>
 
     <!-- STEPS FOR RENTERS & LENDERS -->
     <div class="container my-5">
-        
+
         <!-- FOR FARMERS / RENTERS -->
-        <h3 class="fw-bold mb-4 text-center text-dark"><i class="fa-solid fa-user-gear text-success me-2"></i>For Renters (Farmers)</h3>
+        <h3 class="fw-bold mb-4 text-center text-dark">
+            <i class="fa-solid fa-user-gear text-success me-2"></i><?= __('for_renters'); ?>
+        </h3>
+
         <div class="row g-4 mb-5">
             <div class="col-md-4">
                 <div class="step-card">
                     <div class="step-badge">1</div>
                     <div class="step-icon"><i class="fa-solid fa-magnifying-glass-location"></i></div>
-                    <h5 class="fw-bold mb-2">Search Equipment</h5>
-                    <p class="text-secondary small mb-0">Find tractors, harvesters, or tillage tools available near your location.</p>
+                    <h5 class="fw-bold mb-2"><?= __('search_equipment'); ?></h5>
+                    <p class="text-secondary small mb-0"><?= __('search_equipment_desc'); ?></p>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="step-card">
                     <div class="step-badge">2</div>
                     <div class="step-icon"><i class="fa-regular fa-calendar-check"></i></div>
-                    <h5 class="fw-bold mb-2">Book & Pay</h5>
-                    <p class="text-secondary small mb-0">Select your required rental duration and confirm the booking request securely.</p>
+                    <h5 class="fw-bold mb-2"><?= __('book_and_pay'); ?></h5>
+                    <p class="text-secondary small mb-0"><?= __('book_and_pay_desc'); ?></p>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="step-card">
                     <div class="step-badge">3</div>
                     <div class="step-icon"><i class="fa-solid fa-wheat-field"></i></div>
-                    <h5 class="fw-bold mb-2">Start Farming</h5>
-                    <p class="text-secondary small mb-0">Get the equipment delivered or pick it up directly from the owner to start work.</p>
+                    <h5 class="fw-bold mb-2"><?= __('start_farming'); ?></h5>
+                    <p class="text-secondary small mb-0"><?= __('start_farming_desc'); ?></p>
                 </div>
             </div>
         </div>
@@ -207,30 +212,35 @@ if (file_exists('includes/config.php')) {
         <hr class="my-5 opacity-25">
 
         <!-- FOR EQUIPMENT OWNERS / LENDERS -->
-        <h3 class="fw-bold mb-4 text-center text-dark"><i class="fa-solid fa-hand-holding-hand text-success me-2"></i>For Equipment Owners (Lenders)</h3>
+        <h3 class="fw-bold mb-4 text-center text-dark">
+            <i class="fa-solid fa-hand-holding-hand text-success me-2"></i><?= __('for_lenders'); ?>
+        </h3>
+
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="step-card">
                     <div class="step-badge">1</div>
                     <div class="step-icon"><i class="fa-solid fa-plus-square"></i></div>
-                    <h5 class="fw-bold mb-2">List Equipment</h5>
-                    <p class="text-secondary small mb-0">Post details, pricing, and images of your idle tractors or farming tools.</p>
+                    <h5 class="fw-bold mb-2"><?= __('list_equipment'); ?></h5>
+                    <p class="text-secondary small mb-0"><?= __('list_equipment_desc'); ?></p>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="step-card">
                     <div class="step-badge">2</div>
                     <div class="step-icon"><i class="fa-solid fa-check-double"></i></div>
-                    <h5 class="fw-bold mb-2">Accept Requests</h5>
-                    <p class="text-secondary small mb-0">Review incoming rental requests from local farmers and accept them easily.</p>
+                    <h5 class="fw-bold mb-2"><?= __('accept_requests'); ?></h5>
+                    <p class="text-secondary small mb-0"><?= __('accept_requests_desc'); ?></p>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="step-card">
                     <div class="step-badge">3</div>
                     <div class="step-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
-                    <h5 class="fw-bold mb-2">Earn Income</h5>
-                    <p class="text-secondary small mb-0">Receive payment directly once the rental agreement period is completed.</p>
+                    <h5 class="fw-bold mb-2"><?= __('earn_income'); ?></h5>
+                    <p class="text-secondary small mb-0"><?= __('earn_income_desc'); ?></p>
                 </div>
             </div>
         </div>

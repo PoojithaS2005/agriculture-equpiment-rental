@@ -15,7 +15,12 @@ $lang_param = '?lang=' . urlencode($current_lang);
 
 // Lender name + profile picture
 $lender_name = $_SESSION['full_name'] ?? 'Lender';
-$profile_pic = 'assets/images/default_avatar.png';
+$profile_pic = '';
+$has_profile_pic = false;
+$profile_initials = strtoupper(mb_substr(trim($lender_name), 0, 2, 'UTF-8'));
+if ($profile_initials === '') {
+    $profile_initials = 'LE';
+}
 
 $user_stmt = $conn->prepare("SELECT full_name, profile_pic FROM users WHERE user_id = ? LIMIT 1");
 if ($user_stmt) {
@@ -24,11 +29,78 @@ if ($user_stmt) {
     $user_data = $user_stmt->get_result()->fetch_assoc();
     if ($user_data) {
         $lender_name = $user_data['full_name'] ?: $lender_name;
-        if (!empty($user_data['profile_pic'])) {
+        if (!empty($user_data['profile_pic']) && $user_data['profile_pic'] !== 'default_avatar.png') {
             $profile_pic = $user_data['profile_pic'];
+            $has_profile_pic = true;
+        }
+        $profile_initials = strtoupper(mb_substr(trim($lender_name), 0, 2, 'UTF-8'));
+        if ($profile_initials === '') {
+            $profile_initials = 'LE';
         }
     }
     $user_stmt->close();
+}
+
+// Page-specific translations for texts that are not yet available as keys in lang.php.
+$lender_bookings_text = [
+    'en' => [
+        'page_title' => 'My Bookings',
+        'page_subtitle' => 'Manage your accepted and ongoing rental bookings.',
+        'notifications' => 'Notifications',
+        'current_bookings' => 'Current Bookings',
+        'accepted_awaiting_delivery' => 'Accepted / Awaiting Delivery',
+        'delivered_active' => 'Delivered / Active',
+        'returned_awaiting_confirmation' => 'Returned / Awaiting Confirmation',
+        'search_placeholder' => 'Search request, equipment or renter...',
+        'all_current_bookings' => 'All Current Bookings',
+        'current_booking_management' => 'Current Booking Management',
+        'pending_requests_note' => 'Pending requests are handled under Rental Requests.',
+        'no_current_bookings' => 'No current bookings',
+        'no_current_bookings_desc' => 'Accepted, delivered, or returned bookings will appear here.',
+        'search' => 'Search',
+        'reset' => 'Reset',
+    ],
+    'kn' => [
+        'page_title' => 'ನನ್ನ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+        'page_subtitle' => 'ನಿಮ್ಮ ಸ್ವೀಕರಿಸಿದ ಮತ್ತು ಪ್ರಸ್ತುತ ಬಾಡಿಗೆ ಬುಕ್ಕಿಂಗ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ.',
+        'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+        'current_bookings' => 'ಪ್ರಸ್ತುತ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+        'accepted_awaiting_delivery' => 'ಸ್ವೀಕರಿಸಲಾಗಿದೆ / ವಿತರಣೆಗೆ ಕಾಯುತ್ತಿದೆ',
+        'delivered_active' => 'ತಲುಪಿಸಲಾಗಿದೆ / ಸಕ್ರಿಯ',
+        'returned_awaiting_confirmation' => 'ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ / ದೃಢೀಕರಣಕ್ಕೆ ಕಾಯುತ್ತಿದೆ',
+        'search_placeholder' => 'ವಿನಂತಿ, ಉಪಕರಣ ಅಥವಾ ಬಾಡಿಗೆದಾರರನ್ನು ಹುಡುಕಿ...',
+        'all_current_bookings' => 'ಎಲ್ಲಾ ಪ್ರಸ್ತುತ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
+        'current_booking_management' => 'ಪ್ರಸ್ತುತ ಬುಕ್ಕಿಂಗ್ ನಿರ್ವಹಣೆ',
+        'pending_requests_note' => 'ಬಾಕಿ ಇರುವ ವಿನಂತಿಗಳನ್ನು ಬಾಡಿಗೆ ವಿನಂತಿಗಳ ಅಡಿಯಲ್ಲಿ ನಿರ್ವಹಿಸಲಾಗುತ್ತದೆ.',
+        'no_current_bookings' => 'ಯಾವುದೇ ಪ್ರಸ್ತುತ ಬುಕ್ಕಿಂಗ್‌ಗಳಿಲ್ಲ',
+        'no_current_bookings_desc' => 'ಸ್ವೀಕರಿಸಿದ, ತಲುಪಿಸಿದ ಅಥವಾ ಹಿಂತಿರುಗಿಸಿದ ಬುಕ್ಕಿಂಗ್‌ಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.',
+        'search' => 'ಹುಡುಕಿ',
+        'reset' => 'ಮರುಹೊಂದಿಸಿ',
+    ],
+    'hi' => [
+        'page_title' => 'मेरी बुकिंग',
+        'page_subtitle' => 'अपनी स्वीकृत और चल रही किराये की बुकिंग प्रबंधित करें।',
+        'notifications' => 'सूचनाएँ',
+        'current_bookings' => 'वर्तमान बुकिंग',
+        'accepted_awaiting_delivery' => 'स्वीकृत / डिलीवरी की प्रतीक्षा',
+        'delivered_active' => 'डिलीवर / सक्रिय',
+        'returned_awaiting_confirmation' => 'वापस किया गया / पुष्टि की प्रतीक्षा',
+        'search_placeholder' => 'अनुरोध, उपकरण या किराएदार खोजें...',
+        'all_current_bookings' => 'सभी वर्तमान बुकिंग',
+        'current_booking_management' => 'वर्तमान बुकिंग प्रबंधन',
+        'pending_requests_note' => 'लंबित अनुरोधों को किराया अनुरोध के अंतर्गत संभाला जाता है।',
+        'no_current_bookings' => 'कोई वर्तमान बुकिंग नहीं है',
+        'no_current_bookings_desc' => 'स्वीकृत, डिलीवर या वापस की गई बुकिंग यहाँ दिखाई देंगी।',
+        'search' => 'खोजें',
+        'reset' => 'रीसेट',
+    ],
+];
+
+function lender_bookings_text(string $key): string {
+    global $lender_bookings_text, $current_lang;
+    return $lender_bookings_text[$current_lang][$key]
+        ?? $lender_bookings_text['en'][$key]
+        ?? $key;
 }
 
 // Notification count for the top bell
@@ -154,7 +226,7 @@ function statusClass(string $status): string {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>My Bookings - Agriculture Equipment Rental System</title>
+    <title><?= htmlspecialchars(lender_bookings_text('page_title')); ?> - <?= htmlspecialchars(__('title')); ?></title>
 
     <link
         rel="stylesheet"
@@ -320,12 +392,25 @@ function statusClass(string $status): string {
             gap: 9px;
         }
 
-        .user-profile-img {
+        .user-profile-img,
+        .user-profile-initials {
             width: 36px;
             height: 36px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #0f4c5c;
+        }
+
+        .user-profile-initials {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f4c5c;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
 
         .user-text strong {
@@ -660,9 +745,9 @@ function statusClass(string $status): string {
 
         <div class="page-title">
 
-            <h1>My Bookings</h1>
+            <h1><?= htmlspecialchars(lender_bookings_text('page_title')); ?></h1>
 
-            <p>Manage your accepted and ongoing rental bookings.</p>
+            <p><?= htmlspecialchars(lender_bookings_text('page_subtitle')); ?></p>
 
         </div>
 
@@ -671,8 +756,8 @@ function statusClass(string $status): string {
             <a
                 href="lender_notifications.php<?php echo $lang_param; ?>"
                 class="notification-link"
-                title="Notifications"
-                aria-label="Notifications"
+                title="<?= htmlspecialchars(lender_bookings_text('notifications')); ?>"
+                aria-label="<?= htmlspecialchars(lender_bookings_text('notifications')); ?>"
             >
                 <i class="fa-regular fa-bell"></i>
 
@@ -714,18 +799,28 @@ function statusClass(string $status): string {
 
             <div class="user-menu">
 
-                <img
-                    src="<?php echo htmlspecialchars($profile_pic); ?>"
-                    class="user-profile-img"
-                    alt="Profile"
-                >
+                <?php if ($has_profile_pic): ?>
+                    <img
+                        src="uploads/<?php echo htmlspecialchars($profile_pic); ?>"
+                        class="user-profile-img"
+                        alt="Profile"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    >
+                    <div class="user-profile-initials" style="display:none;">
+                        <?php echo htmlspecialchars($profile_initials); ?>
+                    </div>
+                <?php else: ?>
+                    <div class="user-profile-initials">
+                        <?php echo htmlspecialchars($profile_initials); ?>
+                    </div>
+                <?php endif; ?>
 
                 <div class="user-text">
                     <strong>
                         <?php echo htmlspecialchars($lender_name); ?>
                     </strong>
 
-                    <span>Lender</span>
+                    <span><?= htmlspecialchars(__('lender')); ?></span>
                 </div>
 
             </div>
@@ -744,7 +839,7 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $total_current; ?></h3>
-                <p>Current Bookings</p>
+                <p><?= htmlspecialchars(lender_bookings_text('current_bookings')); ?></p>
             </div>
 
         </div>
@@ -757,7 +852,7 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $accepted_count; ?></h3>
-                <p>Accepted / Awaiting Delivery</p>
+                <p><?= htmlspecialchars(lender_bookings_text('accepted_awaiting_delivery')); ?></p>
             </div>
 
         </div>
@@ -770,7 +865,7 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $delivered_count; ?></h3>
-                <p>Delivered / Active</p>
+                <p><?= htmlspecialchars(lender_bookings_text('delivered_active')); ?></p>
             </div>
 
         </div>
@@ -783,7 +878,7 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $returned_count; ?></h3>
-                <p>Returned / Awaiting Confirmation</p>
+                <p><?= htmlspecialchars(lender_bookings_text('returned_awaiting_confirmation')); ?></p>
             </div>
 
         </div>
@@ -801,7 +896,7 @@ function statusClass(string $status): string {
                 type="text"
                 name="search"
                 class="search-input"
-                placeholder="Search request, equipment or renter..."
+                placeholder="<?= htmlspecialchars(lender_bookings_text('search_placeholder')); ?>"
                 value="<?php echo htmlspecialchars($search); ?>"
             >
 
@@ -811,28 +906,28 @@ function statusClass(string $status): string {
             >
 
                 <option value="">
-                    All Current Bookings
+                    <?= htmlspecialchars(lender_bookings_text('all_current_bookings')); ?>
                 </option>
 
                 <option
                     value="Accepted"
                     <?php echo $status_filter === 'Accepted' ? 'selected' : ''; ?>
                 >
-                    Accepted
+                    <?= htmlspecialchars(__('accepted')); ?>
                 </option>
 
                 <option
                     value="Delivered"
                     <?php echo $status_filter === 'Delivered' ? 'selected' : ''; ?>
                 >
-                    Delivered
+                    <?= htmlspecialchars(__('delivered')); ?>
                 </option>
 
                 <option
                     value="Returned"
                     <?php echo $status_filter === 'Returned' ? 'selected' : ''; ?>
                 >
-                    Returned
+                    <?= htmlspecialchars(__('returned')); ?>
                 </option>
 
             </select>
@@ -842,7 +937,7 @@ function statusClass(string $status): string {
                 class="btn-search"
             >
                 <i class="fa-solid fa-magnifying-glass"></i>
-                Search
+                <?= htmlspecialchars(lender_bookings_text('search')); ?>
             </button>
 
             <?php if ($search !== '' || $status_filter !== ''): ?>
@@ -851,7 +946,7 @@ function statusClass(string $status): string {
                     href="lender_my_bookings.php<?php echo $lang_param; ?>"
                     class="btn-reset"
                 >
-                    Reset
+                    <?= htmlspecialchars(lender_bookings_text('reset')); ?>
                 </a>
 
             <?php endif; ?>
@@ -864,10 +959,10 @@ function statusClass(string $status): string {
 
         <div class="table-header">
 
-            <h2>Current Booking Management</h2>
+            <h2><?= htmlspecialchars(lender_bookings_text('current_booking_management')); ?></h2>
 
             <span>
-                Pending requests are handled under Rental Requests.
+                <?= htmlspecialchars(lender_bookings_text('pending_requests_note')); ?>
             </span>
 
         </div>
@@ -881,13 +976,13 @@ function statusClass(string $status): string {
                     <thead>
 
                         <tr>
-                            <th>Request</th>
-                            <th>Equipment</th>
-                            <th>Renter</th>
-                            <th>Rental Period</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th><?= htmlspecialchars(__('request')); ?></th>
+                            <th><?= htmlspecialchars(__('equipment')); ?></th>
+                            <th><?= htmlspecialchars(__('renter')); ?></th>
+                            <th><?= htmlspecialchars(__('rental_period')); ?></th>
+                            <th><?= htmlspecialchars(__('amount')); ?></th>
+                            <th><?= htmlspecialchars(__('status')); ?></th>
+                            <th><?= htmlspecialchars(__('action')); ?></th>
                         </tr>
 
                     </thead>
@@ -992,7 +1087,15 @@ function statusClass(string $status): string {
                                 <span
                                     class="status <?php echo statusClass($row['status']); ?>"
                                 >
-                                    <?php echo htmlspecialchars($row['status']); ?>
+                                    <?php
+                                    $status_key = match ($row['status']) {
+                                        'Accepted' => 'accepted',
+                                        'Delivered' => 'delivered',
+                                        'Returned' => 'returned',
+                                        default => ''
+                                    };
+                                    echo htmlspecialchars($status_key !== '' ? __($status_key) : $row['status']);
+                                    ?>
                                 </span>
 
                             </td>
@@ -1004,7 +1107,7 @@ function statusClass(string $status): string {
                                     href="lender_booking_details.php?booking_id=<?php echo (int)$row['booking_id']; ?><?php echo '&lang=' . urlencode($current_lang); ?>"
                                 >
                                     <i class="fa-regular fa-eye"></i>
-                                    View Details
+                                    <?= htmlspecialchars(__('view_details')); ?>
                                 </a>
 
                             </td>
@@ -1023,10 +1126,10 @@ function statusClass(string $status): string {
 
                     <i class="fa-regular fa-calendar-xmark"></i>
 
-                    <h3>No current bookings</h3>
+                    <h3><?= htmlspecialchars(lender_bookings_text('no_current_bookings')); ?></h3>
 
                     <p>
-                        Accepted, delivered, or returned bookings will appear here.
+                        <?= htmlspecialchars(lender_bookings_text('no_current_bookings_desc')); ?>
                     </p>
 
                 </div>
