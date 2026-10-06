@@ -228,6 +228,18 @@ require_once 'includes/lang.php';
     </li> 
  
  
+    <!-- AI Weather Advisor --> 
+    <li class="renter-nav-item"> 
+        <a 
+            href="<?= renter_sidebar_link('weather_advisor.php', $current_language); ?>" 
+            class="renter-nav-link <?= ($current_page === 'weather_advisor.php') ? 'active' : ''; ?>" 
+        > 
+            <i class="fa-solid fa-cloud-sun"></i> 
+            <span><?= __('weather_advisor'); ?></span> 
+        </a> 
+    </li> 
+
+
     <!-- My Bookings --> 
     <li class="renter-nav-item"> 
         <a 

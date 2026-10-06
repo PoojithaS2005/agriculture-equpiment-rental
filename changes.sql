@@ -256,3 +256,6 @@ MODIFY status ENUM(
 //altered bookings table
 ALTER TABLE `bookings`
 ADD COLUMN `delivery_date` DATE NULL AFTER `end_date`;
+
+ALTER TABLE users
+ADD COLUMN remember_token VARCHAR(255) NULL;

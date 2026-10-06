@@ -50,6 +50,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
+            // Remember Me
+            if (isset($_POST['remember_me']) && $_POST['remember_me'] === '1') {
+
+                // Generate a secure random token
+                $remember_token = bin2hex(random_bytes(32));
+
+                // Store only the SHA-256 hash in the database
+                $remember_token_hash = hash('sha256', $remember_token);
+
+                $user_id = (int)$user['user_id'];
+
+                $update_token = mysqli_prepare(
+                    $conn,
+                    "UPDATE users SET remember_token = ? WHERE user_id = ?"
+                );
+
+                mysqli_stmt_bind_param(
+                    $update_token,
+                    "si",
+                    $remember_token_hash,
+                    $user_id
+                );
+
+                mysqli_stmt_execute($update_token);
+                mysqli_stmt_close($update_token);
+
+                // Store the original token in a secure browser cookie
+                setcookie(
+                    'remember_token',
+                    $remember_token,
+                    [
+                        'expires' => time() + (60 * 60 * 24 * 30),
+                        'path' => '/',
+                        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                        'httponly' => true,
+                        'samesite' => 'Lax'
+                    ]
+                );
+
+            } else {
+
+                // If Remember Me is not selected, remove any old token
+                $user_id = (int)$user['user_id'];
+
+                $clear_token = mysqli_prepare(
+                    $conn,
+                    "UPDATE users SET remember_token = NULL WHERE user_id = ?"
+                );
+
+                mysqli_stmt_bind_param(
+                    $clear_token,
+                    "i",
+                    $user_id
+                );
+
+                mysqli_stmt_execute($clear_token);
+                mysqli_stmt_close($clear_token);
+
+                // Remove old browser cookie
+                setcookie(
+                    'remember_token',
+                    '',
+                    [
+                        'expires' => time() - 3600,
+                        'path' => '/',
+                        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                        'httponly' => true,
+                        'samesite' => 'Lax'
+                    ]
+                );
+            }
+
             // Redirect according to role
             if ($user['role'] === 'renter') {
                 header("Location: renter_dashboard.php");
@@ -461,7 +533,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST" action="" autocomplete="off">
+                    <form method="POST" action="" autocomplete="on">
 
                         <!-- Hidden inputs trick Chrome away from real inputs -->
                         <input type="text" style="display:none" name="fake_username_autofill"/>
@@ -480,7 +552,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                        name="login_input"
                                        class="form-control"
                                        placeholder="<?= __('enter_email_phone'); ?>"
-                                       autocomplete="off"
+                                       autocomplete="username"
                                        required>
                             </div>
                         </div>
@@ -499,7 +571,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                        id="passwordInput"
                                        class="form-control"
                                        placeholder="<?= __('enter_password'); ?>"
-                                       autocomplete="new-password"
+                                       autocomplete="current-password"
                                        required>
 
                                 <i class="fa-regular fa-eye input-icon-right"
@@ -514,7 +586,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="form-check">
                                 <input class="form-check-input"
                                        type="checkbox"
-                                       id="rememberMe">
+                                       id="rememberMe"
+                                       name="remember_me"
+                                       value="1">
 
                                 <label class="form-check-label text-secondary"
                                        for="rememberMe">
