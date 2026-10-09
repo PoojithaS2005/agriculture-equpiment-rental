@@ -1027,6 +1027,10 @@ $translations = [
     
         'latitude' => 'Latitude',
         'longitude' => 'Longitude',
+
+        
+              'ai_insights' => 'AI Insights',
+  
     ],
 
 
@@ -2044,6 +2048,10 @@ $translations = [
     
         'latitude' => 'ಅಕ್ಷಾಂಶ',
         'longitude' => 'ರೇಖಾಂಶ',
+
+        
+'ai_insights' => 'AI ಒಳನೋಟಗಳು',
+  
     ],
     'hi' => [
         // Index / General Keys
@@ -3090,6 +3098,10 @@ $translations = [
     
         'latitude' => 'अक्षांश',
         'longitude' => 'देशांतर',
+
+        
+'ai_insights' => 'AI जानकारी',
+  
     ],
 ];
 

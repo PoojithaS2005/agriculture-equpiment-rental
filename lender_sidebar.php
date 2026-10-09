@@ -484,6 +484,18 @@ $is_my_profile =
             </a> 
  
         </li> 
+
+        
+<!-- AI INSIGHTS -->
+<li class="nav-item">
+    <a
+        href="lender_ai_insights.php?lang=<?= urlencode($current_lang_sidebar); ?>"
+        class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'lender_ai_insights.php' ? 'active' : ''; ?>"
+    >
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span><?= lender_nav_text('ai_insights', 'AI Insights'); ?></span>
+    </a>
+</li>
  
         <!-- MY PROFILE --> 
  
