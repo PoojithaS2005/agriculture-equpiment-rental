@@ -259,3 +259,50 @@ ADD COLUMN `delivery_date` DATE NULL AFTER `end_date`;
 
 ALTER TABLE users
 ADD COLUMN remember_token VARCHAR(255) NULL;
+
+//10-10-2026
+-- Step 3: Smart Rental Pricing + Price History
+-- Run this once in phpMyAdmin while agri_rental_db is selected.
+-- Existing equipment receives a baseline snapshot of its CURRENT price.
+-- Actual price changes made after setup are captured automatically by the trigger.
+
+CREATE TABLE IF NOT EXISTS `equipment_price_history` (
+  `history_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `equipment_id` INT(11) NOT NULL,
+  `lender_id` INT(11) NOT NULL,
+  `old_price` DECIMAL(10,2) DEFAULT NULL,
+  `new_price` DECIMAL(10,2) NOT NULL,
+  `change_type` ENUM('Initial','Price Change') NOT NULL DEFAULT 'Price Change',
+  `changed_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`history_id`),
+  KEY `idx_price_history_equipment_date` (`equipment_id`, `changed_at`),
+  KEY `idx_price_history_lender_date` (`lender_id`, `changed_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Record a baseline current price for each existing item only if it has no history yet.
+INSERT INTO `equipment_price_history`
+  (`equipment_id`, `lender_id`, `old_price`, `new_price`, `change_type`, `changed_at`)
+SELECT e.`equipment_id`, e.`lender_id`, NULL, e.`price_per_day`, 'Initial', e.`created_at`
+FROM `equipment` e
+WHERE NOT EXISTS (
+  SELECT 1 FROM `equipment_price_history` h
+  WHERE h.`equipment_id` = e.`equipment_id`
+);
+
+-- Recreate the trigger safely if this setup script is run again.
+DROP TRIGGER IF EXISTS `equipment_price_history_after_update`;
+
+CREATE TRIGGER `equipment_price_history_after_update`
+AFTER UPDATE ON `equipment`
+FOR EACH ROW
+INSERT INTO `equipment_price_history`
+  (`equipment_id`, `lender_id`, `old_price`, `new_price`, `change_type`, `changed_at`)
+SELECT NEW.`equipment_id`, NEW.`lender_id`, OLD.`price_per_day`, NEW.`price_per_day`, 'Price Change', CURRENT_TIMESTAMP
+WHERE NOT (OLD.`price_per_day` <=> NEW.`price_per_day`);
+
+
+//
+
+ALTER TABLE bookings
+ADD COLUMN reminder_notification_sent_at DATETIME NULL DEFAULT NULL,
+ADD COLUMN overdue_notification_sent_at DATETIME NULL DEFAULT NULL;

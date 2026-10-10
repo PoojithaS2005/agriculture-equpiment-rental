@@ -490,7 +490,7 @@ $is_my_profile =
 <li class="nav-item">
     <a
         href="lender_ai_insights.php?lang=<?= urlencode($current_lang_sidebar); ?>"
-        class="nav-link <?= basename($_SERVER['PHP_SELF']) === 'lender_ai_insights.php' ? 'active' : ''; ?>"
+        class="nav-link <?= in_array(basename($_SERVER['PHP_SELF'] ?? ''), ['lender_ai_insights.php','lender_ai_equipment_recommendations.php','lender_ai_maintenance.php','lender_ai_review_analysis.php','lender_ai_revenue_prediction.php'], true) ? 'active' : ''; ?>"
     >
         <i class="fa-solid fa-wand-magic-sparkles"></i>
         <span><?= lender_nav_text('ai_insights', 'AI Insights'); ?></span>
