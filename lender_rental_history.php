@@ -212,7 +212,11 @@ h1{font-size:24px;color:#0f172a}.subtitle{color:#64748b;font-size:13px;margin-to
 </tr></thead><tbody>
 <?php foreach($rows as $row): $img=!empty($row['equipment_image'])?'uploads/'.$row['equipment_image']:'uploads/default.png'; $status=$row['status']; ?>
 <tr data-status="<?= htmlspecialchars($status) ?>">
-<td><div class="equipment"><img src="<?= htmlspecialchars($img) ?>" onerror="this.src='uploads/default.png'" alt=""><span><?= htmlspecialchars($row['equipment_title']) ?></span></div></td>
+<td><div class="equipment"><img
+    src="<?= htmlspecialchars($img) ?>"
+    onerror="this.onerror=null; this.src='uploads/default.png';"
+    alt="Equipment">
+    <span><?= htmlspecialchars($row['equipment_title']) ?></span></div></td>
 <td><?= htmlspecialchars($row['request_code']) ?></td>
 <td><?= htmlspecialchars($row['renter_name']) ?></td>
 <td><?= date('d M Y',strtotime($row['start_date'])) ?> - <?= date('d M Y',strtotime($row['end_date'])) ?></td>

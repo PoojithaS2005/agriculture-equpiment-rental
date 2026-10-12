@@ -968,19 +968,19 @@ $status_labels = [
                     </div>
                 <?php else: ?>
                 <div class="stepper">
-                    <div class="step <?php echo in_array($status, ['Pending', 'Accepted', 'Delivered', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
+                    <div class="step <?php echo in_array($status, ['Pending', 'Accepted', 'Delivered', 'Overdue', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
                         <div class="step-circle"><i class="fa-solid fa-check"></i></div>
                         <div class="step-label"><?php echo htmlspecialchars($bt['submitted']); ?></div>
                     </div>
-                    <div class="step <?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
+                    <div class="step <?php echo in_array($status, ['Accepted', 'Delivered', 'Overdue', 'Returned', 'Completed']) ? 'completed' : ''; ?>">
                         <div class="step-circle"><i class="fa-solid fa-check"></i></div>
                         <div class="step-label"><?php echo htmlspecialchars($bt['pending_approval']); ?></div>
                     </div>
-                    <div class="step <?php echo ($status === 'Accepted') ? 'active' : (in_array($status, ['Delivered', 'Returned', 'Completed']) ? 'completed' : ''); ?>">
+                    <div class="step <?php echo ($status === 'Accepted') ? 'active' : (in_array($status, ['Delivered', 'Overdue', 'Returned', 'Completed']) ? 'completed' : ''); ?>">
                         <div class="step-circle">3</div>
                         <div class="step-label"><?php echo htmlspecialchars($bt['accepted']); ?></div>
                     </div>
-                    <div class="step <?php echo ($status === 'Delivered' && $delivery_is_confirmed) ? 'active' : (in_array($status, ['Returned', 'Completed']) ? 'completed' : ''); ?>">
+                    <div class="step <?php echo (in_array($status, ['Delivered', 'Overdue'], true) && $delivery_is_confirmed) ? 'active' : (in_array($status, ['Returned', 'Completed']) ? 'completed' : ''); ?>">
                         <div class="step-circle">4</div>
                         <div class="step-label"><?php echo htmlspecialchars($bt['delivered']); ?></div>
                     </div>
@@ -1017,13 +1017,13 @@ $status_labels = [
                         <h6><?php echo htmlspecialchars($bt['request_submitted']); ?></h6>
                         <p><?php echo htmlspecialchars($bt['request_message']); ?> (<?php echo date('d M Y, h:i A', strtotime($booking['created_at'])); ?>)</p>
                     </li>
-                    <li class="timeline-item <?php echo in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? 'active' : ''; ?>">
+                    <li class="timeline-item <?php echo in_array($status, ['Accepted', 'Delivered', 'Overdue', 'Returned', 'Completed']) ? 'active' : ''; ?>">
                         <h6><?php echo htmlspecialchars($bt['lender_review']); ?></h6>
-                        <p><?php echo htmlspecialchars(in_array($status, ['Accepted', 'Delivered', 'Returned', 'Completed']) ? $bt['accepted_message'] : $bt['waiting_approval']); ?></p>
+                        <p><?php echo htmlspecialchars(in_array($status, ['Accepted', 'Delivered', 'Overdue', 'Returned', 'Completed']) ? $bt['accepted_message'] : $bt['waiting_approval']); ?></p>
                     </li>
-                    <li class="timeline-item <?php echo (($status === 'Delivered' && $delivery_is_confirmed) || in_array($status, ['Returned', 'Completed'])) ? 'active' : ''; ?>">
+                    <li class="timeline-item <?php echo ((in_array($status, ['Delivered', 'Overdue'], true) && $delivery_is_confirmed) || in_array($status, ['Returned', 'Completed'])) ? 'active' : ''; ?>">
                         <h6><?php echo htmlspecialchars($bt['equipment_delivery']); ?></h6>
-                        <p><?php echo htmlspecialchars((($status === 'Delivered' && $delivery_is_confirmed) || in_array($status, ['Returned', 'Completed'])) ? $bt['delivered_message'] : $bt['pending_delivery']); ?></p>
+                        <p><?php echo htmlspecialchars(((in_array($status, ['Delivered', 'Overdue'], true) && $delivery_is_confirmed) || in_array($status, ['Returned', 'Completed'])) ? $bt['delivered_message'] : $bt['pending_delivery']); ?></p>
                     </li>
                     <li class="timeline-item <?php echo in_array($status, ['Returned', 'Completed']) ? 'active' : ''; ?>">
                         <h6><?php echo htmlspecialchars($bt['equipment_return']); ?></h6>
@@ -1096,7 +1096,7 @@ $status_labels = [
                             <?php echo htmlspecialchars($bt['confirm_delivery_btn']); ?>
                         </button>
                     </form>
-                <?php elseif ($delivery_is_confirmed && $status === 'Delivered'): ?>
+                <?php elseif ($delivery_is_confirmed && in_array($status, ['Delivered', 'Overdue'], true)): ?>
                     <div class="alert alert-success mt-3 mb-2" style="font-size:13px; border-radius:10px;">
                         <i class="fa-solid fa-circle-check me-1"></i>
                         <?php echo htmlspecialchars($bt['delivery_confirmed_message']); ?>

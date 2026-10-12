@@ -727,7 +727,7 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
                                     src="uploads/<?php echo htmlspecialchars($row['eq_image']); ?>"
                                     alt="Equipment"
                                     class="eq-thumb"
-                                    onerror="this.src='assets/images/default.png'"
+                                    onerror="this.onerror=null; this.src='uploads/default.png';"
                                 >
 
                                 <div>

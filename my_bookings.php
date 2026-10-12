@@ -135,7 +135,7 @@ if ($active_tab === 'upcoming') {
 } elseif ($active_tab === 'ongoing') {
     $sql .= "
         AND (
-            b.status = 'Delivered'
+            b.status IN ('Delivered', 'Overdue')
             OR (
                 b.status = 'Accepted'
                 AND ? BETWEEN b.start_date AND b.end_date
@@ -152,7 +152,6 @@ if ($active_tab === 'upcoming') {
             b.status = 'Cancelled'
             OR b.status = 'Canceled'
             OR b.status = 'Rejected'
-            OR b.status = 'Overdue'
         )
     ";
 }
@@ -764,7 +763,7 @@ if ($stmt) {
             if ($st === 'Accepted') {
                 $badge_class = 'status-upcoming';
                 $status_icon = 'fa-calendar-check';
-            } elseif ($st === 'Delivered') {
+            } elseif ($st === 'Delivered' || $st === 'Overdue') {
                 $badge_class = 'status-ongoing';
                 $status_icon = 'fa-spinner fa-spin';
             } elseif ($st === 'Returned' || $st === 'Completed') {
@@ -772,7 +771,6 @@ if ($stmt) {
                 $status_icon = 'fa-circle-check';
             } elseif (
                 $st === 'Rejected' ||
-                $st === 'Overdue' ||
                 $st === 'Cancelled' ||
                 $st === 'Canceled'
             ) {

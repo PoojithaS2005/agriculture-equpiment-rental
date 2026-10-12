@@ -1026,7 +1026,7 @@ function statusClass(string $status): string {
                                         src="<?php echo htmlspecialchars($img); ?>"
                                         class="equipment-img"
                                         alt="Equipment"
-                                        onerror="this.src='assets/images/default.png'"
+                                       onerror="this.onerror=null; this.src='uploads/default.png';"
                                     >
 
                                     <div>

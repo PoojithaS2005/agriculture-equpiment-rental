@@ -46,6 +46,15 @@ try {
      * Process only rentals that have been delivered or
      * are already overdue. Returned rentals are excluded.
      */
+    // Repair overdue flags created before delivery was confirmed.
+    // These bookings are still awaiting delivery confirmation, not overdue.
+    mysqli_query($conn, "UPDATE bookings
+                         SET status = 'Delivered', late_charge = 0,
+                             overdue_notification_sent_at = NULL
+                         WHERE status = 'Overdue'
+                           AND delivery_confirmed = 0
+                           AND return_confirmed = 0");
+
     $sql = "
         SELECT
             b.booking_id,
@@ -72,6 +81,7 @@ try {
         
 WHERE b.status IN ('Delivered','Overdue')
   AND b.end_date IS NOT NULL
+  AND b.delivery_confirmed = 1
   AND b.return_confirmed = 0
 
     ";
@@ -154,7 +164,9 @@ WHERE b.status IN ('Delivered','Overdue')
                      SET status = 'Overdue',
                          late_charge = ?
                      WHERE booking_id = ?
-                       AND status IN ('Delivered', 'Overdue')"
+                       AND status IN ('Delivered', 'Overdue')
+                       AND delivery_confirmed = 1
+                       AND return_confirmed = 0"
                 );
 
                 mysqli_stmt_bind_param(

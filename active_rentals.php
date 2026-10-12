@@ -735,42 +735,48 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
                                 while ($row = $result->fetch_assoc()) {
 
-                                    // Automatic Days Left & Status Calculation
-                                    $current_date = new DateTime();
+                                    // Never label a booking overdue until delivery is confirmed.
+                                    $current_date = new DateTime(date('Y-m-d'));
                                     $end_date = new DateTime($row['end_date']);
-
                                     $interval = $current_date->diff($end_date);
                                     $days_diff = (int)$interval->format('%r%d');
+                                    $booking_status = $row['status'] ?? '';
+                                    $delivery_confirmed = (int)($row['delivery_confirmed'] ?? 0) === 1;
+                                    $return_confirmed = (int)($row['return_confirmed'] ?? 0) === 1;
+                                    $can_be_overdue = in_array($booking_status, ['Delivered', 'Overdue'], true)
+                                        && $delivery_confirmed && !$return_confirmed;
 
-                                    if ($days_diff > 0) {
-
-                                        $days_left_text = $days_diff . " " . active_rental__('days_left');
-                                        $sub_text = active_rental__('return_by') . " " . date(
-                                            'd M Y',
-                                            strtotime($row['end_date'])
-                                        );
-
+                                    if (!$delivery_confirmed && in_array($booking_status, ['Accepted', 'Delivered', 'Overdue'], true)) {
+                                        $days_left_text = 'Not delivered yet';
+                                        $sub_text = 'Waiting for renter to confirm delivery';
                                         $status_class = 'status-active';
-                                        $status_text = active_rental__('active');
-
-                                    } elseif ($days_diff === 0) {
-
-                                        $days_left_text = active_rental__('due_today');
-                                        $sub_text = active_rental__('return_today');
-
-                                        $status_class = 'status-due';
-                                        $status_text = active_rental__('due_today');
-
-                                    } else {
-
+                                        $status_text = 'Awaiting Delivery';
+                                    } elseif ($booking_status === 'Accepted') {
+                                        $days_left_text = 'Not delivered yet';
+                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $status_class = 'status-active';
+                                        $status_text = 'Awaiting Delivery';
+                                    } elseif ($can_be_overdue && $days_diff < 0) {
                                         $days_left_text = active_rental__('overdue');
-                                        $sub_text = active_rental__('returned_on') . " " . date(
-                                            'd M Y',
-                                            strtotime($row['end_date'])
-                                        );
-
+                                        $sub_text = active_rental__('returned_on') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-overdue';
                                         $status_text = active_rental__('overdue');
+                                    } elseif ($days_diff > 0) {
+                                        $days_left_text = $days_diff . ' ' . active_rental__('days_left');
+                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $status_class = 'status-active';
+                                        $status_text = active_rental__('active');
+                                    } elseif ($days_diff === 0) {
+                                        $days_left_text = active_rental__('due_today');
+                                        $sub_text = active_rental__('return_today');
+                                        $status_class = 'status-due';
+                                        $status_text = active_rental__('due_today');
+                                    } else {
+                                        // Past end date alone is not enough: delivery must have been confirmed.
+                                        $days_left_text = 'Awaiting return';
+                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $status_class = 'status-active';
+                                        $status_text = 'Awaiting Return';
                                     }
 
                                     $per_day_price =

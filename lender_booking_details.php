@@ -1822,7 +1822,7 @@ $back_page = 'lender_rental_history.php';
                     ($status === 'Accepted');
 
                 $delivered =
-                    ($status === 'Delivered');
+                    in_array($status, ['Delivered', 'Overdue'], true);
 
                 $returned =
                     ($status === 'Returned');
@@ -2399,7 +2399,7 @@ $back_page = 'lender_rental_history.php';
 
                         <!-- DELIVERED -->
 
-                        <?php elseif ($status === 'Delivered'): ?>
+                        <?php elseif (in_array($status, ['Delivered', 'Overdue'], true)): ?>
 
 
                             <div
