@@ -610,4 +610,96 @@ if ($totalBookings >= 10) {
     $overallDemand = 'Not enough booking history yet';
 }
 
-$current_lang = $_SESSION['lang'] ?? $_SESSION['language'] ?? 'en';
+$current_lang = strtolower((string)($_GET['lang'] ?? $_SESSION['lang'] ?? $_SESSION['language'] ?? 'en'));
+if (!in_array($current_lang, ['en', 'kn', 'hi'], true)) {
+    $current_lang = 'en';
+}
+$_SESSION['lang'] = $current_lang;
+
+/** Localize generated AI insight text while leaving user/database content intact. */
+if (!function_exists('lender_ai_localize_generated_text')) {
+    function lender_ai_localize_generated_text(string $text, string $lang): string {
+        if ($lang === 'en' || $text === '') return $text;
+        $map = [
+            'Weather data unavailable' => ['kn' => 'ಹವಾಮಾನ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ', 'hi' => 'मौसम की जानकारी उपलब्ध नहीं है'],
+            'No reliable forecast values were returned.' => ['kn' => 'ವಿಶ್ವಾಸಾರ್ಹ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಲಭ್ಯವಾಗಿಲ್ಲ.', 'hi' => 'विश्वसनीय मौसम पूर्वानुमान मान उपलब्ध नहीं हुए।'],
+            'Likely lower / reschedule' => ['kn' => 'ಬೇಡಿಕೆ ಕಡಿಮೆಯಾಗಬಹುದು / ಮರುನಿಗದಿಪಡಿಸಿ', 'hi' => 'मांग कम हो सकती है / समय बदलें'],
+            'Likely lower / weather risk' => ['kn' => 'ಬೇಡಿಕೆ ಕಡಿಮೆಯಾಗಬಹುದು / ಹವಾಮಾನ ಅಪಾಯ', 'hi' => 'मांग कम हो सकती है / मौसम का जोखिम'],
+            'Weather looks more suitable' => ['kn' => 'ಹವಾಮಾನ ಹೆಚ್ಚು ಸೂಕ್ತವಾಗಿದೆ', 'hi' => 'मौसम अधिक अनुकूल लग रहा है'],
+            'Potentially lower need' => ['kn' => 'ಅಗತ್ಯ ಕಡಿಮೆಯಾಗಬಹುದು', 'hi' => 'आवश्यकता कम हो सकती है'],
+            'Potentially higher need' => ['kn' => 'ಅಗತ್ಯ ಹೆಚ್ಚಾಗಬಹುದು', 'hi' => 'आवश्यकता बढ़ सकती है'],
+            'Weather risk' => ['kn' => 'ಹವಾಮಾನ ಅಪಾಯ', 'hi' => 'मौसम का जोखिम'],
+            'Potentially favourable' => ['kn' => 'ಅನುಕೂಲಕರವಾಗಿರಬಹುದು', 'hi' => 'अनुकूल हो सकता है'],
+            'Mixed / monitor forecast' => ['kn' => 'ಮಿಶ್ರ ಪರಿಸ್ಥಿತಿ / ಮುನ್ಸೂಚನೆ ಗಮನಿಸಿ', 'hi' => 'मिश्रित स्थिति / पूर्वानुमान पर नज़र रखें'],
+            'Possible field-access risk' => ['kn' => 'ಹೊಲಕ್ಕೆ ಪ್ರವೇಶದಲ್ಲಿ ಅಪಾಯವಿರಬಹುದು', 'hi' => 'खेत तक पहुँचने में जोखिम हो सकता है'],
+            'Weather may affect use' => ['kn' => 'ಹವಾಮಾನ ಬಳಕೆಯ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರಬಹುದು', 'hi' => 'मौसम उपयोग को प्रभावित कर सकता है'],
+            'No strong weather signal' => ['kn' => 'ಹವಾಮಾನದ ಸ್ಪಷ್ಟ ಸೂಚನೆ ಇಲ್ಲ', 'hi' => 'मौसम का स्पष्ट संकेत नहीं है'],
+            'Maintain or consider a small reduction' => ['kn' => 'ಪ್ರಸ್ತುತ ಬೆಲೆ ಉಳಿಸಿ ಅಥವಾ ಸ್ವಲ್ಪ ಕಡಿಮೆ ಮಾಡಿ', 'hi' => 'वर्तमान कीमत रखें या थोड़ी कम करने पर विचार करें'],
+            'Maintain current price' => ['kn' => 'ಪ್ರಸ್ತುತ ಬೆಲೆಯನ್ನು ಉಳಿಸಿ', 'hi' => 'वर्तमान कीमत बनाए रखें'],
+            'Consider a small increase' => ['kn' => 'ಸ್ವಲ್ಪ ಬೆಲೆ ಹೆಚ್ಚಿಸುವುದನ್ನು ಪರಿಗಣಿಸಿ', 'hi' => 'कीमत थोड़ी बढ़ाने पर विचार करें'],
+            'Fix / activate before repricing' => ['kn' => 'ಬೆಲೆ ಬದಲಿಸುವ ಮೊದಲು ದುರಸ್ತಿ / ಸಕ್ರಿಯಗೊಳಿಸಿ', 'hi' => 'कीमत बदलने से पहले मरम्मत / सक्रिय करें'],
+            'near category average' => ['kn' => 'ವರ್ಗದ ಸರಾಸರಿ ಹತ್ತಿರ', 'hi' => 'श्रेणी के औसत के करीब'],
+            'below category average' => ['kn' => 'ವರ್ಗದ ಸರಾಸರಿಗಿಂತ ಕಡಿಮೆ', 'hi' => 'श्रेणी के औसत से कम'],
+            'above category average' => ['kn' => 'ವರ್ಗದ ಸರಾಸರಿಗಿಂತ ಹೆಚ್ಚು', 'hi' => 'श्रेणी के औसत से अधिक'],
+            'The equipment is marked New, which can support a competitive premium if it is in good working order.' => ['kn' => 'ಉಪಕರಣವನ್ನು ಹೊಸದು ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ. ಉತ್ತಮ ಕಾರ್ಯಸ್ಥಿತಿಯಲ್ಲಿದ್ದರೆ ಸ್ಪರ್ಧಾತ್ಮಕವಾಗಿ ಸ್ವಲ್ಪ ಹೆಚ್ಚಿನ ಬೆಲೆ ನಿಗದಿಪಡಿಸಬಹುದು.', 'hi' => 'उपकरण को नया चिह्नित किया गया है। अच्छी कार्यस्थिति में होने पर प्रतिस्पर्धी रूप से थोड़ा अधिक मूल्य रखा जा सकता है।'],
+            'The equipment is marked Used, so inspect wear and maintenance needs before raising the price.' => ['kn' => 'ಉಪಕರಣವನ್ನು ಬಳಸಿದದ್ದು ಎಂದು ಗುರುತಿಸಲಾಗಿದೆ. ಬೆಲೆ ಹೆಚ್ಚಿಸುವ ಮೊದಲು ಸವೆತ ಮತ್ತು ನಿರ್ವಹಣೆಯ ಅಗತ್ಯ ಪರಿಶೀಲಿಸಿ.', 'hi' => 'उपकरण को इस्तेमाल किया हुआ चिह्नित किया गया है। कीमत बढ़ाने से पहले घिसाव और रखरखाव की जाँच करें।'],
+            'The equipment is marked Good; maintain its condition with regular inspections.' => ['kn' => 'ಉಪಕರಣದ ಸ್ಥಿತಿ ಉತ್ತಮವಾಗಿದೆ. ನಿಯಮಿತ ಪರಿಶೀಲನೆಯ ಮೂಲಕ ಅದನ್ನು ಕಾಪಾಡಿಕೊಳ್ಳಿ.', 'hi' => 'उपकरण की स्थिति अच्छी है। नियमित निरीक्षण करके इसे बनाए रखें।'],
+            'Reviews show customer concerns; address the issues before considering a price increase.' => ['kn' => 'ವಿಮರ್ಶೆಗಳಲ್ಲಿ ಗ್ರಾಹಕರ ಕಳವಳಗಳು ಕಂಡುಬಂದಿವೆ. ಬೆಲೆ ಹೆಚ್ಚಿಸುವ ಮೊದಲು ಸಮಸ್ಯೆಗಳನ್ನು ಪರಿಹರಿಸಿ.', 'hi' => 'समीक्षाओं में ग्राहकों की चिंताएँ दिखती हैं। कीमत बढ़ाने से पहले समस्याओं को हल करें।'],
+            'Customer ratings are generally positive but do not strongly justify a price increase on their own.' => ['kn' => 'ಗ್ರಾಹಕರ ರೇಟಿಂಗ್‌ಗಳು ಸಾಮಾನ್ಯವಾಗಿ ಉತ್ತಮವಾಗಿವೆ, ಆದರೆ ಅವು ಮಾತ್ರ ಬೆಲೆ ಹೆಚ್ಚಿಸಲು ಸಾಕಷ್ಟು ಕಾರಣವಲ್ಲ.', 'hi' => 'ग्राहकों की रेटिंग सामान्यतः सकारात्मक हैं, लेकिन केवल इनके आधार पर कीमत बढ़ाना उचित नहीं है।'],
+            'No customer reviews are available yet; pricing confidence is limited.' => ['kn' => 'ಇನ್ನೂ ಗ್ರಾಹಕರ ವಿಮರ್ಶೆಗಳಿಲ್ಲ; ಬೆಲೆ ನಿರ್ಧಾರಕ್ಕೆ ಸಾಕಷ್ಟು ಮಾಹಿತಿ ಇಲ್ಲ.', 'hi' => 'अभी तक ग्राहक समीक्षाएँ उपलब्ध नहीं हैं; कीमत तय करने के लिए जानकारी सीमित है।'],
+            'The next-two-day weather outlook may support demand for this equipment category.' => ['kn' => 'ಮುಂದಿನ ಎರಡು ದಿನಗಳ ಹವಾಮಾನವು ಈ ಉಪಕರಣದ ವರ್ಗಕ್ಕೆ ಬೇಡಿಕೆಯನ್ನು ಬೆಂಬಲಿಸಬಹುದು.', 'hi' => 'अगले दो दिनों का मौसम इस उपकरण श्रेणी की मांग को बढ़ावा दे सकता है।'],
+            'Weather may reduce or delay use of this equipment category in the next two days.' => ['kn' => 'ಮುಂದಿನ ಎರಡು ದಿನಗಳಲ್ಲಿ ಹವಾಮಾನವು ಈ ಉಪಕರಣದ ಬಳಕೆಯನ್ನು ಕಡಿಮೆ ಮಾಡಬಹುದು ಅಥವಾ ವಿಳಂಬಗೊಳಿಸಬಹುದು.', 'hi' => 'अगले दो दिनों में मौसम इस उपकरण श्रेणी के उपयोग को कम या विलंबित कर सकता है।'],
+            'The current weather forecast does not provide a strong demand signal for this category.' => ['kn' => 'ಪ್ರಸ್ತುತ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯು ಈ ವರ್ಗದ ಬೇಡಿಕೆಯ ಬಗ್ಗೆ ಸ್ಪಷ್ಟ ಸೂಚನೆ ನೀಡುವುದಿಲ್ಲ.', 'hi' => 'वर्तमान मौसम पूर्वानुमान इस श्रेणी की मांग का स्पष्ट संकेत नहीं देता।'],
+            'The current price is close to the category average.' => ['kn' => 'ಪ್ರಸ್ತುತ ಬೆಲೆ ಈ ವರ್ಗದ ಸರಾಸರಿ ಬೆಲೆಗೆ ಹತ್ತಿರದಲ್ಲಿದೆ.', 'hi' => 'वर्तमान कीमत इस श्रेणी के औसत के करीब है।'],
+            'The current price is more than 10% below the category average.' => ['kn' => 'ಪ್ರಸ್ತುತ ಬೆಲೆ ವರ್ಗದ ಸರಾಸರಿಗಿಂತ 10% ಕ್ಕಿಂತ ಕಡಿಮೆಯಾಗಿದೆ.', 'hi' => 'वर्तमान कीमत श्रेणी के औसत से 10% से अधिक कम है।'],
+            'The available signals do not strongly support a price change. Keep the current rate and collect more booking and review data.' => ['kn' => 'ಲಭ್ಯವಿರುವ ಸೂಚನೆಗಳು ಬೆಲೆ ಬದಲಾವಣೆಯನ್ನು ಬಲವಾಗಿ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ. ಪ್ರಸ್ತುತ ದರವನ್ನು ಉಳಿಸಿ, ಹೆಚ್ಚಿನ ಬುಕಿಂಗ್ ಮತ್ತು ವಿಮರ್ಶೆ ಮಾಹಿತಿಯನ್ನು ಸಂಗ್ರಹಿಸಿ.', 'hi' => 'उपलब्ध संकेत कीमत बदलने का पर्याप्त समर्थन नहीं करते। वर्तमान दर बनाए रखें और अधिक बुकिंग व समीक्षा जानकारी जुटाएँ।'],
+            'Signals are reasonably supportive. Test an increase of about 5%, then monitor new booking requests and reviews.' => ['kn' => 'ಲಭ್ಯವಿರುವ ಸೂಚನೆಗಳು ಅನುಕೂಲಕರವಾಗಿವೆ. ಸುಮಾರು 5% ಬೆಲೆ ಹೆಚ್ಚಳವನ್ನು ಪ್ರಯೋಗಿಸಿ, ನಂತರ ಹೊಸ ಬುಕಿಂಗ್ ವಿನಂತಿಗಳು ಮತ್ತು ವಿಮರ್ಶೆಗಳನ್ನು ಗಮನಿಸಿ.', 'hi' => 'उपलब्ध संकेत अनुकूल हैं। लगभग 5% कीमत बढ़ाकर देखें, फिर नई बुकिंग और समीक्षाओं पर नज़र रखें।'],
+            'This equipment is not currently available for normal rental. Resolve its status first; do not increase the price now.' => ['kn' => 'ಈ ಉಪಕರಣವು ಪ್ರಸ್ತುತ ಸಾಮಾನ್ಯ ಬಾಡಿಗೆಗೆ ಲಭ್ಯವಿಲ್ಲ. ಮೊದಲು ಅದರ ಸ್ಥಿತಿಯನ್ನು ಸರಿಪಡಿಸಿ; ಈಗ ಬೆಲೆ ಹೆಚ್ಚಿಸಬೇಡಿ.', 'hi' => 'यह उपकरण अभी सामान्य किराये के लिए उपलब्ध नहीं है। पहले इसकी स्थिति ठीक करें; अभी कीमत न बढ़ाएँ।'],
+        ];
+        if (isset($map[$text][$lang])) return $map[$text][$lang];
+        // Translate stable portions of messages containing runtime counts or ratings.
+        $patterns = [
+            '/^Only (\d+) review\(s\) are available, so review evidence is limited\.$/' => [
+                'kn' => '$1 ವಿಮರ್ಶೆಗಳು ಮಾತ್ರ ಲಭ್ಯವಿವೆ; ಆದ್ದರಿಂದ ವಿಮರ್ಶೆಗಳ ಆಧಾರ ಸೀಮಿತವಾಗಿದೆ.',
+                'hi' => 'केवल $1 समीक्षाएँ उपलब्ध हैं, इसलिए समीक्षा-आधारित जानकारी सीमित है.'
+            ],
+            '/^Recorded booking history is low \((\d+) booking\(s\)\); avoid assuming customers will accept a higher price\.$/' => [
+                'kn' => 'ದಾಖಲಾದ ಬುಕಿಂಗ್ ಇತಿಹಾಸ ಕಡಿಮೆಯಾಗಿದೆ ($1 ಬುಕಿಂಗ್); ಗ್ರಾಹಕರು ಹೆಚ್ಚಿನ ಬೆಲೆಯನ್ನು ಒಪ್ಪುತ್ತಾರೆ ಎಂದು ಊಹಿಸಬೇಡಿ.',
+                'hi' => 'दर्ज बुकिंग इतिहास कम है ($1 बुकिंग); यह न मानें कि ग्राहक अधिक कीमत स्वीकार करेंगे.'
+            ],
+            '/^Booking history indicates relatively strong demand \((\d+) recorded bookings\)\.$/' => [
+                'kn' => 'ಬುಕಿಂಗ್ ಇತಿಹಾಸವು ಉತ್ತಮ ಬೇಡಿಕೆಯನ್ನು ಸೂಚಿಸುತ್ತದೆ (ದಾಖಲಾದ ಬುಕಿಂಗ್‌ಗಳು: $1).',
+                'hi' => 'बुकिंग इतिहास अपेक्षाकृत अच्छी मांग दिखाता है (दर्ज बुकिंग: $1)।'
+            ],
+        ];
+        foreach ($patterns as $pattern => $localized) {
+            if (preg_match($pattern, $text, $m)) return str_replace('$1', $m[1], $localized[$lang]);
+        }
+        return $text;
+    }
+}
+
+// Localize generated insight fields after calculations, without changing the calculations themselves.
+foreach ($equipmentInsights as &$insight) {
+    foreach (['demand', 'weather_demand', 'weather_reason', 'price_position', 'price_action', 'action_detail'] as $field) {
+        if (isset($insight[$field]) && is_string($insight[$field])) {
+            $insight[$field] = lender_ai_localize_generated_text($insight[$field], $current_lang);
+        }
+    }
+    foreach (['pricing_reasons', 'maintenance'] as $listField) {
+        if (isset($insight[$listField]) && is_array($insight[$listField])) {
+            foreach ($insight[$listField] as &$line) {
+                if (is_string($line)) $line = lender_ai_localize_generated_text($line, $current_lang);
+            }
+            unset($line);
+        }
+    }
+    $insight['status_label'] = lender_ai_localize_generated_text((string)($insight['status'] ?? ''), $current_lang);
+    $insight['condition_label'] = lender_ai_localize_generated_text((string)($insight['condition'] ?? ''), $current_lang);
+}
+unset($insight);
+
+if (isset($weatherOutlook['message']) && is_string($weatherOutlook['message'])) {
+    $weatherOutlook['message'] = lender_ai_localize_generated_text($weatherOutlook['message'], $current_lang);
+}
+

@@ -646,14 +646,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="mt-1">
                                 <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=login#terms"
                                    target="_blank">
-                                    Terms &amp; Conditions
+                                    <?= ($current_lang === 'kn') ? 'ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು' : (($current_lang === 'hi') ? 'नियम और शर्तें' : 'Terms &amp; Conditions'); ?>
                                 </a>
 
-                                <span class="mx-1">and</span>
+                                <span class="mx-1"><?= ($current_lang === 'kn') ? 'ಮತ್ತು' : (($current_lang === 'hi') ? 'और' : 'and'); ?></span>
 
                                 <a href="terms_privacy.php?lang=<?= urlencode($current_lang); ?>&from=login#privacy"
                                    target="_blank">
-                                    Privacy Policy
+                                    <?= ($current_lang === 'kn') ? 'ಗೌಪ್ಯತಾ ನೀತಿ' : (($current_lang === 'hi') ? 'गोपनीयता नीति' : 'Privacy Policy'); ?>
                                 </a>
                             </div>
                         </div>

@@ -584,11 +584,15 @@ $active_result =
 
 
 
-<title>
-
-Lender Dashboard - Agriculture Equipment Rental System
-
-</title>
+<title><?php
+if (($current_lang ?? 'en') === 'kn') {
+    echo 'ಸಾಲದಾತರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ - ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ';
+} elseif (($current_lang ?? 'en') === 'hi') {
+    echo 'लेंडर डैशबोर्ड - कृषि उपकरण किराया प्रणाली';
+} else {
+    echo 'Lender Dashboard - Agriculture Equipment Rental System';
+}
+?></title>
 
 
 
@@ -1222,8 +1226,6 @@ body {
     border: 2px solid #0f4c5c;
 
 }
-
-```css
 .profile-initials {
     align-items: center;
     justify-content: center;
@@ -1233,7 +1235,7 @@ body {
     font-weight: bold;
     box-sizing: border-box;
 }
-```
+
 
 
 
@@ -1884,14 +1886,25 @@ td {
 
         <span>
 
-            AGRICULTURE<br>
-
-
-
+            <?php
+            if (($current_lang ?? 'en') === 'kn') {
+                echo 'ಕೃಷಿ';
+            } elseif (($current_lang ?? 'en') === 'hi') {
+                echo 'कृषि';
+            } else {
+                echo 'AGRICULTURE';
+            }
+            ?><br>
             <small style="font-size:9px;color:#64748b;">
-
-                EQUIPMENT RENTAL SYSTEM
-
+                <?php
+                if (($current_lang ?? 'en') === 'kn') {
+                    echo 'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ';
+                } elseif (($current_lang ?? 'en') === 'hi') {
+                    echo 'उपकरण किराया प्रणाली';
+                } else {
+                    echo 'EQUIPMENT RENTAL SYSTEM';
+                }
+                ?>
             </small>
 
         </span>
@@ -2304,7 +2317,15 @@ td {
 
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
 
-                <span>AI Insights</span>
+                <span><?php
+                    if (($current_lang ?? 'en') === 'kn') {
+                        echo 'AI ಒಳನೋಟಗಳು';
+                    } elseif (($current_lang ?? 'en') === 'hi') {
+                        echo 'AI जानकारी';
+                    } else {
+                        echo 'AI Insights';
+                    }
+                 ?></span>
 
             </a>
 
@@ -2336,7 +2357,15 @@ td {
 
                 <span>
 
-                    My Profile
+                    <?php
+                    if (($current_lang ?? 'en') === 'kn') {
+                        echo 'ನನ್ನ ಪ್ರೊಫೈಲ್';
+                    } elseif (($current_lang ?? 'en') === 'hi') {
+                        echo 'मेरी प्रोफ़ाइल';
+                    } else {
+                        echo 'My Profile';
+                    }
+                    ?>
 
                 </span>
 

@@ -1312,7 +1312,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <a
                         class="nav-link"
-                        href="#"
+                        href="how-it-works.php?lang=<?= urlencode($current_lang); ?>"
                     >
 
                         <?= htmlspecialchars($t['how_it_works']); ?>
