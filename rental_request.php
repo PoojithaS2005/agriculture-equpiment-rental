@@ -53,7 +53,8 @@ $stats_query = "SELECT
     SUM(CASE WHEN b.status = 'Rejected' AND MONTH(b.created_at) = MONTH(CURRENT_DATE()) AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as rejected_month
     FROM bookings b
     JOIN equipment e ON b.equipment_id = e.equipment_id
-    WHERE e.lender_id = ?";
+    WHERE e.lender_id = ?
+      AND LOWER(TRIM(b.status)) NOT IN ('completed', 'returned', 'cancelled', 'canceled')";
 $stats_stmt = $conn->prepare($stats_query);
 $stats_stmt->bind_param("i", $lender_id);
 $stats_stmt->execute();
@@ -680,8 +681,9 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
                             FROM bookings b 
                             JOIN equipment e ON b.equipment_id = e.equipment_id 
                             JOIN users u ON b.renter_id = u.user_id 
-                            WHERE e.lender_id = ? 
-                            ORDER BY b.booking_id DESC";
+                            WHERE e.lender_id = ?
+                               AND LOWER(TRIM(b.status)) NOT IN ('completed', 'returned', 'cancelled', 'canceled')
+                             ORDER BY b.booking_id DESC";
 
                     $stmt = $conn->prepare($sql);
 

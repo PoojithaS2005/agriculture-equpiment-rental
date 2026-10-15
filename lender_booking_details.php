@@ -2164,6 +2164,19 @@ $back_page = 'lender_rental_history.php';
                 </div>
 
 
+                <!-- RENTER DETAILS: only this booking's authorized lender can access it -->
+                <a
+                    href="renter_details.php?booking_id=<?php echo (int)$booking_id; ?>&amp;lang=<?php echo urlencode($current_lang); ?>"
+                    class="action-btn btn-accept"
+                    style="text-decoration:none;margin-top:14px;"
+                >
+                    <i class="fa-solid fa-id-card"></i>
+                    <?php
+                    echo $current_lang === 'kn' ? 'ಬಾಡಿಗೆದಾರರ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ'
+                        : ($current_lang === 'hi' ? 'किराएदार का विवरण देखें' : 'View Renter Details');
+                    ?>
+                </a>
+
                 <!-- =========================================
                      LENDER ACTIONS
                      ========================================= -->

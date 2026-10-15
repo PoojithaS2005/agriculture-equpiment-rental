@@ -1249,42 +1249,37 @@ body {
 
 
 .welcome-card {
-
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     min-height: 130px;
-
-
-
     padding: 25px;
-
-
-
     margin-bottom: 25px;
-
-
-
     border-radius: 12px;
-
-
-
     display: flex;
-
     align-items: center;
-
-
-
-    background:
-
-        #e0f2fe
-
-        url('<?php echo $base_url; ?>/uploads/welcome-bg.jpg')
-
-        no-repeat right center;
-
-
-
-    background-size: contain;
-
+    background-color: #e0f2fe;
+    background-image: url('uploads/welcome-bg.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    box-shadow: 0 5px 18px rgba(0, 57, 200, 0.12);
 }
+
+/* Light overlay keeps welcome text readable over the full-width photo. */
+.welcome-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.88) 0%,
+        rgba(255, 255, 255, 0.68) 42%,
+        rgba(255, 255, 255, 0.12) 100%
+    );
+}
+
 
 
 
@@ -1302,7 +1297,7 @@ body {
 
 .welcome-text p {
 
-    color: #334155;
+    color: #33445b;
 
     font-size: 14px;
 
@@ -1839,9 +1834,12 @@ td {
 
 
     .welcome-card {
+        background-size: cover;
+        background-position: center center;
+    }
 
-        background-image: none;
-
+    .welcome-card::before {
+        background: rgba(255, 255, 255, 0.68);
     }
 
 }

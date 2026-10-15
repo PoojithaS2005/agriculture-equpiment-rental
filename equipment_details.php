@@ -239,6 +239,16 @@ if ($from === 'recommended') {
                 </div>
 
                 <div class="spec-box">
+                    <div class="spec-label">Security Deposit</div>
+                    <div class="spec-value">₹<?php echo number_format((float)($eq['security_deposit'] ?? 0), 2); ?></div>
+                </div>
+
+                <div class="spec-box">
+                    <div class="spec-label">Maximum Booking Days</div>
+                    <div class="spec-value"><?php echo htmlspecialchars((string)($eq['max_booking_days'] ?? 'N/A')); ?> <?php echo isset($eq['max_booking_days']) && $eq['max_booking_days'] !== '' ? __('days_label') : ''; ?></div>
+                </div>
+
+                <div class="spec-box">
                     <div class="spec-label"><?php echo __('service_location_spec'); ?></div>
                     <div class="spec-value">
                         <?php echo htmlspecialchars($eq['service_location'] ?? 'N/A'); ?> 
