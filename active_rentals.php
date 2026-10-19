@@ -143,6 +143,8 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+:root{--navy-primary:#0B3478;--navy-dark:#082B65;--blue-hover:#164C9A;--sidebar-bg:#C7DDF7;--sidebar-active:#A6C8F5;--text-dark:#10194A;--text-muted:#425D80;--bg-body:#EAF3FF;--card-bg:#F8FBFF;--border-color:#C8DDF5;--blue-accent:#8DB8F0;}
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -151,18 +153,18 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         }
 
         body {
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #EAF3FF;
+            color: #10194A;
         }
 
         /* Header */
         .main-header {
-            background: #fff;
+            background: #F8FBFF;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 25px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #C8DDF5;
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -173,7 +175,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #2e7d32;
+            color: #0B3478;
             font-weight: bold;
             font-size: 18px;
         }
@@ -185,14 +187,14 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         .logo-title small {
             display: block;
             font-size: 9px;
-            color: #666;
+            color: #425D80;
             letter-spacing: 1px;
         }
 
         .header-search-bar {
             display: flex;
             align-items: center;
-            background: #f1f3f4;
+            background: #EAF3FF;
             padding: 8px 15px;
             border-radius: 20px;
             width: 350px;
@@ -218,16 +220,16 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             padding: 6px 12px;
             border-radius: 6px;
             border: 1px solid #ccc;
-            background-color: #fff;
+            background-color: #F8FBFF;
             font-size: 13px;
-            color: #333;
+            color: #10194A;
             cursor: pointer;
             outline: none;
             transition: border-color 0.2s;
         }
 
         .language-selector select:focus {
-            border-color: #2e7d32;
+            border-color: #0B3478;
         }
 
         .notification-icon {
@@ -240,7 +242,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             position: absolute;
             top: -5px;
             right: -8px;
-            background: #2e7d32;
+            background: #0B3478;
             color: white;
             font-size: 10px;
             padding: 2px 5px;
@@ -257,15 +259,15 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            background: #0f4c5c;
-            color: #fff;
+            background: #0B3478;
+            color: #F8FBFF;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            border: 2px solid #0f4c5c;
+            border: 2px solid #0B3478;
         }
 
         .user-info .user-name {
@@ -276,7 +278,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
         .user-info .user-role {
             font-size: 11px;
-            color: #666;
+            color: #425D80;
         }
 
         /* Main Layout */
@@ -289,7 +291,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             margin-left: 250px;
             flex: 1;
             padding: 25px;
-            background: #f8f9fa;
+            background: #EAF3FF;
             overflow-x: auto;
             min-height: calc(100vh - 65px);
         }
@@ -308,13 +310,13 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
         .content-header-row p {
             font-size: 13px;
-            color: #666;
+            color: #425D80;
         }
 
         .btn-download-report {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
+            background: #D9E9FC;
+            color: #0B3478;
+            border: 1px solid #A6C8F5;
             padding: 8px 15px;
             border-radius: 6px;
             font-weight: 600;
@@ -340,7 +342,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             align-items: center;
             gap: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            border: 1px solid #eee;
+            border: 1px solid #C8DDF5;
         }
 
         .stat-icon {
@@ -355,11 +357,11 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         }
 
         .bg-green {
-            background: #2e7d32;
+            background: #0B3478;
         }
 
         .bg-blue {
-            background: #1976d2;
+            background: #164C9A;
         }
 
         .bg-orange {
@@ -372,7 +374,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
         .stat-title {
             font-size: 12px;
-            color: #666;
+            color: #425D80;
             display: block;
         }
 
@@ -392,7 +394,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         .table-card {
             background: white;
             border-radius: 10px;
-            border: 1px solid #eee;
+            border: 1px solid #C8DDF5;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             overflow: hidden;
         }
@@ -405,16 +407,16 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         }
 
         .data-table th {
-            background: #fafafa;
+            background: #F8FBFF;
             padding: 15px;
             font-weight: 600;
             color: #555;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #C8DDF5;
         }
 
         .data-table td {
             padding: 15px;
-            border-bottom: 1px solid #f1f1f1;
+            border-bottom: 1px solid #EAF3FF;
             vertical-align: middle;
         }
 
@@ -429,7 +431,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             height: 45px;
             border-radius: 6px;
             object-fit: cover;
-            border: 1px solid #eee;
+            border: 1px solid #C8DDF5;
         }
 
         /* Badges & Actions */
@@ -444,8 +446,8 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         }
 
         .status-active {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #D9E9FC;
+            color: #0B3478;
         }
 
         .status-due {
@@ -476,15 +478,15 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
         }
 
         .btn-view {
-            color: #1976d2;
+            color: #164C9A;
             border-color: #bbdefb;
             background: #e3f2fd;
         }
 
         .btn-track {
-            color: #2e7d32;
-            border-color: #c8e6c9;
-            background: #e8f5e9;
+            color: #0B3478;
+            border-color: #A6C8F5;
+            background: #D9E9FC;
         }
 
         @media (max-width: 1200px) {
@@ -520,7 +522,70 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
                 grid-template-columns: 1fr;
             }
         }
-    </style>
+    
+
+/* ===== CONSISTENT MAIN INTERFACE THEME (reference palette) ===== */
+:root {
+  --navy-primary: #0B3478 !important;
+  --navy-dark: #082B65 !important;
+  --blue-hover: #164C9A !important;
+  --sidebar-bg: #C7DDF7 !important;
+  --sidebar-active: #A6C8F5 !important;
+  --text-dark: #10194A !important;
+  --text-muted: #425D80 !important;
+  --bg-body: #EAF3FF !important;
+  --card-bg: #F8FBFF !important;
+  --border-color: #C8DDF5 !important;
+  --blue-accent: #8DB8F0 !important;
+}
+html, body { background-color: #EAF3FF !important; color: #10194A; }
+/* Main headers and top navigation use the reference's deep navy */
+.main-header, .top-nav, .topbar, .top-bar-header, header.main-header,
+.header, .navbar, .topbar-header {
+  background: #0B3478 !important;
+  color: #F8FBFF !important;
+  border-color: #0B3478 !important;
+}
+.main-header a, .top-nav a, .topbar a, .top-bar-header a,
+.header a, .navbar a, .topbar-header a,
+.main-header .logo-container, .main-header .logo-title,
+.main-header .logo-title small { color: #F8FBFF !important; }
+/* Search and controls */
+.header-search-bar, .search-box input, .header-search input,
+.search-bar, .search-container input, .language-selector select,
+.language-select, .lang-select, select, input:not([type=checkbox]):not([type=radio]),
+textarea {
+  border-color: #C8DDF5;
+}
+/* Reusable content surfaces */
+.panel, .card, .summary-card, .stat-card, .stat, .metric-card,
+.equipment-card, .feature-card, .review, .notification-card,
+.booking-card, .request-card, .earnings-card, .table-container,
+.table-responsive, .content-card, .section-card, .empty,
+.table-wrapper, .data-card, .chart-card {
+  background-color: #F8FBFF;
+  border-color: #C8DDF5;
+  box-shadow: 0 5px 18px rgba(11, 52, 120, 0.07);
+}
+/* Main titles, labels and supporting text */
+h1, h2, h3, h4, h5, .page-title, .section-title, .card-title {
+  color: #10194A;
+}
+.subtitle, .muted, .text-muted, .description, .page-subtitle,
+.stat-label, .card-subtitle { color: #425D80; }
+/* Primary actions and buttons */
+button.primary, .btn-primary, .primary-btn, .search-btn,
+button[type=submit], input[type=submit], .action-primary {
+  background: #0B3478 !important;
+  border-color: #0B3478 !important;
+  color: #FFFFFF !important;
+}
+button.primary:hover, .btn-primary:hover, .primary-btn:hover,
+.search-btn:hover, button[type=submit]:hover, input[type=submit]:hover,
+.action-primary:hover { background: #164C9A !important; border-color: #164C9A !important; }
+/* Keep status badges (success, pending, rejected, overdue) semantically colored. */
+
+</style>
 </head>
 
 <body>

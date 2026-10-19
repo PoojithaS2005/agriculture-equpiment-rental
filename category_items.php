@@ -159,345 +159,164 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-
+        /* === SAME AS RENTER DASHBOARD & SEARCH EQUIPMENT - IMAGE 2 BOKEH GLASS === */
         :root {
             --brand-green: #2d6a4f;
-            --brand-green-hover: #1b4332;
-            --brand-green-light: #e8f5e9;
-            --bg-gray: #f8fafc;
-            --card-border: #e2e8f0;
+            --glass: rgba(255,255,255,0.78);
+            --border: rgba(255,255,255,0.9);
         }
-
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background-color: var(--bg-gray);
-            color: #2d3748;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 20% 25%, rgba(255,255,255,0.95) 0%, transparent 22%), radial-gradient(circle at 75% 35%, rgba(255,255,255,0.85) 0%, transparent 18%), radial-gradient(circle at 50% 65%, rgba(232,245,233,0.9) 0%, transparent 28%), linear-gradient(135deg,#eef6e8 0%, #f5f9ec 30%, #fdf8e7 65%, #f1f7e9 100%) !important;
+            background-attachment: fixed !important;
+            color: #1e3a2a;
         }
-
         .main-wrapper {
             margin-left: 250px;
-            padding: 25px 35px;
+            padding: 18px 28px;
             min-height: 100vh;
         }
-
         .top-navbar {
-            background: #ffffff;
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
+            background: rgba(255,255,255,0.80) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 18px !important;
             padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 30px;
+            margin-bottom: 22px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04) !important;
         }
-
+        .top-navbar .form-control{
+            background: rgba(255,255,255,0.9) !important;
+            border: 1px solid rgba(0,0,0,0.06) !important;
+            border-radius: 50rem !important;
+            height: 40px;
+        }
+        .top-navbar .input-group-text{
+            background: rgba(255,255,255,0.9) !important;
+            border: 1px solid rgba(0,0,0,0.06) !important;
+            border-radius: 50rem 0 0 50rem !important;
+        }
         .eq-card {
-            background: #ffffff;
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
+            background: rgba(255,255,255,0.80) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 16px !important;
             overflow: hidden;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.25s ease-in-out;
             height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
         }
-
         .eq-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-            border-color: #cbd5e1;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.08) !important;
+            background: rgba(255,255,255,0.92) !important;
         }
-
-        /* BANNER IMAGE CONTAINER - PREVENTS CUTOFF */
         .eq-img-container {
             width: 100%;
-            height: 300px;
-            background-color: #f1f5f9;
+            height: 220px;
+            background: linear-gradient(145deg,rgba(224,248,231,.7),rgba(255,255,255,.8)) !important;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
-
         .eq-img-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Complete image fits inside without cropping */
+            object-fit: cover;
             object-position: center;
             display: block;
-            padding: 4px;
+            transition: 0.3s ease;
         }
-
+        .eq-card:hover .eq-img-container img{ transform: scale(1.05); }
         .eq-card-body {
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             flex-grow: 1;
         }
-
+        .btn-agro{ background:#2e6b4f !important; color:#fff !important; border-radius:10px !important; border:none !important; }
+        .btn-agro:hover{ background:#244f3a !important; color:#fff !important; }
+        .btn-outline-secondary{ background:rgba(255,255,255,0.9) !important; border:1px solid rgba(0,0,0,0.08) !important; border-radius:10px !important; color:#1e3a2a !important; }
+        .btn-outline-secondary:hover{ background:#2f8050 !important; color:#fff !important; border-color:#2f8050 !important; }
         @media (max-width: 768px) {
             .main-wrapper {
                 margin-left: 0;
-                padding: 20px 15px;
+                padding: 12px 15px;
             }
         }
-
     </style>
 
 </head>
 
 <body>
 
-<!-- ========================================================= -->
-<!-- RENTER SIDEBAR (SHARED COMPONENT) -->
-<!-- ========================================================= -->
-
 <?php include __DIR__ . '/renter_sidebar.php'; ?>
-
-
-<!-- ========================================================= -->
-<!-- MAIN CONTAINER -->
-<!-- ========================================================= -->
 
 <div class="main-wrapper">
 
-
-    <!-- ===================================================== -->
-    <!-- TOP NAVBAR -->
-    <!-- ===================================================== -->
-
     <div class="top-navbar">
-
-
-        <!-- SEARCH -->
-
-        <form action="search_equipment.php"
-              method="GET"
-              class="d-flex w-75 gap-2 align-items-center">
-
+        <form action="search_equipment.php" method="GET" class="d-flex w-75 gap-2 align-items-center">
             <?php if (!empty($current_lang)): ?>
-
-                <input type="hidden"
-                       name="lang"
-                       value="<?= htmlspecialchars($current_lang); ?>">
-
+                <input type="hidden" name="lang" value="<?= htmlspecialchars($current_lang); ?>">
             <?php endif; ?>
-
-
             <div class="input-group input-group-sm">
-
                 <span class="input-group-text bg-light border-end-0">
-
                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
-
                 </span>
-
-
-                <input type="text"
-                       name="q"
-                       class="form-control border-start-0"
-                       placeholder="<?php echo __('search_placeholder', 'Search equipment...'); ?>"
-                       required>
-
+                <input type="text" name="q" class="form-control border-start-0" placeholder="<?php echo __('search_placeholder', 'Search equipment...'); ?>" required>
             </div>
-
-
-            <button type="submit"
-                    class="btn btn-sm text-white px-3"
-                    style="background-color: #2d6a4f;">
-
-                <?php
-                echo __('search', 'Search');
-                ?>
-
+            <button type="submit" class="btn btn-sm text-white px-3" style="background-color: #2d6a4f; border-radius:50rem;">
+                <?php echo __('search', 'Search'); ?>
             </button>
-
         </form>
 
-
-        <!-- LANGUAGE -->
-
         <div class="d-flex align-items-center gap-3">
-
             <div class="dropdown">
-
-                <button class="btn btn-sm btn-light border dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown">
-
-                    <?php
-
-                    if ($current_lang == 'kn') {
-
-                        echo 'ಕನ್ನಡ';
-
-                    } elseif ($current_lang == 'hi') {
-
-                        echo 'हिन्दी';
-
-                    } else {
-
-                        echo 'English';
-
-                    }
-
-                    ?>
-
+                <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown" style="border-radius:50rem; background:rgba(255,255,255,0.9) !important;">
+                    <?php if ($current_lang == 'kn') { echo 'ಕನ್ನಡ'; } elseif ($current_lang == 'hi') { echo 'हिन्दी'; } else { echo 'English'; } ?>
                 </button>
-
-
                 <ul class="dropdown-menu">
-
-
-                    <!-- ENGLISH -->
-
-                    <li>
-
-                        <a class="dropdown-item"
-                           href="category_items.php?category_id=<?= $category_id; ?>&lang=en">
-
-                            English
-
-                        </a>
-
-                    </li>
-
-
-                    <!-- KANNADA -->
-
-                    <li>
-
-                        <a class="dropdown-item"
-                           href="category_items.php?category_id=<?= $category_id; ?>&lang=kn">
-
-                            ಕನ್ನಡ
-
-                        </a>
-
-                    </li>
-
-
-                    <!-- HINDI -->
-
-                    <li>
-
-                        <a class="dropdown-item"
-                           href="category_items.php?category_id=<?= $category_id; ?>&lang=hi">
-
-                            हिन्दी
-
-                        </a>
-
-                    </li>
-
-
+                    <li><a class="dropdown-item" href="category_items.php?category_id=<?= $category_id; ?>&lang=en">English</a></li>
+                    <li><a class="dropdown-item" href="category_items.php?category_id=<?= $category_id; ?>&lang=kn">ಕನ್ನಡ</a></li>
+                    <li><a class="dropdown-item" href="category_items.php?category_id=<?= $category_id; ?>&lang=hi">हिन्दी</a></li>
                 </ul>
-
             </div>
-
         </div>
-
     </div>
-
-
-    <!-- ===================================================== -->
-    <!-- BREADCRUMB & HEADER -->
-    <!-- ===================================================== -->
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-
         <div>
-
             <nav aria-label="breadcrumb">
-
-                <ol class="breadcrumb mb-1"
-                    style="font-size: 0.8rem;">
-
-
-                    <li class="breadcrumb-item">
-
-                        <a href="renter_dashboard.php?lang=<?= urlencode($current_lang); ?>"
-                           class="text-muted text-decoration-none">
-
-                            <?php
-                            echo __('home', 'Home');
-                            ?>
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="breadcrumb-item">
-
-                        <a href="categories.php?lang=<?= urlencode($current_lang); ?>"
-                           class="text-muted text-decoration-none">
-
-                            <?php
-                            echo __('categories', 'Categories');
-                            ?>
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="breadcrumb-item active text-success fw-semibold">
-
-                        <?php
-                        echo htmlspecialchars($category);
-                        ?>
-
-                    </li>
-
-
+                <ol class="breadcrumb mb-1" style="font-size: 0.8rem;">
+                    <li class="breadcrumb-item"><a href="renter_dashboard.php?lang=<?= urlencode($current_lang); ?>" class="text-muted text-decoration-none"><?php echo __('home', 'Home'); ?></a></li>
+                    <li class="breadcrumb-item"><a href="categories.php?lang=<?= urlencode($current_lang); ?>" class="text-muted text-decoration-none"><?php echo __('categories', 'Categories'); ?></a></li>
+                    <li class="breadcrumb-item active text-success fw-semibold"><?php echo htmlspecialchars($category); ?></li>
                 </ol>
-
             </nav>
-
-
-            <h3 class="fw-bold mb-1">
-
-                <?php
-                echo htmlspecialchars($category);
-                ?>
-
-            </h3>
-
-
-            <p class="text-muted small mb-0">
-
-                <?= htmlspecialchars($category_description); ?>
-
-            </p>
-
-
+            <h3 class="fw-bold mb-1" style="color:#163a26; font-weight:800;"><?php echo htmlspecialchars($category); ?></h3>
+            <p class="text-muted small mb-0"><?= htmlspecialchars($category_description); ?></p>
         </div>
-
     </div>
 
-
-    <!-- ===================================================== -->
-    <!-- EQUIPMENT GRID -->
-    <!-- ===================================================== -->
-
     <div class="row g-4 mb-4">
-
-
         <?php if ($result && mysqli_num_rows($result) > 0): ?>
-
-
             <?php while ($eq = mysqli_fetch_assoc($result)): ?>
-
                 <?php
                 $eq_id = $eq['equipment_id'] ?? 0;
-
-                // Determine equipment image path accurately from equipment.image
                 $raw_img = trim($eq['image'] ?? '');
                 $imgSrc = '';
                 $has_valid_img = false;
-
                 if (!empty($raw_img)) {
                     if (file_exists(__DIR__ . '/uploads/' . $raw_img)) {
                         $imgSrc = 'uploads/' . $raw_img;
@@ -514,224 +333,68 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
                     }
                 }
                 ?>
-
                 <div class="col-lg-4 col-md-6">
-
-
                     <div class="eq-card">
-
-
-                        <!-- EQUIPMENT IMAGE (FLUSH TOP BANNER WITHOUT CROPPING) -->
-
                         <div class="eq-img-container">
-
                             <?php if ($has_valid_img): ?>
-                                <img src="<?= htmlspecialchars($imgSrc); ?>"
-                                     alt="<?= htmlspecialchars(
-                                         $eq['title']
-                                         ?? $eq['equipment_title']
-                                         ?? 'Equipment'
-                                     ); ?>">
+                                <img src="<?= htmlspecialchars($imgSrc); ?>" alt="<?= htmlspecialchars($eq['title'] ?? $eq['equipment_title'] ?? 'Equipment'); ?>">
                             <?php else: ?>
                                 <div class="d-flex align-items-center justify-content-center h-100 text-muted">
                                     <i class="fa-solid fa-image fa-2x text-secondary opacity-50"></i>
                                 </div>
                             <?php endif; ?>
-
                         </div>
-
-
                         <div class="eq-card-body">
-
                             <div>
-
-                                <!-- TITLE -->
-
-                                <h5 class="fw-bold mb-1">
-
-                                    <?= htmlspecialchars(
-                                        $eq['title']
-                                        ?? $eq['equipment_title']
-                                        ?? 'Unnamed Equipment'
-                                    ); ?>
-
-                                </h5>
-
-
-                                <!-- DESCRIPTION -->
-
-                                <p class="text-muted small mb-2"
-                                   style="font-size: 0.85rem;">
-
-                                    <?= htmlspecialchars(
-                                        $eq['description'] ?? ''
-                                    ); ?>
-
-                                </p>
-
-
-                                <!-- LOCATION -->
-
-                                <p class="text-secondary small mb-3 fw-semibold">
-
-                                    📍
-
-                                    <?= htmlspecialchars(
-                                        $eq['service_location']
-                                        ?? 'Location not specified'
-                                    ); ?>
-
-                                </p>
-
+                                <h5 class="fw-bold mb-1"><?= htmlspecialchars($eq['title'] ?? $eq['equipment_title'] ?? 'Unnamed Equipment'); ?></h5>
+                                <p class="text-muted small mb-2" style="font-size: 0.85rem;"><?= htmlspecialchars($eq['description'] ?? ''); ?></p>
+                                <p class="text-secondary small mb-3 fw-semibold">📍 <?= htmlspecialchars($eq['service_location'] ?? 'Location not specified'); ?></p>
                             </div>
-
-
                             <div>
-
-                                <!-- PRICE -->
-
                                 <div class="d-flex align-items-center justify-content-between pt-3 border-top mb-2">
-
-                                    <span class="text-dark fw-bold">
-
-                                        ₹<?= number_format(
-                                            $eq['price_per_day']
-                                            ?? $eq['price']
-                                            ?? 0
-                                        ); ?>
-
-                                        / <?= htmlspecialchars($day_label); ?>
-
-                                    </span>
-
+                                    <span class="text-dark fw-bold">₹<?= number_format($eq['price_per_day'] ?? $eq['price'] ?? 0); ?> / <?= htmlspecialchars($day_label); ?></span>
                                 </div>
-
-
-                                <!-- BUTTONS -->
-
                                 <div class="d-flex gap-2">
-
-
-                                    <!-- VIEW DETAILS -->
-
-                                    <a href="equipment_details.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&from=category_items&category_id=<?= $category_id; ?>&lang=<?= urlencode($current_lang); ?>"
-                                       class="btn btn-outline-secondary btn-sm w-50">
-
-                                        <?= htmlspecialchars($view_details_label); ?>
-
-                                        →
-
+                                    <a href="equipment_details.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&from=category_items&category_id=<?= $category_id; ?>&lang=<?= urlencode($current_lang); ?>" class="btn btn-outline-secondary btn-sm w-50">
+                                        <?= htmlspecialchars($view_details_label); ?> →
                                     </a>
-
-
-                                    <!-- RENT NOW -->
-
-                                    <a href="rent_now.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&lang=<?= urlencode($current_lang); ?>"
-                                       class="btn btn-agro btn-sm w-100"
-                                       style="background-color:#2d6a4f; color:white;">
-
-                                        <i class="fa-solid fa-cart-shopping me-1"></i>
-
-                                        <?php
-                                        echo __('rent_now', 'Rent Now');
-                                        ?>
-
+                                    <a href="rent_now.php?equipment_id=<?= $eq_id; ?>&id=<?= $eq_id; ?>&lang=<?= urlencode($current_lang); ?>" class="btn btn-agro btn-sm w-100" style="background-color:#2d6a4f; color:white;">
+                                        <i class="fa-solid fa-cart-shopping me-1"></i><?php echo __('rent_now', 'Rent Now'); ?>
                                     </a>
-
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
                     </div>
-
                 </div>
-
-
             <?php endwhile; ?>
-
-
         <?php else: ?>
-
-
-            <!-- NO EQUIPMENT -->
-
             <div class="col-12">
-
-                <div class="alert alert-light text-center border py-4">
-
-                    <?php
-
-                    echo __(
-                        'no_equipment_found',
-                        'No equipment found in this category.'
-                    );
-
-                    ?>
-
+                <div class="alert alert-light text-center border py-4" style="border-radius:16px; background:rgba(255,255,255,0.8);">
+                    <?php echo __('no_equipment_found','No equipment found in this category.'); ?>
                 </div>
-
             </div>
-
-
         <?php endif; ?>
-
-
     </div>
-
-
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- SIDEBAR DYNAMIC TRANSLATION SCRIPT -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const currentLang = "<?= $current_lang; ?>";
-
     const sidebarTranslations = {
-        'kn': {
-            'Dashboard': 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
-            'Search Equipment': 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ',
-            'Categories': 'ವರ್ಗಗಳು',
-            'Notifications': 'ಅಧಿಸೂಚನೆಗಳು',
-            'Recommended': 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ',
-            'My Bookings': 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು',
-            'Rental History': 'ಬಾಡಿಗೆ ಇತಿಹಾಸ',
-            'My Profile': 'ನನ್ನ ಪ್ರೊಫೈಲ್',
-            'Logout': 'ನಿರ್ಗಮನ'
-        },
-        'hi': {
-            'Dashboard': 'डैशबोर्ड',
-            'Search Equipment': 'उपकरण खोजें',
-            'Categories': 'श्रेणियां',
-            'Notifications': 'सूचनाएं',
-            'Recommended': 'अनुशंसित',
-            'My Bookings': 'मेरी बुकिंग',
-            'Rental History': 'किराए का इतिहास',
-            'My Profile': 'मेरी प्रोफाइल',
-            'Logout': 'लॉग आउट'
-        }
+        'kn': {'Dashboard': 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್','Search Equipment': 'ಉಪಕರಣಗಳನ್ನು ಹುಡುಕಿ','Categories': 'ವರ್ಗಗಳು','Notifications': 'ಅಧಿಸೂಚನೆಗಳು','Recommended': 'ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ','My Bookings': 'ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು','Rental History': 'ಬಾಡಿಗೆ ಇತಿಹಾಸ','My Profile': 'ನನ್ನ ಪ್ರೊಫೈಲ್','Logout': 'ನಿರ್ಗಮನ'},
+        'hi': {'Dashboard': 'डैशबोर्ड','Search Equipment': 'उपकरण खोजें','Categories': 'श्रेणियां','Notifications': 'सूचनाएं','Recommended': 'अनुशंसित','My Bookings': 'मेरी बुकिंग','Rental History': 'किराए का इतिहास','My Profile': 'मेरी प्रोफाइल','Logout': 'लॉग आउट'}
     };
-
     if (sidebarTranslations[currentLang]) {
         const dict = sidebarTranslations[currentLang];
         const sidebarLinks = document.querySelectorAll('.renter-sidebar a span');
-
         sidebarLinks.forEach(span => {
             const originalText = span.textContent.trim();
-            if (dict[originalText]) {
-                span.textContent = dict[originalText];
-            }
+            if (dict[originalText]) { span.textContent = dict[originalText]; }
         });
     }
 });
 </script>
-
 </body>
-
 </html>

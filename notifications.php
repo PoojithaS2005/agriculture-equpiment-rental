@@ -351,73 +351,126 @@ function notification_icon(string $title): string
         rel="stylesheet"
     >
 
+    <link rel="stylesheet" href="css/glassmorphism.css?v=2">
+
     <style>
+        /* =========================================================
+           MAIN INTERFACE COLOURS (matched to Renter Dashboard)
+           Pale cream-green background + frosted white cards
+           + dark green buttons. Sidebar is not touched.
+           ========================================================= */
+
+        :root {
+            --brand-green: #2d6a4f;
+            --brand-green-hover: #1b4332;
+            --brand-green-pill: #1f5c43;
+            --page-bg-1: #f3f2ea;
+            --page-bg-2: #eef2e8;
+            --page-bg-3: #f5f4ec;
+            --glass-bg: rgba(255, 255, 255, .55);
+            --glass-border: rgba(255, 255, 255, .85);
+            --text-dark: #2a2f29;
+            --text-muted: #6a7566;
+            --line: rgba(45, 106, 79, .12);
+            --shadow-soft: 0 8px 26px rgba(70, 90, 60, .09);
+        }
+
         * {
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background: #f4f6f9;
             display: flex;
-            color: #1e293b;
             margin: 0;
+            min-height: 100vh;
             font-weight: 500;
+            color: var(--text-dark);
+            background-color: var(--page-bg-1);
         }
+
+        /* ---------- Main area background ---------- */
 
         .main-content {
             margin-left: 250px;
             flex: 1;
-            padding: 20px 30px;
+            padding: 28px 30px 40px;
             min-width: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .70), transparent 32%),
+                radial-gradient(circle at 88% 20%, rgba(220, 232, 205, .55), transparent 34%),
+                radial-gradient(circle at 70% 92%, rgba(255, 255, 255, .50), transparent 32%),
+                linear-gradient(135deg, var(--page-bg-1) 0%, var(--page-bg-2) 50%, var(--page-bg-3) 100%);
+            background-attachment: fixed;
         }
 
+        /* ---------- Top bar ---------- */
+
         .top-nav-bar {
-            background: #fff;
+            background: var(--glass-bg);
             padding: 12px 25px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
             display: flex;
             justify-content: flex-end;
             align-items: center;
             gap: 20px;
             margin-bottom: 25px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .02);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .top-nav-bar .form-select {
+            background-color: rgba(255, 255, 255, .78);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: var(--brand-green);
+            box-shadow: none;
+        }
+
+        .top-nav-bar .form-select:focus {
+            border-color: #6bbd91;
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, .12);
         }
 
         .profile-name {
             font-size: 13px;
             font-weight: 800;
             line-height: 1.15;
-            color: #0f172a;
+            color: var(--text-dark);
         }
 
         .profile-role {
             font-size: 11px;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: 700;
         }
 
         .profile-avatar-btn {
             width: 38px;
             height: 38px;
-            background: #e2e8f0;
+            background: var(--brand-green-pill);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #334155;
+            color: #fff;
             text-decoration: none;
             font-size: 16px;
-            border: 2px solid #cbd5e1;
+            border: 2px solid rgba(255, 255, 255, .85);
+            box-shadow: 0 4px 12px rgba(31, 92, 67, .18);
             transition: .2s;
         }
 
         .profile-avatar-btn:hover {
-            background: #198754;
+            background: var(--brand-green-hover);
             color: #fff;
-            border-color: #198754;
+            border-color: rgba(255, 255, 255, .95);
         }
+
+        /* ---------- Page header ---------- */
 
         .page-header-row {
             display: flex;
@@ -430,40 +483,55 @@ function notification_icon(string $title): string
         .page-header {
             font-size: 24px;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-dark);
+            letter-spacing: -.4px;
             margin: 0;
         }
 
         .btn-read-all {
-            border: 1px solid #198754;
-            color: #198754;
-            background: #fff;
-            border-radius: 8px;
-            padding: 8px 13px;
+            border: 1px solid rgba(45, 106, 79, .40);
+            color: var(--brand-green);
+            background: rgba(255, 255, 255, .75);
+            border-radius: 12px;
+            padding: 8px 14px;
             font-size: 13px;
             font-weight: 800;
+            box-shadow: 0 4px 14px rgba(70, 90, 60, .08);
+            transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
         }
 
         .btn-read-all:hover {
-            background: #198754;
+            background: var(--brand-green-pill);
+            border-color: var(--brand-green-pill);
             color: #fff;
+            transform: translateY(-2px);
         }
 
+        /* ---------- Notification cards ---------- */
+
         .notification-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
             padding: 18px 20px;
             margin-bottom: 14px;
             display: flex;
             align-items: flex-start;
             gap: 16px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, .02);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(60, 90, 55, .14), inset 0 1px 0 rgba(255, 255, 255, .95);
         }
 
         .notification-card.unread {
-            background: #f0fdf4;
-            border-color: #bbf7d0;
+            background: rgba(226, 240, 220, .75);
+            border-color: rgba(120, 180, 135, .55);
         }
 
         .notification-icon {
@@ -471,12 +539,14 @@ function notification_icon(string $title): string
             height: 46px;
             min-width: 46px;
             border-radius: 50%;
-            background: #e8f5ee;
-            color: #198754;
+            background: linear-gradient(135deg, #e3efdc, #cfe3c9);
+            color: var(--brand-green);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            border: 1px solid rgba(255, 255, 255, .9);
+            box-shadow: 0 4px 12px rgba(60, 90, 55, .08);
         }
 
         .notification-body {
@@ -487,20 +557,20 @@ function notification_icon(string $title): string
         .notification-title {
             font-size: 15px;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-dark);
             margin-bottom: 5px;
         }
 
         .notification-message {
             font-size: 13px;
-            color: #475569;
+            color: var(--text-muted);
             line-height: 1.55;
             margin-bottom: 7px;
         }
 
         .notification-time {
             font-size: 11px;
-            color: #94a3b8;
+            color: #8a9686;
             font-weight: 600;
         }
 
@@ -508,7 +578,7 @@ function notification_icon(string $title): string
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #16a34a;
+            background: var(--brand-green);
             display: inline-block;
             margin-right: 6px;
         }
@@ -518,43 +588,52 @@ function notification_icon(string $title): string
         }
 
         .btn-mark-read {
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            color: #475569;
-            border-radius: 7px;
+            border: 1px solid rgba(45, 106, 79, .35);
+            background: rgba(255, 255, 255, .80);
+            color: var(--brand-green);
+            border-radius: 10px;
             padding: 6px 10px;
             font-size: 11px;
             font-weight: 800;
+            transition: background .2s ease, color .2s ease;
         }
 
         .btn-mark-read:hover {
-            border-color: #198754;
-            color: #198754;
+            background: var(--brand-green-pill);
+            border-color: var(--brand-green-pill);
+            color: #fff;
         }
+
+        /* ---------- Empty state ---------- */
 
         .empty-state {
             text-align: center;
             padding: 65px 30px;
-            background: #fff;
-            border-radius: 14px;
-            border: 1px solid #e2e8f0;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .empty-state i {
             font-size: 48px;
-            color: #cbd5e1;
+            color: #b4c8ae;
             margin-bottom: 15px;
         }
 
         .empty-state h5 {
             font-weight: 800;
-            color: #334155;
+            color: var(--text-dark);
         }
+
+        /* ---------- Responsive ---------- */
 
         @media (max-width: 900px) {
             .main-content {
                 margin-left: 250px;
-                padding: 15px;
+                padding: 18px;
             }
 
             .top-nav-bar {
@@ -568,12 +647,32 @@ function notification_icon(string $title): string
                 flex-direction: column;
             }
 
+            .top-nav-bar {
+                border-radius: 16px;
+                gap: 10px;
+            }
+
             .notification-card {
                 padding: 15px;
+                border-radius: 17px;
+            }
+
+            .notification-icon {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
             }
 
             .notification-action {
                 display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .notification-card,
+            .btn-read-all,
+            .btn-mark-read {
+                transition: none !important;
             }
         }
     </style>

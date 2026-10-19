@@ -115,11 +115,13 @@ $stmt->close();
     >
 
     <style>
+:root{--navy-primary:#0B3478;--navy-dark:#082B65;--blue-hover:#164C9A;--sidebar-bg:#C7DDF7;--sidebar-active:#A6C8F5;--text-dark:#10194A;--text-muted:#425D80;--bg-body:#EAF3FF;--card-bg:#F8FBFF;--border-color:#C8DDF5;--blue-accent:#8DB8F0;}
+
 
         body {
             margin: 0;
-            background: #f4f6f9;
-            color: #1e293b;
+            background: #EAF3FF;
+            color: #10194A;
             font-family: 'Segoe UI', sans-serif;
         }
 
@@ -129,8 +131,8 @@ $stmt->close();
         }
 
         .top {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 12px;
             padding: 12px 20px;
             display: flex;
@@ -147,8 +149,8 @@ $stmt->close();
         }
 
         .stat {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 14px;
             padding: 20px 25px;
             min-width: 200px;
@@ -156,7 +158,7 @@ $stmt->close();
 
         .stat-label {
             font-size: 12px;
-            color: #64748b;
+            color: #425D80;
             font-weight: 800;
             text-transform: uppercase;
         }
@@ -164,12 +166,12 @@ $stmt->close();
         .stat-value {
             font-size: 28px;
             font-weight: 900;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .review {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 16px;
@@ -186,7 +188,7 @@ $stmt->close();
             height: 70px;
             object-fit: cover;
             border-radius: 9px;
-            background: #f1f5f9;
+            background: #EAF3FF;
         }
 
         .stars {
@@ -201,13 +203,13 @@ $stmt->close();
         }
 
         .muted {
-            color: #64748b;
+            color: #425D80;
             font-size: 12px;
         }
 
         .empty {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 14px;
             text-align: center;
             padding: 50px;

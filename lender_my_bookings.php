@@ -234,6 +234,8 @@ function statusClass(string $status): string {
     >
 
     <style>
+:root{--navy-primary:#0B3478;--navy-dark:#082B65;--blue-hover:#164C9A;--sidebar-bg:#C7DDF7;--sidebar-active:#A6C8F5;--text-dark:#10194A;--text-muted:#425D80;--bg-body:#EAF3FF;--card-bg:#F8FBFF;--border-color:#C8DDF5;--blue-accent:#8DB8F0;}
+
 
         * {
             box-sizing: border-box;
@@ -243,18 +245,18 @@ function statusClass(string $status): string {
         }
 
         body {
-            background: #f4f6f9;
-            color: #333;
+            background: #EAF3FF;
+            color: #10194A;
             display: flex;
             min-height: 100vh;
         }
 
         .sidebar {
             width: 250px;
-            background: #fff;
+            background: #F8FBFF;
             min-height: 100vh;
             padding: 20px;
-            border-right: 1px solid #e0e0e0;
+            border-right: 1px solid #C8DDF5;
             position: fixed;
             left: 0;
             top: 0;
@@ -267,14 +269,14 @@ function statusClass(string $status): string {
             align-items: center;
             gap: 10px;
             font-weight: bold;
-            color: #1e3a8a;
+            color: #082B65;
             font-size: 15px;
             margin-bottom: 30px;
         }
 
         .logo i {
             font-size: 24px;
-            color: #0f4c5c;
+            color: #0B3478;
         }
 
         .nav-list {
@@ -290,7 +292,7 @@ function statusClass(string $status): string {
             align-items: center;
             gap: 12px;
             padding: 12px 15px;
-            color: #64748b;
+            color: #425D80;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 500;
@@ -300,14 +302,14 @@ function statusClass(string $status): string {
 
         .nav-link:hover,
         .nav-link.active {
-            background: #0f4c5c;
-            color: #fff;
+            background: #A6C8F5;
+            color: #10194A;
         }
 
         .nav-link .badge {
             margin-left: auto;
             background: #ef4444;
-            color: #fff;
+            color: #F8FBFF;
             font-size: 11px;
             padding: 2px 7px;
             border-radius: 12px;
@@ -329,13 +331,13 @@ function statusClass(string $status): string {
         }
 
         .page-title h1 {
-            color: #0f172a;
+            color: #10194A;
             font-size: 25px;
             margin-bottom: 5px;
         }
 
         .page-title p {
-            color: #64748b;
+            color: #425D80;
             font-size: 14px;
         }
 
@@ -352,13 +354,13 @@ function statusClass(string $status): string {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #0f4c5c;
+            color: #0B3478;
             text-decoration: none;
             border-radius: 50%;
         }
 
         .notification-link:hover {
-            background: #e0f2fe;
+            background: #D9E9FC;
         }
 
         .notification-badge {
@@ -370,20 +372,20 @@ function statusClass(string $status): string {
             padding: 0 5px;
             border-radius: 999px;
             background: #ef4444;
-            color: #fff;
+            color: #F8FBFF;
             font-size: 10px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #fff;
+            border: 2px solid #F8FBFF;
         }
 
         .lang-select {
             padding: 7px 10px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #C8DDF5;
             border-radius: 6px;
-            background: #fff;
+            background: #F8FBFF;
         }
 
         .user-menu {
@@ -398,15 +400,15 @@ function statusClass(string $status): string {
             height: 36px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #0f4c5c;
+            border: 2px solid #0B3478;
         }
 
         .user-profile-initials {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #0f4c5c;
-            color: #fff;
+            background: #0B3478;
+            color: #F8FBFF;
             font-size: 13px;
             font-weight: 700;
             text-transform: uppercase;
@@ -416,13 +418,13 @@ function statusClass(string $status): string {
         .user-text strong {
             display: block;
             font-size: 13px;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .user-text span {
             display: block;
             font-size: 11px;
-            color: #64748b;
+            color: #425D80;
         }
 
         .summary-grid {
@@ -433,8 +435,8 @@ function statusClass(string $status): string {
         }
 
         .summary-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 12px;
             padding: 18px;
             display: flex;
@@ -449,24 +451,24 @@ function statusClass(string $status): string {
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
-            background: #0f4c5c;
+            color: #F8FBFF;
+            background: #0B3478;
         }
 
         .summary-card h3 {
             font-size: 21px;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .summary-card p {
-            color: #64748b;
+            color: #425D80;
             font-size: 12px;
             margin-top: 2px;
         }
 
         .toolbar {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 12px;
             padding: 15px;
             display: flex;
@@ -484,11 +486,11 @@ function statusClass(string $status): string {
 
         .search-input,
         .status-select {
-            border: 1px solid #cbd5e1;
+            border: 1px solid #C8DDF5;
             border-radius: 8px;
             padding: 10px 12px;
             outline: none;
-            background: #fff;
+            background: #F8FBFF;
         }
 
         .search-input {
@@ -498,8 +500,8 @@ function statusClass(string $status): string {
         .btn-search {
             border: 0;
             border-radius: 8px;
-            background: #0f4c5c;
-            color: #fff;
+            background: #0B3478;
+            color: #F8FBFF;
             padding: 0 18px;
             cursor: pointer;
             font-weight: 600;
@@ -511,22 +513,22 @@ function statusClass(string $status): string {
             padding: 0 15px;
             border-radius: 8px;
             text-decoration: none;
-            border: 1px solid #cbd5e1;
-            color: #475569;
-            background: #fff;
+            border: 1px solid #C8DDF5;
+            color: #425D80;
+            background: #F8FBFF;
             font-size: 13px;
         }
 
         .table-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 12px;
             overflow: hidden;
         }
 
         .table-header {
             padding: 18px 20px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #C8DDF5;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -534,12 +536,12 @@ function statusClass(string $status): string {
 
         .table-header h2 {
             font-size: 16px;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .table-header span {
             font-size: 12px;
-            color: #64748b;
+            color: #425D80;
         }
 
         .table-wrap {
@@ -556,16 +558,16 @@ function statusClass(string $status): string {
         th {
             text-align: left;
             padding: 12px 14px;
-            color: #64748b;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
+            color: #425D80;
+            background: #F8FBFF;
+            border-bottom: 1px solid #C8DDF5;
             font-weight: 600;
             white-space: nowrap;
         }
 
         td {
             padding: 13px 14px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #EAF3FF;
             vertical-align: middle;
         }
 
@@ -585,27 +587,27 @@ function statusClass(string $status): string {
             height: 45px;
             border-radius: 7px;
             object-fit: cover;
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
+            background: #EAF3FF;
+            border: 1px solid #C8DDF5;
         }
 
         .equipment-info strong {
             display: block;
-            color: #0f172a;
+            color: #10194A;
             font-size: 13px;
         }
 
         .equipment-info small {
-            color: #64748b;
+            color: #425D80;
         }
 
         .renter strong {
             display: block;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .renter small {
-            color: #64748b;
+            color: #425D80;
         }
 
         .status {
@@ -632,8 +634,8 @@ function statusClass(string $status): string {
         }
 
         .status-other {
-            background: #e2e8f0;
-            color: #475569;
+            background: #C8DDF5;
+            color: #425D80;
         }
 
         .btn-view {
@@ -642,8 +644,8 @@ function statusClass(string $status): string {
             gap: 6px;
             padding: 7px 11px;
             border-radius: 7px;
-            background: #0f4c5c;
-            color: #fff;
+            background: #0B3478;
+            color: #F8FBFF;
             text-decoration: none;
             font-size: 12px;
             font-weight: 600;
@@ -656,7 +658,7 @@ function statusClass(string $status): string {
         .empty {
             text-align: center;
             padding: 55px 20px;
-            color: #64748b;
+            color: #425D80;
         }
 
         .empty i {

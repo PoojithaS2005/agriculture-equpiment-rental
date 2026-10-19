@@ -163,22 +163,24 @@ if ($nstmt) {
 <title><?= htmlspecialchars(page_tr('rental_history')) ?> - Lender</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+:root{--navy-primary:#0B3478;--navy-dark:#082B65;--blue-hover:#164C9A;--sidebar-bg:#C7DDF7;--sidebar-active:#A6C8F5;--text-dark:#10194A;--text-muted:#425D80;--bg-body:#EAF3FF;--card-bg:#F8FBFF;--border-color:#C8DDF5;--blue-accent:#8DB8F0;}
+
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-body{background:#f4f6f9;color:#333;display:block}
+body{background:#EAF3FF;color:#10194A;display:block}
 .main{margin-left:250px;padding:20px 30px}
-.top-banner{background:#0f4c5c;color:#fff;text-align:center;padding:9px;font-weight:bold;border-radius:6px;margin-bottom:20px;letter-spacing:1px}
+.top-banner{background:#0B3478;color:#F8FBFF;text-align:center;padding:9px;font-weight:bold;border-radius:6px;margin-bottom:20px;letter-spacing:1px}
 .topbar{display:flex;justify-content:flex-end;align-items:center;gap:15px;margin-bottom:25px}
-.lang{padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;background:#fff}
-.bell{position:relative;color:#0f4c5c;text-decoration:none;font-size:19px}
-.badge{position:absolute;top:-9px;right:-10px;background:#ef4444;color:#fff;border-radius:20px;font-size:10px;padding:2px 6px}
-.profile{width:36px;height:36px;border-radius:50%;background:#0f4c5c;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.lang{padding:7px 10px;border:1px solid #C8DDF5;border-radius:6px;background:#F8FBFF}
+.bell{position:relative;color:#0B3478;text-decoration:none;font-size:19px}
+.badge{position:absolute;top:-9px;right:-10px;background:#ef4444;color:#F8FBFF;border-radius:20px;font-size:10px;padding:2px 6px}
+.profile{width:36px;height:36px;border-radius:50%;background:#0B3478;color:#F8FBFF;display:flex;align-items:center;justify-content:center;font-weight:bold}
 .header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-h1{font-size:24px;color:#0f172a}.subtitle{color:#64748b;font-size:13px;margin-top:5px}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px}.filter{padding:8px 12px;border:1px solid #cbd5e1;border-radius:7px}
-.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#64748b;padding:11px;border-bottom:1px solid #e2e8f0}td{padding:13px 11px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
-.equipment{display:flex;align-items:center;gap:10px;font-weight:600}.equipment img{width:45px;height:45px;object-fit:cover;border-radius:7px;background:#f1f5f9}
-.status{display:inline-block;padding:5px 9px;border-radius:12px;font-size:11px;font-weight:700}.completed,.returned{background:#dcfce7;color:#166534}.overdue{background:#fee2e2;color:#991b1b}.rejected{background:#f1f5f9;color:#475569}
-.view{color:#0284c7;text-decoration:none;font-weight:700}.empty{text-align:center;color:#94a3b8;padding:45px 15px}
+h1{font-size:24px;color:#10194A}.subtitle{color:#425D80;font-size:13px;margin-top:5px}
+.card{background:#F8FBFF;border:1px solid #C8DDF5;border-radius:10px;padding:20px}.filter{padding:8px 12px;border:1px solid #C8DDF5;border-radius:7px}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:#425D80;padding:11px;border-bottom:1px solid #C8DDF5}td{padding:13px 11px;border-bottom:1px solid #EAF3FF;vertical-align:middle}
+.equipment{display:flex;align-items:center;gap:10px;font-weight:600}.equipment img{width:45px;height:45px;object-fit:cover;border-radius:7px;background:#EAF3FF}
+.status{display:inline-block;padding:5px 9px;border-radius:12px;font-size:11px;font-weight:700}.completed,.returned{background:#dcfce7;color:#166534}.overdue{background:#fee2e2;color:#991b1b}.rejected{background:#EAF3FF;color:#425D80}
+.view{color:#164C9A;text-decoration:none;font-weight:700}.empty{text-align:center;color:#94a3b8;padding:45px 15px}
 @media(max-width:800px){.main{margin-left:0;padding:15px}.header-row{flex-direction:column;align-items:flex-start;gap:12px}}
 </style>
 </head>

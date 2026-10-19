@@ -57,6 +57,20 @@ $equip_result = $equip_stmt->get_result();
     >
 
     <style>
+        :root {
+            --navy-primary: #0B3478;
+            --navy-dark: #082B65;
+            --blue-hover: #164C9A;
+            --sidebar-bg: #C7DDF7;
+            --sidebar-active: #A6C8F5;
+            --text-dark: #10194A;
+            --text-muted: #425D80;
+            --bg-body: #EAF3FF;
+            --card-bg: #F8FBFF;
+            --border-color: #C8DDF5;
+            --blue-accent: #8DB8F0;
+        }
+
 
         * {
             box-sizing: border-box;
@@ -64,8 +78,8 @@ $equip_result = $equip_stmt->get_result();
         }
 
         body {
-            background-color: #f4f6f9;
-            color: #333;
+            background-color: #EAF3FF;
+            color: #10194A;
             margin: 0;
         }
 
@@ -77,7 +91,7 @@ $equip_result = $equip_stmt->get_result();
         }
 
         .top-banner {
-            background: #0e7490;
+            background: #0B3478;
             color: white;
             padding: 12px 20px;
             font-weight: bold;
@@ -100,7 +114,7 @@ $equip_result = $equip_stmt->get_result();
         .equipment-card {
             background: #fff;
             border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #C8DDF5;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -116,7 +130,7 @@ $equip_result = $equip_stmt->get_result();
         .card-img-container {
             height: 180px;
             width: 100%;
-            background: #f1f5f9;
+            background: #EAF3FF;
             position: relative;
         }
 
@@ -137,26 +151,26 @@ $equip_result = $equip_stmt->get_result();
         .equipment-title {
             font-size: 16px;
             font-weight: bold;
-            color: #0f172a;
+            color: #10194A;
             margin-bottom: 0;
         }
 
         .meta-text {
             font-size: 13px;
-            color: #64748b;
+            color: #425D80;
         }
 
         .price-tag {
             font-size: 16px;
             font-weight: bold;
-            color: #0e7490;
+            color: #0B3478;
             margin-top: auto;
         }
 
         .card-footer-actions {
             padding: 12px 15px;
-            background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border-top: 1px solid #C8DDF5;
             display: flex;
             gap: 8px;
             justify-content: space-between;
@@ -173,33 +187,33 @@ $equip_result = $equip_stmt->get_result();
         }
 
         .btn-view {
-            background: #e0f2fe;
-            color: #0284c7;
+            background: #DCEBFF;
+            color: #0B3478;
         }
 
         .btn-view:hover {
-            background: #bae6fd;
-            color: #0369a1;
+            background: #C7DDF7;
+            color: #082B65;
         }
 
         .btn-edit {
-            background: #fef3c7;
-            color: #d97706;
+            background: #A6C8F5;
+            color: #082B65;
         }
 
         .btn-edit:hover {
-            background: #fde68a;
-            color: #b45309;
+            background: #8DB8F0;
+            color: #082B65;
         }
 
         .btn-remove {
-            background: #fee2e2;
-            color: #dc2626;
+            background: #DCEBFF;
+            color: #0B3478;
         }
 
         .btn-remove:hover {
-            background: #fecaca;
-            color: #b91c1c;
+            background: #C7DDF7;
+            color: #082B65;
         }
 
         .empty-state {
@@ -207,13 +221,13 @@ $equip_result = $equip_stmt->get_result();
             padding: 50px 20px;
             background: #fff;
             border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #C8DDF5;
             margin-top: 20px;
         }
 
         .empty-state i {
             font-size: 48px;
-            color: #cbd5e1;
+            color: #C8DDF5;
             margin-bottom: 15px;
         }
 
@@ -226,19 +240,19 @@ $equip_result = $equip_stmt->get_result();
         }
 
         .status-available {
-            background: #dcfce7;
-            color: #166534;
+            background: #DCEBFF;
+            color: #0B3478;
         }
 
         .status-rented {
-            background: #dbeafe;
-            color: #1e40af;
+            background: #C7DDF7;
+            color: #082B65;
         }
 
         .lang-select {
             padding: 6px 10px;
             border-radius: 6px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #C8DDF5;
             font-size: 13px;
             outline: none;
             background: #fff;

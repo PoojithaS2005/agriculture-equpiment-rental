@@ -329,6 +329,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+:root{--navy-primary:#0B3478;--navy-dark:#082B65;--blue-hover:#164C9A;--sidebar-bg:#C7DDF7;--sidebar-active:#A6C8F5;--text-dark:#10194A;--text-muted:#425D80;--bg-body:#EAF3FF;--card-bg:#F8FBFF;--border-color:#C8DDF5;--blue-accent:#8DB8F0;}
+
         * {
             box-sizing: border-box;
         }
@@ -340,8 +342,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         body {
-            background: #f4f6f9;
-            color: #1e293b;
+            background: #EAF3FF;
+            color: #10194A;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
@@ -358,8 +360,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         .top-banner {
-            background: #0f4c5c;
-            color: #fff;
+            background: #0B3478;
+            color: #F8FBFF;
             text-align: center;
             padding: 9px 12px;
             font-weight: 700;
@@ -386,10 +388,10 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             width: 100%;
             height: 38px;
             padding: 8px 14px 8px 36px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #C8DDF5;
             border-radius: 20px;
             outline: none;
-            background: #fff;
+            background: #F8FBFF;
         }
 
         .search-box i {
@@ -409,8 +411,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             height: 38px;
             padding: 6px 34px 6px 12px;
             border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            background: #fff;
+            border: 1px solid #C8DDF5;
+            background: #F8FBFF;
             font-size: 13px;
             outline: none;
             cursor: pointer;
@@ -423,15 +425,15 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #0f4c5c;
+            color: #0B3478;
             text-decoration: none;
             border-radius: 50%;
             transition: .2s ease;
         }
 
         .notification-link:hover {
-            background: #e0f2fe;
-            color: #0284c7;
+            background: #D9E9FC;
+            color: #164C9A;
         }
 
         .notification-link i {
@@ -447,19 +449,19 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             padding: 0 5px;
             border-radius: 999px;
             background: #ef4444;
-            color: #fff;
+            color: #F8FBFF;
             font-size: 10px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid #fff;
+            border: 2px solid #F8FBFF;
         }
 
         .user-name {
             font-size: 14px;
             font-weight: 700;
-            color: #1e293b;
+            color: #10194A;
             white-space: nowrap;
         }
 
@@ -468,7 +470,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             height: 34px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #0f4c5c;
+            border: 2px solid #0B3478;
             display: block;
         }
 
@@ -485,18 +487,18 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         .page-heading h1 {
             margin: 0 0 5px;
             font-size: 25px;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .page-heading p {
             margin: 0;
-            color: #64748b;
+            color: #425D80;
             font-size: 14px;
         }
 
         .filter-box {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 10px;
             padding: 8px 10px;
             display: flex;
@@ -507,7 +509,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
 
         .filter-box label {
             font-size: 12px;
-            color: #64748b;
+            color: #425D80;
             font-weight: 700;
         }
 
@@ -515,7 +517,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             border: 0;
             outline: 0;
             font-weight: 600;
-            color: #0f172a;
+            color: #10194A;
             background: transparent;
             max-width: 220px;
         }
@@ -530,8 +532,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         .stat-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 12px;
             padding: 18px;
             min-height: 125px;
@@ -542,7 +544,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #64748b;
+            color: #425D80;
             font-size: 13px;
             font-weight: 700;
         }
@@ -558,8 +560,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         .icon-blue {
-            background: #e0f2fe;
-            color: #0284c7;
+            background: #D9E9FC;
+            color: #164C9A;
         }
 
         .icon-green {
@@ -582,7 +584,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             font-size: 24px;
             line-height: 1;
             font-weight: 800;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .stat-note {
@@ -601,8 +603,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         .card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: #F8FBFF;
+            border: 1px solid #C8DDF5;
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 2px 8px rgba(15, 23, 42, .025);
@@ -620,7 +622,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             margin: 0;
             font-size: 16px;
             font-weight: 800;
-            color: #0f172a;
+            color: #10194A;
         }
 
         .card-subtitle {
@@ -648,10 +650,10 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         .equipment-card {
-            border: 1px solid #e2e8f0;
+            border: 1px solid #C8DDF5;
             border-radius: 10px;
             padding: 14px;
-            background: #fff;
+            background: #F8FBFF;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -669,14 +671,14 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             height: 52px;
             border-radius: 9px;
             object-fit: cover;
-            background: #f1f5f9;
+            background: #EAF3FF;
             flex-shrink: 0;
         }
 
         .equipment-name {
             font-size: 14px;
             font-weight: 800;
-            color: #0f172a;
+            color: #10194A;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -691,20 +693,20 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         .equipment-money {
             font-size: 19px;
             font-weight: 800;
-            color: #0f4c5c;
+            color: #0B3478;
         }
 
         .equipment-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #64748b;
+            color: #425D80;
             font-size: 11px;
         }
 
         .mini-bar {
             height: 6px;
-            background: #e2e8f0;
+            background: #C8DDF5;
             border-radius: 99px;
             overflow: hidden;
         }
@@ -712,7 +714,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         .mini-bar span {
             display: block;
             height: 100%;
-            background: #0f4c5c;
+            background: #0B3478;
             border-radius: 99px;
         }
 
@@ -736,8 +738,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         th {
             text-align: left;
             padding: 11px 10px;
-            color: #64748b;
-            border-bottom: 1px solid #e2e8f0;
+            color: #425D80;
+            border-bottom: 1px solid #C8DDF5;
             font-size: 12px;
             font-weight: 800;
             white-space: nowrap;
@@ -745,7 +747,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
 
         td {
             padding: 13px 10px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid #EAF3FF;
             font-size: 12px;
             vertical-align: middle;
         }
@@ -766,12 +768,12 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             height: 42px;
             border-radius: 7px;
             object-fit: cover;
-            background: #f1f5f9;
+            background: #EAF3FF;
             flex-shrink: 0;
         }
 
         .equipment-cell strong {
-            color: #0f172a;
+            color: #10194A;
             font-size: 12px;
         }
 
@@ -784,7 +786,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
 
         .amount-cell {
             font-weight: 800;
-            color: #0f4c5c;
+            color: #0B3478;
             white-space: nowrap;
         }
 
@@ -806,8 +808,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             gap: 6px;
             padding: 6px 10px;
             border-radius: 7px;
-            background: #e0f2fe;
-            color: #0284c7;
+            background: #D9E9FC;
+            color: #164C9A;
             text-decoration: none;
             font-weight: 700;
             font-size: 10px;
@@ -815,7 +817,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
         }
 
         .details-btn:hover {
-            background: #bae6fd;
+            background: #A6C8F5;
         }
 
         /* ================= EMPTY STATE ================= */
@@ -831,8 +833,8 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
             height: 55px;
             margin: 0 auto 12px;
             border-radius: 50%;
-            background: #e0f2fe;
-            color: #0f4c5c;
+            background: #D9E9FC;
+            color: #0B3478;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -841,7 +843,7 @@ $avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($lender_name)
 
         .empty-state h3 {
             margin: 0 0 6px;
-            color: #475569;
+            color: #425D80;
             font-size: 16px;
         }
 
@@ -1485,11 +1487,11 @@ new Chart(document.getElementById('monthlyChart'), {
 
             data: monthlyValues,
 
-            borderColor: '#0f4c5c',
+            borderColor: '#0B3478',
 
             backgroundColor: 'rgba(15, 76, 92, 0.10)',
 
-            pointBackgroundColor: '#0f4c5c',
+            pointBackgroundColor: '#0B3478',
 
             pointBorderColor: '#ffffff',
 
@@ -1576,7 +1578,7 @@ new Chart(document.getElementById('equipmentChart'), {
             data: equipmentValues,
 
             backgroundColor: [
-                '#0f4c5c',
+                '#0B3478',
                 '#0284c7',
                 '#16a34a',
                 '#d97706',

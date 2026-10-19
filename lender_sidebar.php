@@ -117,11 +117,11 @@ $is_my_profile =
 <style> 
  
 :root { 
-    --lender-teal-primary: #134e5e; 
-    --lender-teal-hover: #114b5f; 
-    --lender-sidebar-bg: #ffffff; 
-    --lender-text-muted: #475569; 
-    --lender-border: #e2e8f0; 
+    --lender-teal-primary: #103B7A; 
+    --lender-teal-hover: #164C9A; 
+    --lender-sidebar-bg: #C7DDF7; 
+    --lender-text-muted: #10194A; 
+    --lender-border: #C8DDF5; 
 } 
  
 .lender-sidebar { 
@@ -152,7 +152,7 @@ $is_my_profile =
 .lender-tractor-avatar { 
     width: 32px; 
     height: 32px; 
-    background: #e0f2f1; 
+    background: #A6C8F5; 
     color: var(--lender-teal-primary); 
     border-radius: 50%; 
     display: flex; 
@@ -171,7 +171,7 @@ $is_my_profile =
  
 .lender-sidebar-brand-title small { 
     font-size: .55rem; 
-    color: #64748b; 
+    color: #425D80; 
     font-weight: 600; 
 } 
  
@@ -214,18 +214,19 @@ $is_my_profile =
  
 .lender-sidebar .nav-link:hover { 
     color: var(--lender-teal-primary); 
-    background: #f0fdf4; 
+    background: #A6C8F5; 
 } 
  
-.lender-sidebar .nav-link.active { 
-    color: #fff; 
-    background: var(--lender-teal-primary); 
-    font-weight: 600; 
+.lender-sidebar .nav-link.active {
+    color: #10194A;
+    background: #A6C8F5;
+    font-weight: 600;
+    border-radius: 50px;
 } 
  
-.lender-sidebar .nav-link.active:hover { 
-    color: #fff; 
-    background: var(--lender-teal-hover); 
+.lender-sidebar .nav-link.active:hover {
+    color: #10194A;
+    background: #8DB8F0;
 } 
  
 .lender-sidebar .lender-logout-item { 

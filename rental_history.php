@@ -343,6 +343,27 @@ function getStatusClass($status)
 
 <style>
 
+/* =========================================================
+   MAIN INTERFACE COLOURS (matched to Renter Dashboard)
+   Pale cream-green background + frosted white cards
+   + dark green buttons. Sidebar is not touched.
+   ========================================================= */
+
+:root {
+    --brand-green: #2d6a4f;
+    --brand-green-hover: #1b4332;
+    --brand-green-pill: #1f5c43;
+    --page-bg-1: #f3f2ea;
+    --page-bg-2: #eef2e8;
+    --page-bg-3: #f5f4ec;
+    --glass-bg: rgba(255, 255, 255, .55);
+    --glass-border: rgba(255, 255, 255, .85);
+    --text-dark: #2a2f29;
+    --text-muted: #6a7566;
+    --line: rgba(45, 106, 79, .14);
+    --shadow-soft: 0 8px 26px rgba(70, 90, 60, .09);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -351,29 +372,44 @@ function getStatusClass($status)
 
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    background: #f8fafc;
-    color: #0f172a;
+    background-color: var(--page-bg-1);
+    color: var(--text-dark);
     -webkit-font-smoothing: antialiased;
 }
+
+/* ---------- Main area background ---------- */
 
 .main {
     margin-left: 250px;
     min-height: 100vh;
+    background:
+        radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .70), transparent 32%),
+        radial-gradient(circle at 88% 20%, rgba(220, 232, 205, .55), transparent 34%),
+        radial-gradient(circle at 70% 92%, rgba(255, 255, 255, .50), transparent 32%),
+        linear-gradient(135deg, var(--page-bg-1) 0%, var(--page-bg-2) 50%, var(--page-bg-3) 100%);
+    background-attachment: fixed;
 }
 
+/* ---------- Top bar ---------- */
+
 .topbar {
-    height: 80px;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
+    height: 70px;
+    margin: 18px 24px 0;
+    padding: 0 24px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 25px;
-    padding: 0 35px;
+    box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .location {
-    color: #475569;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 600;
 }
@@ -383,14 +419,14 @@ body {
 }
 
 .language-button {
-    border: 1px solid #cbd5e1;
-    background: white;
-    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, .78);
+    border-radius: 12px;
     padding: 8px 14px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--brand-green);
 }
 
 .language-menu {
@@ -399,10 +435,10 @@ body {
     right: 0;
     top: 42px;
     width: 150px;
-    background: white;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    box-shadow: 0 16px 35px rgba(50, 70, 45, .14);
     overflow: hidden;
     z-index: 1000;
 }
@@ -415,19 +451,19 @@ body {
     display: block;
     padding: 12px 14px;
     text-decoration: none;
-    color: #1e293b;
+    color: var(--text-dark);
     font-size: 13px;
     font-weight: 600;
 }
 
 .language-menu a:hover {
-    background: #e8f5e9;
-    color: #2d6a4f;
+    background: #e9f3e6;
+    color: var(--brand-green);
 }
 
 .profile-link {
     text-decoration: none;
-    color: #0f172a;
+    color: var(--text-dark);
 }
 
 .profile {
@@ -441,27 +477,31 @@ body {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
-    background: #168b45;
-    color: white;
+    background: var(--brand-green-pill);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     font-weight: 700;
+    border: 2px solid rgba(255, 255, 255, .85);
+    box-shadow: 0 4px 12px rgba(31, 92, 67, .18);
 }
 
 .profile-name {
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-dark);
 }
 
 .profile-role {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 12px;
     font-weight: 600;
     margin-top: 2px;
 }
+
+/* ---------- Content / headings ---------- */
 
 .content {
     padding: 30px 35px 40px;
@@ -477,7 +517,7 @@ body {
 }
 
 .breadcrumb a {
-    color: #168b45;
+    color: var(--brand-green);
     text-decoration: none;
     font-weight: 700;
 }
@@ -487,11 +527,11 @@ body {
 }
 
 .breadcrumb-arrow {
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 .breadcrumb-current {
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .page-header {
@@ -504,13 +544,13 @@ body {
 .page-title h1 {
     font-size: 28px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-dark);
     margin-bottom: 6px;
     letter-spacing: -0.5px;
 }
 
 .page-title p {
-    color: #475569;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 500;
 }
@@ -518,22 +558,31 @@ body {
 .status-filter select {
     min-width: 140px;
     padding: 10px 14px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    background: white;
-    color: #0f172a;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .78);
+    color: var(--brand-green);
     font-size: 13px;
     font-weight: 700;
     outline: none;
     cursor: pointer;
 }
 
+.status-filter select:focus {
+    border-color: #6bbd91;
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, .12);
+}
+
+/* ---------- History table card ---------- */
+
 .history-box {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 }
 
 .history-table {
@@ -544,21 +593,21 @@ body {
 .history-table th {
     text-align: left;
     padding: 14px 14px;
-    background: #f8fafc;
-    color: #0f172a;
+    background: rgba(226, 240, 220, .75);
+    color: var(--brand-green);
     font-size: 13px;
     font-weight: 800;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 1px solid var(--line);
     white-space: nowrap;
 }
 
 .history-table td {
     padding: 14px 14px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(45, 106, 79, .08);
     vertical-align: middle;
     font-size: 13px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-dark);
 }
 
 .history-table tr:last-child td {
@@ -575,17 +624,18 @@ body {
 .equipment-image {
     width: 52px;
     height: 46px;
-    border-radius: 8px;
+    border-radius: 12px;
     object-fit: cover;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: #e3efdc;
+    border: 1px solid rgba(255, 255, 255, .95);
 }
 
 .equipment-placeholder {
     width: 52px;
     height: 46px;
-    border-radius: 8px;
-    background: #f1f5f9;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #e3efdc, #f7faf2);
+    border: 1px solid rgba(255, 255, 255, .95);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -598,19 +648,19 @@ body {
 
 .equipment-name {
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-dark);
     margin-bottom: 4px;
     font-size: 14px;
 }
 
 .equipment-category {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 11px;
     font-weight: 600;
 }
 
 .booking-id {
-    color: #0f172a;
+    color: var(--text-dark);
     font-weight: 700;
     font-size: 13px;
     white-space: nowrap;
@@ -623,11 +673,11 @@ body {
 
 .rental-period strong {
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-dark);
 }
 
 .rental-days {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 11px;
     font-weight: 600;
     margin-top: 2px;
@@ -635,32 +685,35 @@ body {
 
 .total-amount {
     font-weight: 800;
-    color: #0f172a;
+    color: var(--brand-green);
     font-size: 14px;
     white-space: nowrap;
 }
 
 .advance {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 11px;
     font-weight: 600;
     margin-top: 3px;
 }
 
+/* ---------- Status badges ---------- */
+
 .status {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 10px;
-    border-radius: 6px;
+    padding: 7px 11px;
+    border-radius: 999px;
     font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
 }
 
-.status-completed {
-    background: #dcfce7;
-    color: #15803d;
+.status-completed,
+.status-ongoing {
+    background: #dcefd6;
+    color: #1f5c43;
 }
 
 .status-cancelled {
@@ -674,24 +727,19 @@ body {
 }
 
 .status-confirmed {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.status-ongoing {
-    background: #dcfce7;
-    color: #15803d;
+    background: #e6f0e1;
+    color: #2d6a4f;
 }
 
 .booked-on {
     white-space: nowrap;
     line-height: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-dark);
 }
 
 .booked-time {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 11px;
     font-weight: 600;
 }
@@ -703,21 +751,26 @@ body {
     gap: 6px;
     min-width: 90px;
     padding: 8px 12px;
-    border: 1px solid #168b45;
-    border-radius: 6px;
-    background: white;
-    color: #168b45;
+    border: 1px solid rgba(45, 106, 79, .40);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .80);
+    color: var(--brand-green);
     text-decoration: none;
     font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
-    transition: all 0.2s ease;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
 .view-details:hover {
-    background: #168b45;
-    color: white;
+    background: var(--brand-green-pill);
+    border-color: var(--brand-green-pill);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 16px rgba(31, 92, 67, .18);
 }
+
+/* ---------- Empty state ---------- */
 
 .empty {
     padding: 65px 20px;
@@ -733,13 +786,16 @@ body {
     font-size: 20px;
     font-weight: 800;
     margin-bottom: 8px;
+    color: var(--text-dark);
 }
 
 .empty p {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 14px;
     font-weight: 500;
 }
+
+/* ---------- Pagination ---------- */
 
 .pagination {
     display: flex;
@@ -747,16 +803,16 @@ body {
     align-items: center;
     gap: 8px;
     padding: 16px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid rgba(45, 106, 79, .10);
 }
 
 .page-button {
     width: 32px;
     height: 32px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    background: white;
-    color: #0f172a;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .78);
+    color: var(--brand-green);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -766,20 +822,22 @@ body {
 }
 
 .page-button:hover {
-    background: #e8f5e9;
-    color: #168b45;
-    border-color: #168b45;
+    background: #e9f3e6;
+    color: var(--brand-green);
+    border-color: rgba(45, 106, 79, .40);
 }
 
 .page-button.active {
-    background: #168b45;
-    border-color: #168b45;
-    color: white;
+    background: var(--brand-green-pill);
+    border-color: var(--brand-green-pill);
+    color: #fff;
 }
 
 .page-arrow {
     font-size: 16px;
 }
+
+/* ---------- Responsive ---------- */
 
 @media (max-width: 1100px) {
 
@@ -808,8 +866,12 @@ body {
     }
 
     .topbar {
-        padding: 0 15px;
+        margin: 10px 10px 0;
+        height: auto;
+        min-height: 64px;
+        padding: 12px;
         gap: 10px;
+        border-radius: 16px;
     }
 
     .location {
@@ -818,6 +880,10 @@ body {
 
     .content {
         padding: 20px 15px;
+    }
+
+    .history-box {
+        border-radius: 17px;
     }
 
     .page-header {
@@ -834,6 +900,12 @@ body {
         width: 100%;
     }
 
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .view-details {
+        transition: none !important;
+    }
 }
 
 </style>

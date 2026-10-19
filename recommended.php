@@ -440,7 +440,30 @@ function getImagePath($image)
         rel="stylesheet"
     >
 
+    <link rel="stylesheet" href="css/glassmorphism.css?v=2">
+
     <style>
+
+        /* =========================================================
+           MAIN INTERFACE COLOURS (matched to Renter Dashboard)
+           Pale cream-green background + frosted white cards
+           + dark green buttons. Sidebar is not touched.
+           ========================================================= */
+
+        :root {
+            --brand-green: #2d6a4f;
+            --brand-green-hover: #1b4332;
+            --brand-green-pill: #1f5c43;
+            --page-bg-1: #f3f2ea;
+            --page-bg-2: #eef2e8;
+            --page-bg-3: #f5f4ec;
+            --glass-bg: rgba(255, 255, 255, .55);
+            --glass-border: rgba(255, 255, 255, .85);
+            --text-dark: #2a2f29;
+            --text-muted: #6a7566;
+            --line: rgba(45, 106, 79, .12);
+            --shadow-soft: 0 8px 26px rgba(70, 90, 60, .09);
+        }
 
         * {
             margin: 0;
@@ -450,34 +473,46 @@ function getImagePath($image)
         }
 
         body {
-            background: #f8fafb;
-            color: #172033;
+            background-color: var(--page-bg-1);
+            color: var(--text-dark);
             min-height: 100vh;
         }
+
+        /* ---------- Main area background ---------- */
 
         .main-content {
             margin-left: 250px;
-            padding: 20px 30px;
+            padding: 28px 30px 40px;
             min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .70), transparent 32%),
+                radial-gradient(circle at 88% 20%, rgba(220, 232, 205, .55), transparent 34%),
+                radial-gradient(circle at 70% 92%, rgba(255, 255, 255, .50), transparent 32%),
+                linear-gradient(135deg, var(--page-bg-1) 0%, var(--page-bg-2) 50%, var(--page-bg-3) 100%);
+            background-attachment: fixed;
         }
+
+        /* ---------- Top bar ---------- */
 
         .topbar {
             height: 70px;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: flex-end;
             gap: 20px;
             padding: 0 25px;
             margin-bottom: 25px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .02);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
         .location {
             font-size: 13px;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: 600;
         }
 
@@ -486,14 +521,14 @@ function getImagePath($image)
         }
 
         .language-button {
-            border: 1px solid #dbe2e8;
-            background: white;
-            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, .78);
+            border-radius: 12px;
             padding: 8px 12px;
             cursor: pointer;
             font-size: 13px;
             font-weight: 700;
-            color: #334155;
+            color: var(--brand-green);
         }
 
         .language-menu {
@@ -502,10 +537,10 @@ function getImagePath($image)
             right: 0;
             top: 42px;
             width: 150px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, .95);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            box-shadow: 0 16px 35px rgba(50, 70, 45, .14);
             z-index: 1000;
             overflow: hidden;
         }
@@ -517,14 +552,14 @@ function getImagePath($image)
         .language-menu a {
             display: block;
             padding: 11px 14px;
-            color: #333;
+            color: var(--text-dark);
             text-decoration: none;
             font-size: 13px;
         }
 
         .language-menu a:hover {
-            background: #eef8f1;
-            color: #168b45;
+            background: #e9f3e6;
+            color: var(--brand-green);
         }
 
         .profile {
@@ -538,29 +573,32 @@ function getImagePath($image)
             height: 38px;
             min-width: 38px;
             border-radius: 50%;
-            background: #e2e8f0;
-            color: #334155;
+            background: var(--brand-green-pill);
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 15px;
             font-weight: 800;
             text-transform: uppercase;
-            border: 2px solid #cbd5e1;
+            border: 2px solid rgba(255, 255, 255, .85);
+            box-shadow: 0 4px 12px rgba(31, 92, 67, .18);
         }
 
         .profile-name {
             font-size: 13px;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-dark);
             line-height: 1.15;
         }
 
         .profile-role {
             font-size: 11px;
-            color: #64748b;
+            color: var(--text-muted);
             font-weight: 700;
         }
+
+        /* ---------- Content / headings ---------- */
 
         .content {
             padding: 5px 5px 30px;
@@ -572,7 +610,7 @@ function getImagePath($image)
         }
 
         .breadcrumb a {
-            color: #168b45;
+            color: var(--brand-green);
             text-decoration: none;
             font-weight: 600;
         }
@@ -582,11 +620,11 @@ function getImagePath($image)
         }
 
         .breadcrumb .current {
-            color: #777;
+            color: var(--text-muted);
         }
 
         .breadcrumb span {
-            color: #777;
+            color: var(--text-muted);
             margin: 0 8px;
         }
 
@@ -602,30 +640,36 @@ function getImagePath($image)
             font-size: 30px;
             font-weight: 800;
             margin-bottom: 8px;
-            color: #0f172a;
+            color: var(--text-dark);
+            letter-spacing: -.5px;
         }
 
         .heading p {
-            color: #64748b;
+            color: var(--text-muted);
             font-size: 15px;
             margin: 0;
         }
 
         .browse {
             padding: 11px 18px;
-            background: #198754;
-            color: white;
+            background: var(--brand-green-pill);
+            color: #fff;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 800;
             font-size: 13px;
             white-space: nowrap;
+            box-shadow: 0 5px 14px rgba(31, 92, 67, .20);
+            transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
         }
 
         .browse:hover {
-            background: #157347;
-            color: white;
+            background: var(--brand-green-hover);
+            color: #fff;
+            transform: translateY(-2px);
         }
+
+        /* ---------- Equipment cards ---------- */
 
         .equipment-grid {
             display: grid;
@@ -634,25 +678,27 @@ function getImagePath($image)
         }
 
         .card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 22px;
             overflow: hidden;
             position: relative;
-            transition: 0.2s;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, .02);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, .9);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            transition: transform .28s ease, box-shadow .28s ease;
         }
 
         .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transform: translateY(-6px);
+            box-shadow: 0 18px 38px rgba(60, 90, 55, .15), inset 0 1px 0 rgba(255, 255, 255, .95);
         }
 
         .card-image {
             width: 100%;
             height: 230px;
             object-fit: cover;
-            background: #f1f1f1;
+            background: linear-gradient(135deg, #e3efdc, #f7faf2);
             display: block;
         }
 
@@ -662,18 +708,20 @@ function getImagePath($image)
             top: 15px;
             width: 42px;
             height: 42px;
-            background: white;
-            border: none;
+            background: rgba(255, 255, 255, .85);
+            border: 1px solid rgba(255, 255, 255, .95);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 25px;
-            color: #777;
+            color: #7a8576;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            box-shadow: 0 5px 18px rgba(50, 70, 45, .14);
             z-index: 10;
-            transition: 0.2s;
+            transition: .2s;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .favorite:hover {
@@ -681,7 +729,7 @@ function getImagePath($image)
         }
 
         .favorite.active {
-            color: #e53935;
+            color: #e53955;
         }
 
         .wishlist-form {
@@ -690,18 +738,18 @@ function getImagePath($image)
         }
 
         .card-body {
-            padding: 18px;
+            padding: 20px;
         }
 
         .equipment-name {
             font-size: 19px;
             font-weight: 800;
             margin-bottom: 10px;
-            color: #0f172a;
+            color: var(--text-dark);
         }
 
         .category {
-            color: #777;
+            color: var(--text-muted);
             font-size: 14px;
             margin-bottom: 13px;
         }
@@ -710,28 +758,28 @@ function getImagePath($image)
             font-size: 19px;
             font-weight: 800;
             margin-bottom: 13px;
-            color: #0f172a;
+            color: var(--brand-green);
         }
 
         .price span {
             font-size: 13px;
             font-weight: normal;
-            color: #666;
+            color: var(--text-muted);
         }
 
         .location-text {
-            color: #666;
+            color: var(--text-muted);
             font-size: 14px;
             margin-bottom: 12px;
         }
 
         .rating {
-            color: #d99d00;
+            color: #d9a51b;
             font-size: 14px;
         }
 
         .rating span {
-            color: #666;
+            color: var(--text-muted);
             margin-left: 5px;
         }
 
@@ -739,34 +787,44 @@ function getImagePath($image)
             display: block;
             width: 100%;
             text-align: center;
-            background: #198754;
-            color: white;
+            background: var(--brand-green-pill);
+            color: #fff;
             text-decoration: none;
             padding: 12px;
-            border-radius: 7px;
+            border-radius: 12px;
             margin-top: 16px;
             font-weight: 800;
             font-size: 13px;
+            box-shadow: 0 5px 14px rgba(31, 92, 67, .18);
+            transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
         }
 
         .view-btn:hover {
-            background: #157347;
-            color: white;
+            background: var(--brand-green-hover);
+            color: #fff;
+            transform: translateY(-2px);
         }
 
+        /* ---------- Empty state ---------- */
+
         .empty {
-            background: white;
+            background: var(--glass-bg);
             padding: 60px;
             text-align: center;
-            border-radius: 15px;
-            border: 1px solid #ddd;
+            border-radius: 22px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
         .empty h2 {
             font-size: 20px;
-            color: #475569;
+            color: var(--text-dark);
             font-weight: 800;
         }
+
+        /* ---------- Responsive ---------- */
 
         @media(max-width: 1100px) {
 
@@ -780,7 +838,7 @@ function getImagePath($image)
 
             .main-content {
                 margin-left: 250px;
-                padding: 15px;
+                padding: 18px;
             }
 
             .topbar {
@@ -802,6 +860,11 @@ function getImagePath($image)
 
             .equipment-grid {
                 grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .card {
+                border-radius: 18px;
             }
 
             .heading-row {
@@ -810,15 +873,29 @@ function getImagePath($image)
                 gap: 15px;
             }
 
+            .heading h1 {
+                font-size: 26px;
+            }
+
             .topbar {
                 padding: 10px 15px;
                 gap: 10px;
+                border-radius: 16px;
             }
 
             .content {
                 padding: 5px 0 30px;
             }
 
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card,
+            .browse,
+            .view-btn,
+            .favorite {
+                transition: none !important;
+            }
         }
 
     </style>
