@@ -214,6 +214,7 @@ if (!empty($translated_description) && $translated_description !== 'category_ite
             -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
         }
+
         .eq-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 28px rgba(0,0,0,0.08) !important;

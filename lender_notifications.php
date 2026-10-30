@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -14,8 +15,9 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$lender_id = (int)$_SESSION['user_id'];
+$lender_id = (int) $_SESSION['user_id'];
 $current_lang = $_SESSION['lang'] ?? 'en';
+
 if (!in_array($current_lang, ['en', 'hi', 'kn'], true)) {
     $current_lang = 'en';
     $_SESSION['lang'] = 'en';
@@ -25,7 +27,7 @@ $lang_param = '?lang=' . urlencode($current_lang);
 
 /* Mark one notification as read */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_read'])) {
-    $notification_id = (int)$_POST['notification_id'];
+    $notification_id = (int) ($_POST['notification_id'] ?? 0);
 
     $stmt = $conn->prepare("
         UPDATE notifications
@@ -61,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_all_read'])) {
     exit();
 }
 
-/* Fetch lender notifications */
+/* Fetch notifications */
 $notifications = [];
 $notif_count = 0;
 
@@ -78,7 +80,7 @@ if ($table_check && $table_check->num_rows > 0) {
         $count_stmt->bind_param("i", $lender_id);
         $count_stmt->execute();
         $count_result = $count_stmt->get_result()->fetch_assoc();
-        $notif_count = (int)($count_result['cnt'] ?? 0);
+        $notif_count = (int) ($count_result['cnt'] ?? 0);
         $count_stmt->close();
     }
 
@@ -103,26 +105,32 @@ if ($table_check && $table_check->num_rows > 0) {
 }
 
 /* Notification icon based on notification type */
-function notification_icon($title, $message) {
+function notification_icon($title, $message)
+{
     $text = strtolower($title . ' ' . $message);
 
-    if (strpos($text, 'request') !== false || strpos($text, 'booking') !== false) {
+    if (strpos($text, 'request') !== false ||
+        strpos($text, 'booking') !== false) {
         return ['fa-clipboard-list', 'request'];
     }
 
-    if (strpos($text, 'accepted') !== false || strpos($text, 'confirmed') !== false) {
+    if (strpos($text, 'accepted') !== false ||
+        strpos($text, 'confirmed') !== false) {
         return ['fa-circle-check', 'success'];
     }
 
-    if (strpos($text, 'delivered') !== false || strpos($text, 'delivery') !== false) {
+    if (strpos($text, 'delivered') !== false ||
+        strpos($text, 'delivery') !== false) {
         return ['fa-truck', 'delivery'];
     }
 
-    if (strpos($text, 'returned') !== false || strpos($text, 'return') !== false) {
+    if (strpos($text, 'returned') !== false ||
+        strpos($text, 'return') !== false) {
         return ['fa-rotate-left', 'return'];
     }
 
-    if (strpos($text, 'rejected') !== false || strpos($text, 'overdue') !== false ||
+    if (strpos($text, 'rejected') !== false ||
+        strpos($text, 'overdue') !== false ||
         strpos($text, 'cancel') !== false) {
         return ['fa-circle-exclamation', 'danger'];
     }
@@ -132,70 +140,104 @@ function notification_icon($title, $message) {
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($current_lang); ?>">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars(__('notifications')); ?> - <?php echo htmlspecialchars(__('brand_main') . ' ' . __('brand_sub')); ?></title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>
+        <?php echo htmlspecialchars(__('notifications')); ?> -
+        <?php echo htmlspecialchars(__('brand_main') . ' ' . __('brand_sub')); ?>
+    </title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 
     <style>
         :root {
-            --teal: #0f766e;
-            --teal-dark: #115e59;
-            --teal-light: #e6fffb;
-            --blue: #2563eb;
-            --page-bg: #f5f8fa;
-            --text-dark: #1f2937;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+            --navy-primary: #0B3478;
+            --navy-dark: #082B65;
+            --blue-hover: #164C9A;
+            --sidebar-bg: #C7DDF7;
+            --sidebar-active: #A6C8F5;
+            --text-dark: #10194A;
+            --text-muted: #425D80;
+            --bg-body: #EAF3FF;
+            --card-bg: #F8FBFF;
+            --border-color: #C8DDF5;
+            --blue-accent: #8DB8F0;
+
+            --teal: #0B3478;
+            --teal-dark: #082B65;
+            --teal-light: #DCEBFF;
+            --blue: #164C9A;
+            --page-bg: #EAF3FF;
+            --border: #C8DDF5;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
-            background: var(--page-bg);
+            background: var(--bg-body);
             color: var(--text-dark);
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        /* Offset main content for sidebar layout */
+        /* Main content starts beside the shared sidebar */
         .main-content {
             margin-left: 250px;
             min-height: 100vh;
+            background: var(--bg-body);
         }
 
+        /* Top navigation */
         .top-nav {
-            height: 72px;
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
+            min-height: 72px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: flex-end;
             gap: 20px;
-            padding: 0 32px;
+            padding: 12px 32px;
         }
 
         .language-select {
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border-color);
             border-radius: 7px;
-            padding: 7px 30px 7px 10px;
+            padding: 8px 30px 8px 10px;
             font-size: 13px;
-            font-weight: 700;
-            background: #fff;
+            font-weight: 600;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        .language-select:focus {
+            outline: none;
+            border-color: var(--blue-accent);
+            box-shadow: 0 0 0 3px rgba(141, 184, 240, 0.2);
         }
 
         .notification-bell {
             position: relative;
-            color: #374151;
+            color: var(--navy-primary);
             text-decoration: none;
             font-size: 19px;
         }
 
         .notification-bell:hover {
-            color: var(--teal);
+            color: var(--blue-hover);
         }
 
         .notification-badge {
@@ -204,8 +246,9 @@ function notification_icon($title, $message) {
             right: -10px;
             min-width: 17px;
             height: 17px;
+            padding: 0 4px;
             border-radius: 20px;
-            background: #dc2626;
+            background: #DC2626;
             color: #fff;
             font-size: 10px;
             display: flex;
@@ -215,19 +258,27 @@ function notification_icon($title, $message) {
         }
 
         .profile-btn {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: var(--teal);
+            background: var(--navy-primary);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
+            flex-shrink: 0;
         }
 
+        .profile-btn:hover {
+            background: var(--blue-hover);
+            color: white;
+        }
+
+        /* Page container */
         .page-wrap {
-            max-width: 1100px;
+            width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 32px;
         }
@@ -242,53 +293,65 @@ function notification_icon($title, $message) {
 
         .page-title {
             margin: 0;
-            font-size: 27px;
+            font-size: 28px;
             font-weight: 800;
-            color: #123c3a;
+            color: var(--text-dark);
         }
 
         .page-subtitle {
             color: var(--text-muted);
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 6px;
+            line-height: 1.5;
         }
 
+        /* Mark all button */
         .mark-all-btn {
-            border: 1px solid var(--teal);
-            background: white;
-            color: var(--teal-dark);
+            border: 1px solid var(--blue-accent);
+            background: var(--card-bg);
+            color: var(--navy-primary);
             border-radius: 8px;
-            padding: 9px 14px;
+            padding: 10px 15px;
             font-size: 13px;
             font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         .mark-all-btn:hover {
-            background: var(--teal);
-            color: white;
+            background: var(--navy-primary);
+            border-color: var(--navy-primary);
+            color: #fff;
         }
 
+        /* Notification cards */
         .notification-card {
-            background: #fff;
-            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 13px;
-            padding: 18px;
-            margin-bottom: 12px;
+            padding: 20px;
+            margin-bottom: 14px;
             display: flex;
             align-items: flex-start;
-            gap: 15px;
-            box-shadow: 0 2px 7px rgba(0,0,0,.03);
+            gap: 16px;
+            box-shadow: 0 3px 10px rgba(11, 52, 120, 0.04);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .notification-card:hover {
+            box-shadow: 0 5px 14px rgba(11, 52, 120, 0.08);
         }
 
         .notification-card.unread {
-            border-left: 4px solid var(--teal);
-            background: #f0fdfa;
+            border-left: 4px solid var(--blue-accent);
+            background: #F0F6FF;
         }
 
         .notification-icon {
-            width: 45px;
-            height: 45px;
-            min-width: 45px;
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -297,33 +360,33 @@ function notification_icon($title, $message) {
         }
 
         .notification-icon.request {
-            background: #dbeafe;
-            color: #2563eb;
+            background: #DCEBFF;
+            color: var(--navy-primary);
         }
 
         .notification-icon.success {
-            background: #dcfce7;
-            color: #15803d;
+            background: #DCFCE7;
+            color: #15803D;
         }
 
         .notification-icon.delivery {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: #DCEBFF;
+            color: var(--blue-hover);
         }
 
         .notification-icon.return {
-            background: #fef3c7;
-            color: #b45309;
+            background: #FEF3C7;
+            color: #B45309;
         }
 
         .notification-icon.danger {
-            background: #fee2e2;
-            color: #dc2626;
+            background: #FEE2E2;
+            color: #DC2626;
         }
 
         .notification-icon.default {
-            background: var(--teal-light);
-            color: var(--teal);
+            background: #DCEBFF;
+            color: var(--navy-primary);
         }
 
         .notification-body {
@@ -334,49 +397,57 @@ function notification_icon($title, $message) {
         .notification-title {
             font-size: 15px;
             font-weight: 800;
-            margin: 0 0 5px;
+            color: var(--text-dark);
+            margin: 0 0 6px;
         }
 
         .notification-message {
             margin: 0;
-            color: #59636e;
+            color: var(--text-muted);
             font-size: 14px;
-            line-height: 1.55;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
         }
 
         .notification-time {
-            color: #9ca3af;
+            color: #657B9A;
             font-size: 12px;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .unread-dot {
             width: 8px;
             height: 8px;
-            background: var(--teal);
+            background: var(--navy-primary);
             border-radius: 50%;
             display: inline-block;
             margin-left: 5px;
+            vertical-align: middle;
         }
 
+        /* Individual mark-as-read button */
         .read-btn {
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            color: #475569;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--navy-primary);
             border-radius: 7px;
-            padding: 6px 10px;
+            padding: 7px 10px;
             font-size: 12px;
             font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .read-btn:hover {
-            border-color: var(--teal);
-            color: var(--teal-dark);
+            background: #DCEBFF;
+            border-color: var(--blue-accent);
+            color: var(--navy-dark);
         }
 
+        /* Empty notification state */
         .empty-state {
-            background: #fff;
-            border: 1px dashed #cbd5e1;
+            background: var(--card-bg);
+            border: 1px dashed var(--blue-accent);
             border-radius: 14px;
             padding: 70px 25px;
             text-align: center;
@@ -384,13 +455,14 @@ function notification_icon($title, $message) {
 
         .empty-state i {
             font-size: 42px;
-            color: #94a3b8;
-            margin-bottom: 15px;
+            color: var(--blue-accent);
+            margin-bottom: 16px;
         }
 
         .empty-state h5 {
+            color: var(--text-dark);
             font-weight: 800;
-            margin-bottom: 7px;
+            margin-bottom: 8px;
         }
 
         .empty-state p {
@@ -399,66 +471,117 @@ function notification_icon($title, $message) {
             font-size: 14px;
         }
 
-        @media (max-width: 800px) {
-            .top-nav {
-                padding: 0 18px;
+        /* Responsive layout */
+        @media (max-width: 1000px) {
+            .page-wrap {
+                padding: 25px 20px;
             }
 
-            .page-wrap {
-                padding: 22px 16px;
+            .top-nav {
+                padding: 12px 20px;
             }
         }
 
         @media (max-width: 650px) {
-            .main-content {
-                margin-left: 250px;
+            .page-wrap {
+                padding: 20px 14px;
             }
 
             .page-header {
                 align-items: flex-start;
                 flex-direction: column;
             }
+
+            .notification-card {
+                flex-wrap: wrap;
+                padding: 16px;
+            }
+
+            .notification-body {
+                flex-basis: calc(100% - 65px);
+            }
+
+            .notification-card form {
+                margin-left: 62px;
+            }
+
+            .top-nav {
+                gap: 12px;
+            }
         }
     </style>
 </head>
+
 <body>
 
 <?php include 'lender_sidebar.php'; ?>
 
 <div class="main-content">
 
-    <!-- Top Bar -->
+    <!-- Top Navigation -->
     <div class="top-nav">
 
-        <form action="lender_notifications.php" method="GET" class="mb-0">
-            <select name="lang" class="language-select" onchange="this.form.submit()">
-                <option value="en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>English</option>
-                <option value="hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>हिंदी (Hindi)</option>
-                <option value="kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>ಕನ್ನಡ (Kannada)</option>
+        <form
+            action="lender_notifications.php"
+            method="GET"
+            class="mb-0"
+        >
+            <select
+                name="lang"
+                class="language-select"
+                onchange="this.form.submit()"
+                aria-label="Select language"
+            >
+                <option value="en" <?php echo ($current_lang === 'en') ? 'selected' : ''; ?>>
+                    English
+                </option>
+
+                <option value="hi" <?php echo ($current_lang === 'hi') ? 'selected' : ''; ?>>
+                    हिंदी (Hindi)
+                </option>
+
+                <option value="kn" <?php echo ($current_lang === 'kn') ? 'selected' : ''; ?>>
+                    ಕನ್ನಡ (Kannada)
+                </option>
             </select>
         </form>
 
-        <a href="lender_notifications.php<?php echo $lang_param; ?>"
-           class="notification-bell"
-           title="<?php echo htmlspecialchars(__('notifications')); ?>">
+        <a
+            href="lender_notifications.php<?php echo $lang_param; ?>"
+            class="notification-bell"
+            title="<?php echo htmlspecialchars(__('notifications')); ?>"
+            aria-label="<?php echo htmlspecialchars(__('notifications')); ?>"
+        >
             <i class="fa-solid fa-bell"></i>
+
             <?php if ($notif_count > 0): ?>
-                <span class="notification-badge"><?php echo $notif_count; ?></span>
+                <span class="notification-badge">
+                    <?php echo $notif_count; ?>
+                </span>
             <?php endif; ?>
         </a>
 
-        <a href="profile.php<?php echo $lang_param; ?>"
-           class="profile-btn"
-           title="<?php echo htmlspecialchars(__('my_profile')); ?>">
+        <a
+            href="profile.php<?php echo $lang_param; ?>"
+            class="profile-btn"
+            title="<?php echo htmlspecialchars(__('my_profile')); ?>"
+            aria-label="<?php echo htmlspecialchars(__('my_profile')); ?>"
+        >
             <i class="fa-solid fa-user"></i>
         </a>
+
     </div>
 
     <div class="page-wrap">
 
+        <!-- Page Heading -->
         <div class="page-header">
+
             <div>
-                <h1 class="page-title"><?php echo htmlspecialchars(__('notifications')); ?></h1>
+                <h1 class="page-title">
+                    <?php echo htmlspecialchars(__('notifications')); ?>
+                </h1>
+
                 <div class="page-subtitle">
                     <?php echo htmlspecialchars(__('lender_notifications_subtitle')); ?>
                 </div>
@@ -466,25 +589,38 @@ function notification_icon($title, $message) {
 
             <?php if ($notif_count > 0): ?>
                 <form method="POST" class="mb-0">
-                    <button type="submit" name="mark_all_read" class="mark-all-btn">
+                    <button
+                        type="submit"
+                        name="mark_all_read"
+                        class="mark-all-btn"
+                    >
                         <i class="fa-solid fa-check-double me-1"></i>
                         <?php echo htmlspecialchars(__('mark_all_read')); ?>
                     </button>
                 </form>
             <?php endif; ?>
+
         </div>
 
+        <!-- Notifications -->
         <?php if (empty($notifications)): ?>
 
             <div class="empty-state">
                 <i class="fa-regular fa-bell-slash"></i>
-                <h5><?php echo htmlspecialchars(__('no_notifications')); ?></h5>
-                <p><?php echo htmlspecialchars(__('no_notifications_message')); ?></p>
+
+                <h5>
+                    <?php echo htmlspecialchars(__('no_notifications')); ?>
+                </h5>
+
+                <p>
+                    <?php echo htmlspecialchars(__('no_notifications_message')); ?>
+                </p>
             </div>
 
         <?php else: ?>
 
             <?php foreach ($notifications as $notification): ?>
+
                 <?php
                     [$icon, $icon_type] = notification_icon(
                         $notification['title'] ?? '',
@@ -501,36 +637,68 @@ function notification_icon($title, $message) {
                     </div>
 
                     <div class="notification-body">
+
                         <h5 class="notification-title">
-                            <?php echo htmlspecialchars($notification['title'] ?? __('notifications')); ?>
+                            <?php
+                                echo htmlspecialchars(
+                                    $notification['title'] ?? __('notifications')
+                                );
+                            ?>
+
                             <?php if ($is_unread): ?>
-                                <span class="unread-dot" title="<?php echo htmlspecialchars(__('unread')); ?>"></span>
+                                <span
+                                    class="unread-dot"
+                                    title="<?php echo htmlspecialchars(__('unread')); ?>"
+                                ></span>
                             <?php endif; ?>
                         </h5>
 
                         <p class="notification-message">
-                            <?php echo nl2br(htmlspecialchars($notification['message'] ?? '')); ?>
+                            <?php
+                                echo nl2br(
+                                    htmlspecialchars($notification['message'] ?? '')
+                                );
+                            ?>
                         </p>
 
                         <div class="notification-time">
                             <i class="fa-regular fa-clock me-1"></i>
+
                             <?php
+                                $created_at = $notification['created_at'] ?? '';
+                                $timestamp = $created_at ? strtotime($created_at) : false;
+
                                 echo htmlspecialchars(
-                                    date('d M Y, h:i A', strtotime($notification['created_at']))
+                                    $timestamp
+                                        ? date('d M Y, h:i A', $timestamp)
+                                        : ''
                                 );
                             ?>
                         </div>
+
                     </div>
 
                     <?php if ($is_unread): ?>
+
                         <form method="POST" class="mb-0">
-                            <input type="hidden" name="notification_id"
-                                   value="<?php echo (int)$notification['notification_id']; ?>">
-                            <button type="submit" name="mark_read" class="read-btn">
+
+                            <input
+                                type="hidden"
+                                name="notification_id"
+                                value="<?php echo (int) $notification['notification_id']; ?>"
+                            >
+
+                            <button
+                                type="submit"
+                                name="mark_read"
+                                class="read-btn"
+                            >
                                 <i class="fa-solid fa-check me-1"></i>
                                 <?php echo htmlspecialchars(__('mark_read')); ?>
                             </button>
+
                         </form>
+
                     <?php endif; ?>
 
                 </div>
@@ -540,6 +708,7 @@ function notification_icon($title, $message) {
         <?php endif; ?>
 
     </div>
+
 </div>
 
 </body>

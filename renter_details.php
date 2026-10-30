@@ -152,6 +152,115 @@ h1{font-size:25px;font-weight:850}.label{font-size:11px;text-transform:uppercase
 .btn-main:hover{color:white;background:#0b3945}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:14px;line-height:1.55;margin-bottom:18px}
 .proof{display:block;max-width:100%;max-height:520px;object-fit:contain;margin:14px auto;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc}
 @media(max-width:650px){.grid{grid-template-columns:1fr}.cardx{padding:16px}}
+
+
+/* BlueField Lending interface theme — content area only; sidebar intentionally untouched */
+:root{
+  --bluefield-navy:#092d68;
+  --bluefield-blue:#1455a6;
+  --bluefield-mid:#2f70c7;
+  --bluefield-ink:#101b49;
+  --bluefield-muted:#496887;
+  --bluefield-line:rgba(69,126,190,.20);
+  --bluefield-glass:rgba(255,255,255,.66);
+  --bluefield-shadow:0 12px 30px rgba(31,82,145,.10);
+}
+body{
+  background:linear-gradient(135deg,#dcecff 0%,#edf6ff 48%,#d7eaff 100%)!important;
+  color:var(--bluefield-ink)!important;
+}
+/* Keep layout positioning and dimensions; only update the content surface */
+.main-content,.main-wrapper,.content,.wrap{
+  background:transparent!important;
+  color:var(--bluefield-ink)!important;
+}
+.top-nav-bar,.top-bar,.topbar,.top-navbar,.top-search-bar,.top,.top-banner{
+  background:linear-gradient(110deg,rgba(9,45,104,.96),rgba(20,85,166,.94))!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.38)!important;
+  border-radius:18px!important;
+  box-shadow:0 10px 26px rgba(12,54,112,.16)!important;
+}
+.top-nav-bar a,.top-bar a,.topbar a,.top-navbar a,.top-search-bar a,.top-banner a,
+.top-nav-bar .btn,.top-bar .btn,.topbar .btn,.top-navbar .btn{color:inherit;}
+.page-header,.page-head,.page-header-box,.page-header-container,.hero,
+.heading-row,.page-header-row{
+  color:var(--bluefield-ink)!important;
+}
+.page-title,.page-header h1,.page-header h2,.page-header h3,.page-head h1,
+.hero h1,.heading h1,.main-content h1,.main-content h2,.main-content h3,.main-content h4,.main-content h5,.main-wrapper h1,.main-wrapper h2,.main-wrapper h3,.main-wrapper h4,.main-wrapper h5,.content h1,.content h2,.content h3,.content h4,.content h5,.wrap h1,.wrap h2,.wrap h3,.wrap h4,.wrap h5,.form-container h1,.form-container h2,.form-container h3,.details-container h1,.details-container h2,.details-container h3{
+  color:var(--bluefield-ink)!important;
+}
+p,.muted,.page-subtitle,.hero p,.label,.meta-text{color:var(--bluefield-muted);}
+.card,.cardx,.content-card,.panel,.summary-card,.feature-card,.equipment-card,
+.review-entry,.notification-card,.empty-state,.field,.spec-box,.meta-item,
+.detail-item,.equipment-box,.lender-header,.proof,.form-container,.details-container,
+.main-content .table-responsive,.chart-container,.payment-box,.upload-box,
+.form-section,.info-card,.stat-card,.metric-card,.section-card{
+  background:var(--bluefield-glass)!important;
+  border:1px solid rgba(255,255,255,.88)!important;
+  border-radius:20px!important;
+  box-shadow:var(--bluefield-shadow),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.card:hover,.equipment-card:hover,.feature-card:hover,.summary-card:hover{
+  box-shadow:0 17px 36px rgba(31,82,145,.15)!important;
+  border-color:rgba(69,126,190,.35)!important;
+}
+.card-header,.card-footer,.action-footer,.card-footer-actions{
+  background:rgba(222,238,255,.66)!important;
+  border-color:var(--bluefield-line)!important;
+}
+input:not([type=checkbox]):not([type=radio]),select,textarea,.form-control,.form-select,.lang-select{
+  background:rgba(255,255,255,.82)!important;
+  border:1px solid rgba(56,111,177,.24)!important;
+  border-radius:11px!important;
+  color:var(--bluefield-ink)!important;
+  box-shadow:none!important;
+}
+input:focus,select:focus,textarea:focus,.form-control:focus,.form-select:focus{
+  border-color:#4b8bd4!important;
+  box-shadow:0 0 0 3px rgba(47,112,199,.14)!important;
+}
+.btn-primary,.btn-main,.btn-agro,.btn-view,.btn-rent-now,.btn-back,.browse,
+button[type=submit],.top-banner .btn{
+  background:linear-gradient(135deg,#236ac0,#0b4699)!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+  color:#fff!important;
+  border-radius:11px!important;
+  box-shadow:0 6px 15px rgba(16,74,151,.18)!important;
+}
+.btn-primary:hover,.btn-main:hover,.btn-agro:hover,.btn-view:hover,.btn-rent-now:hover,
+.btn-back:hover,.browse:hover,button[type=submit]:hover{
+  background:linear-gradient(135deg,#1858a9,#082f72)!important;
+  color:#fff!important;
+  transform:translateY(-1px);
+}
+.btn-outline-primary,.btn-outline-secondary,.btn-outline-dark{
+  border-color:rgba(30,91,163,.35)!important;color:#164b91!important;
+}
+.btn-outline-primary:hover,.btn-outline-secondary:hover,.btn-outline-dark:hover{
+  background:#dcecff!important;color:#0b397a!important;
+}
+.main-content a:not(.btn):not(.nav-link),.main-wrapper a:not(.btn):not(.nav-link),.content a:not(.btn):not(.nav-link),.wrap a:not(.btn):not(.nav-link),.form-container a:not(.btn):not(.nav-link),.details-container a:not(.btn):not(.nav-link){color:#1556a2;}
+.main-content a:not(.btn):not(.nav-link):hover,.main-wrapper a:not(.btn):not(.nav-link):hover,.content a:not(.btn):not(.nav-link):hover,.wrap a:not(.btn):not(.nav-link):hover,.form-container a:not(.btn):not(.nav-link):hover,.details-container a:not(.btn):not(.nav-link):hover{color:#082f72;}
+table,.table{color:var(--bluefield-ink)!important;--bs-table-bg:transparent;}
+.table thead th,thead th{background:rgba(203,225,250,.72)!important;color:#173f78!important;border-color:var(--bluefield-line)!important;}
+.table td,.table th,tbody td{border-color:rgba(69,126,190,.15)!important;}
+hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
+.alert,.notice,.warning{
+  border-radius:14px!important;
+  box-shadow:0 7px 18px rgba(31,82,145,.06);
+}
+.breadcrumb-custom,.breadcrumb-nav,.breadcrumb{color:#52769e!important;}
+.badge{letter-spacing:.1px;}
+@media(max-width:767.98px){
+  .main-content,.main-wrapper,.content,.wrap{padding-left:14px!important;padding-right:14px!important;}
+  .top-nav-bar,.top-bar,.topbar,.top-navbar,.top-search-bar{border-radius:15px!important;}
+}
+@media(prefers-reduced-motion:reduce){.card,.equipment-card,.feature-card,.summary-card,button,a{transition:none!important;}}
+
 </style>
 </head>
 <body>

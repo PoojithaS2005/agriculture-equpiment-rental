@@ -143,6 +143,125 @@ if (isset($conn) && $conn) {
 ?>
 <!doctype html><html lang="<?= h($current_lang) ?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?= h(lai_page_t("Review Analysis")) ?> - <?= h(lai_page_t("Agriculture Equipment Rental System")) ?></title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
 *{box-sizing:border-box}body{margin:0;background:#f3f7f4;color:#26352d;font-family:'Segoe UI',Arial,sans-serif}.main-content{margin-left:250px;padding:28px;min-height:100vh}.hero{padding:26px;margin-bottom:22px;border-radius:18px;color:white;background:linear-gradient(120deg,#147d50,#248f9b,#5366c8)}.hero h1{font-weight:750;font-size:clamp(24px,3vw,34px);margin:10px 0}.hero p{margin:0}.pill{display:inline-block;padding:5px 10px;border-radius:30px;background:#e2f5e9;color:#17683b;font-size:12px;font-weight:700}.panel,.summary-card,.feature-card,.equipment-card{background:white;border:1px solid #e5ece7;border-radius:16px;box-shadow:0 6px 20px #2e47400d}.panel{padding:22px;margin-bottom:20px}.panel h2{font-size:20px;font-weight:750;margin:0 0 16px}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}.summary-card{padding:18px}.summary-card small,.muted{color:#66756b}.summary-value{display:block;margin-top:7px;font-size:24px;font-weight:750;overflow-wrap:anywhere}.feature-grid,.equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.feature-card{padding:20px;color:inherit;text-decoration:none;display:block}.feature-icon{font-size:24px;color:#168050;margin-bottom:12px}.equipment-card{padding:18px;min-width:0}.review-list{border-top:1px solid #e5ece7;padding-top:15px}.review-entry{padding:13px 14px;border:1px solid #e5ece7;border-radius:12px;background:#fbfdfb;margin-top:10px}.review-rating{color:#9a6a00;font-weight:700;white-space:nowrap}.review-text{white-space:normal;overflow-wrap:anywhere}.metric-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e8eee9}.metric-row strong{text-align:right;overflow-wrap:anywhere}.muted{font-size:13px}.notice{background:#fff8df;border:1px solid #f1dfa0;border-radius:12px;padding:14px 16px;margin-bottom:18px;color:#69551a}.chart-container{position:relative;height:300px}.table-responsive{overflow-x:auto}@media(max-width:1100px){.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-grid,.equipment-grid{grid-template-columns:1fr}}@media(max-width:700px){.main-content{margin-left:0;padding:15px}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.summary-card{padding:13px}.summary-value{font-size:20px}.panel,.hero{padding:17px}}
+
+
+/* BlueField Lending interface theme — content area only; sidebar intentionally untouched */
+:root{
+  --bluefield-navy:#092d68;
+  --bluefield-blue:#1455a6;
+  --bluefield-mid:#2f70c7;
+  --bluefield-ink:#101b49;
+  --bluefield-muted:#496887;
+  --bluefield-line:rgba(69,126,190,.20);
+  --bluefield-glass:rgba(255,255,255,.66);
+  --bluefield-shadow:0 12px 30px rgba(31,82,145,.10);
+}
+body{
+  background:linear-gradient(135deg,#dcecff 0%,#edf6ff 48%,#d7eaff 100%)!important;
+  color:var(--bluefield-ink)!important;
+}
+/* Keep layout positioning and dimensions; only update the content surface */
+.main-content,.main-wrapper,.content,.wrap{
+  background:transparent!important;
+  color:var(--bluefield-ink)!important;
+}
+.top-nav-bar,.top-bar,.topbar,.top-navbar,.top-search-bar,.top,.top-banner{
+  background:linear-gradient(110deg,rgba(9,45,104,.96),rgba(20,85,166,.94))!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.38)!important;
+  border-radius:18px!important;
+  box-shadow:0 10px 26px rgba(12,54,112,.16)!important;
+}
+.top-nav-bar a,.top-bar a,.topbar a,.top-navbar a,.top-search-bar a,.top-banner a,
+.top-nav-bar .btn,.top-bar .btn,.topbar .btn,.top-navbar .btn{color:inherit;}
+.page-header,.page-head,.page-header-box,.page-header-container,.hero,
+.heading-row,.page-header-row{
+  color:var(--bluefield-ink)!important;
+}
+.page-title,.page-header h1,.page-header h2,.page-header h3,.page-head h1,
+.hero h1,.heading h1,.main-content h1,.main-content h2,.main-content h3,.main-content h4,.main-content h5,.main-wrapper h1,.main-wrapper h2,.main-wrapper h3,.main-wrapper h4,.main-wrapper h5,.content h1,.content h2,.content h3,.content h4,.content h5,.wrap h1,.wrap h2,.wrap h3,.wrap h4,.wrap h5,.form-container h1,.form-container h2,.form-container h3,.details-container h1,.details-container h2,.details-container h3{
+  color:var(--bluefield-ink)!important;
+}
+p,.muted,.page-subtitle,.hero p,.label,.meta-text{color:var(--bluefield-muted);}
+.card,.cardx,.content-card,.panel,.summary-card,.feature-card,.equipment-card,
+.review-entry,.notification-card,.empty-state,.field,.spec-box,.meta-item,
+.detail-item,.equipment-box,.lender-header,.proof,.form-container,.details-container,
+.main-content .table-responsive,.chart-container,.payment-box,.upload-box,
+.form-section,.info-card,.stat-card,.metric-card,.section-card{
+  background:var(--bluefield-glass)!important;
+  border:1px solid rgba(255,255,255,.88)!important;
+  border-radius:20px!important;
+  box-shadow:var(--bluefield-shadow),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.card:hover,.equipment-card:hover,.feature-card:hover,.summary-card:hover{
+  box-shadow:0 17px 36px rgba(31,82,145,.15)!important;
+  border-color:rgba(69,126,190,.35)!important;
+}
+.card-header,.card-footer,.action-footer,.card-footer-actions{
+  background:rgba(222,238,255,.66)!important;
+  border-color:var(--bluefield-line)!important;
+}
+input:not([type=checkbox]):not([type=radio]),select,textarea,.form-control,.form-select,.lang-select{
+  background:rgba(255,255,255,.82)!important;
+  border:1px solid rgba(56,111,177,.24)!important;
+  border-radius:11px!important;
+  color:var(--bluefield-ink)!important;
+  box-shadow:none!important;
+}
+input:focus,select:focus,textarea:focus,.form-control:focus,.form-select:focus{
+  border-color:#4b8bd4!important;
+  box-shadow:0 0 0 3px rgba(47,112,199,.14)!important;
+}
+.btn-primary,.btn-main,.btn-agro,.btn-view,.btn-rent-now,.btn-back,.browse,
+button[type=submit],.top-banner .btn{
+  background:linear-gradient(135deg,#236ac0,#0b4699)!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+  color:#fff!important;
+  border-radius:11px!important;
+  box-shadow:0 6px 15px rgba(16,74,151,.18)!important;
+}
+.btn-primary:hover,.btn-main:hover,.btn-agro:hover,.btn-view:hover,.btn-rent-now:hover,
+.btn-back:hover,.browse:hover,button[type=submit]:hover{
+  background:linear-gradient(135deg,#1858a9,#082f72)!important;
+  color:#fff!important;
+  transform:translateY(-1px);
+}
+.btn-outline-primary,.btn-outline-secondary,.btn-outline-dark{
+  border-color:rgba(30,91,163,.35)!important;color:#164b91!important;
+}
+.btn-outline-primary:hover,.btn-outline-secondary:hover,.btn-outline-dark:hover{
+  background:#dcecff!important;color:#0b397a!important;
+}
+.main-content a:not(.btn):not(.nav-link),.main-wrapper a:not(.btn):not(.nav-link),.content a:not(.btn):not(.nav-link),.wrap a:not(.btn):not(.nav-link),.form-container a:not(.btn):not(.nav-link),.details-container a:not(.btn):not(.nav-link){color:#1556a2;}
+.main-content a:not(.btn):not(.nav-link):hover,.main-wrapper a:not(.btn):not(.nav-link):hover,.content a:not(.btn):not(.nav-link):hover,.wrap a:not(.btn):not(.nav-link):hover,.form-container a:not(.btn):not(.nav-link):hover,.details-container a:not(.btn):not(.nav-link):hover{color:#082f72;}
+table,.table{color:var(--bluefield-ink)!important;--bs-table-bg:transparent;}
+.table thead th,thead th{background:rgba(203,225,250,.72)!important;color:#173f78!important;border-color:var(--bluefield-line)!important;}
+.table td,.table th,tbody td{border-color:rgba(69,126,190,.15)!important;}
+hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
+.alert,.notice,.warning{
+  border-radius:14px!important;
+  box-shadow:0 7px 18px rgba(31,82,145,.06);
+}
+.breadcrumb-custom,.breadcrumb-nav,.breadcrumb{color:#52769e!important;}
+.badge{letter-spacing:.1px;}
+@media(max-width:767.98px){
+  .main-content,.main-wrapper,.content,.wrap{padding-left:14px!important;padding-right:14px!important;}
+  .top-nav-bar,.top-bar,.topbar,.top-navbar,.top-search-bar{border-radius:15px!important;}
+}
+@media(prefers-reduced-motion:reduce){.card,.equipment-card,.feature-card,.summary-card,button,a{transition:none!important;}}
+
+/* Review Analysis hero: match the blue header used on Lender AI Insights */
+.hero {
+    background: linear-gradient(110deg, #103b7c 0%, #1d559f 100%) !important;
+    color: #ffffff !important;
+}
+.hero h1,
+.hero p {
+    color: #ffffff !important;
+}
+
 </style></head><body><?php include __DIR__ . '/lender_sidebar.php'; ?><main class="main-content"><section class="hero"><span class="pill"><?= lai_page_t('AI-ASSISTED ANALYSIS') ?></span><h1><?= lai_page_t('Review Analysis') ?></h1><p><?= lai_page_t('Summarize customer ratings and flag equipment where feedback may need attention.') ?></p></section><div class="mb-3"><a class="btn btn-outline-success" href="lender_ai_insights.php"><i class="fa-solid fa-arrow-left me-2"></i><?= lai_page_t('Back to AI Insights Dashboard') ?></a></div>
 <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
 
