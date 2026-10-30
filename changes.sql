@@ -305,4 +305,125 @@ WHERE NOT (OLD.`price_per_day` <=> NEW.`price_per_day`);
 
 ALTER TABLE bookings
 ADD COLUMN reminder_notification_sent_at DATETIME NULL DEFAULT NULL,
-ADD COLUMN overdue_notification_sent_at DATETIME NULL DEFAULT NULL;
+ADD COLUMN overdue_notification_sent_at DATETIME NULL DEFAULT NUll,
+
+INSERT INTO `users`
+(
+    `full_name`,
+    `email`,
+    `phone`,
+    `password`,
+    `role`,
+    `security_question`,
+    `security_answer`,
+    `address`,
+    `city`,
+    `district`,
+    `state`
+)
+SELECT
+    new_users.full_name,
+    new_users.email,
+    new_users.phone,
+    '$2y$12$Yw3yQlK8HmKBIWHNLSygJ.tPV1AZieRxbgf5DVK6DEDv792sTn2aG',
+    new_users.role,
+    'What was the name of your first pet?',
+    'mango123',
+    new_users.address,
+    new_users.city,
+    new_users.district,
+    'Karnataka'
+FROM
+(
+    SELECT
+        'Manjunath Gowda' AS full_name,
+        'manjunath.lender02@example.com' AS email,
+        '9000000102' AS phone,
+        'lender' AS role,
+        '25, Hunsur Road, Mysuru' AS address,
+        'Mysuru' AS city,
+        'Mysuru' AS district
+
+    UNION ALL
+
+    SELECT
+        'Suresh Patil',
+        'suresh.lender03@example.com',
+        '9000000103',
+        'lender',
+        '18, Gokul Road, Hubballi',
+        'Hubballi',
+        'Dharwad'
+
+    UNION ALL
+
+    SELECT
+        'Ramesh Shetty',
+        'ramesh.lender04@example.com',
+        '9000000104',
+        'lender',
+        '14, Sagar Road, Shivamogga',
+        'Shivamogga',
+        'Shivamogga'
+
+    UNION ALL
+
+    SELECT
+        'Arun Kumar',
+        'arun.renter01@example.com',
+        '9000000201',
+        'renter',
+        '10, Yelahanka Main Road, Bengaluru',
+        'Bengaluru',
+        'Bengaluru Urban'
+
+    UNION ALL
+
+    SELECT
+        'Kiran S',
+        'kiran.renter02@example.com',
+        '9000000202',
+        'renter',
+        '22, Bannur Road, Mysuru',
+        'Mysuru',
+        'Mysuru'
+
+    UNION ALL
+
+    SELECT
+        'Vinay Patil',
+        'vinay.renter03@example.com',
+        '9000000203',
+        'renter',
+        '15, Gokul Road, Hubballi',
+        'Hubballi',
+        'Dharwad'
+
+    UNION ALL
+
+    SELECT
+        'Deepak Gowda',
+        'deepak.renter04@example.com',
+        '9000000204',
+        'renter',
+        '8, Sagar Road, Shivamogga',
+        'Shivamogga',
+        'Shivamogga'
+
+    UNION ALL
+
+        SELECT
+        'Harish Gowda',
+        'harish.renter05@example.com',
+        '9000000205',
+        'renter',
+        '12, Mandya Main Road, Mandya',
+        'Mandya',
+        'Mandya'
+) AS new_users
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM `users`
+    WHERE `users`.`email` = new_users.email
+);

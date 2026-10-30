@@ -65,15 +65,15 @@ if ($user_location_display === '') {
 $location_section_labels = [
     'en' => [
         'nearby' => 'Near Your Registered Location – Equipment Serviceable to You',
-        'note' => '⭐ Equipment that is not serviceable to your location is not displayed.'
+        'note' => '⭐ All matching available equipment is shown. Nearby equipment appears first, followed by other locations.'
     ],
     'kn' => [
         'nearby' => 'ನಿಮ್ಮ ನೋಂದಾಯಿತ ಸ್ಥಳದ ಸಮೀಪ – ನಿಮಗೆ ಸೇವೆ ಲಭ್ಯವಿರುವ ಉಪಕರಣಗಳು',
-        'note' => '⭐ ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲದ ಉಪಕರಣಗಳನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗುವುದಿಲ್ಲ.'
+        'note' => '⭐ ಹುಡುಕಾಟಕ್ಕೆ ಹೊಂದುವ ಲಭ್ಯವಿರುವ ಎಲ್ಲಾ ಉಪಕರಣಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತದೆ. ಹತ್ತಿರದ ಉಪಕರಣಗಳು ಮೊದಲು ಕಾಣಿಸುತ್ತವೆ.'
     ],
     'hi' => [
         'nearby' => 'आपके पंजीकृत स्थान के पास – आपके लिए सेवा योग्य उपकरण',
-        'note' => '⭐ जो उपकरण आपके स्थान के लिए सेवा योग्य नहीं हैं, वे प्रदर्शित नहीं किए जाते हैं।'
+        'note' => '⭐ खोज से मेल खाने वाले सभी उपलब्ध उपकरण दिखाए जाएंगे। पास के उपकरण पहले दिखेंगे।'
     ]
 ];
 
@@ -240,13 +240,57 @@ if (!empty($search_query)) {
 
     $like_term = "%" . $search_query . "%";
 
+    // If the renter searches an exact category name (for example, Tractor),
+    // return every available item in that category only. Do not match unrelated
+    // items just because their title or description contains the category word.
+    $exact_category = '';
+    foreach ($valid_categories as $category_name) {
+        if (strcasecmp(trim($search_query), $category_name) === 0) {
+            $exact_category = $category_name;
+            break;
+        }
+    }
+
+    if ($exact_category !== '') {
+        $category_sql = "
+            SELECT
+                e.*,
+                COALESCE(r.avg_rating, 0) AS rating,
+                COALESCE(r.review_count, 0) AS rating_count,
+                COALESCE(l.city, '') AS lender_city,
+                COALESCE(l.district, '') AS lender_district,
+                COALESCE(l.state, '') AS lender_state
+            FROM equipment e
+            LEFT JOIN users l ON l.user_id = e.lender_id
+            LEFT JOIN (
+                SELECT equipment_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+                FROM reviews
+                GROUP BY equipment_id
+            ) r ON r.equipment_id = e.equipment_id
+            WHERE e.status = 'Available'
+              AND LOWER(TRIM(e.category)) = LOWER(?)
+            ORDER BY e.equipment_id DESC
+        ";
+
+        $category_stmt = $conn->prepare($category_sql);
+        if ($category_stmt) {
+            $category_stmt->bind_param("s", $exact_category);
+            $category_stmt->execute();
+            $category_result = $category_stmt->get_result();
+            while ($row = $category_result->fetch_assoc()) {
+                $raw_collected_items[] = $row;
+            }
+            $category_stmt->close();
+        }
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | STEP A - FULL PHRASE SEARCH
+    | STEP A - FULL PHRASE SEARCH (for non-exact-category searches)
     |--------------------------------------------------------------------------
     */
 
+    if ($exact_category === '') {
     $eq_sql = "
         SELECT
             e.*,
@@ -302,21 +346,7 @@ if (!empty($search_query)) {
         $eq_result = $eq_stmt->get_result();
 
         while ($row = $eq_result->fetch_assoc()) {
-
-            /*
-             * Only include equipment that is serviceable
-             * to the renter.
-             */
-            if (
-                is_equipment_serviceable(
-                    $row,
-                    $user_city,
-                    $user_district,
-                    $user_state
-                )
-            ) {
-                $raw_collected_items[] = $row;
-            }
+            $raw_collected_items[] = $row;
         }
 
         $eq_stmt->close();
@@ -414,17 +444,7 @@ if (!empty($search_query)) {
                     $multi_res = $multi_stmt->get_result();
 
                     while ($row = $multi_res->fetch_assoc()) {
-
-                        if (
-                            is_equipment_serviceable(
-                                $row,
-                                $user_city,
-                                $user_district,
-                                $user_state
-                            )
-                        ) {
-                            $raw_collected_items[] = $row;
-                        }
+                        $raw_collected_items[] = $row;
                     }
 
                     $multi_stmt->close();
@@ -508,17 +528,7 @@ if (!empty($search_query)) {
                 $cat_result = $cat_stmt->get_result();
 
                 while ($row = $cat_result->fetch_assoc()) {
-
-                    if (
-                        is_equipment_serviceable(
-                            $row,
-                            $user_city,
-                            $user_district,
-                            $user_state
-                        )
-                    ) {
-                        $raw_collected_items[] = $row;
-                    }
+                    $raw_collected_items[] = $row;
                 }
 
                 $cat_stmt->close();
@@ -526,6 +536,8 @@ if (!empty($search_query)) {
         }
     }
 
+
+    } // End non-exact-category search fallback.
 
     /*
     |--------------------------------------------------------------------------
@@ -557,59 +569,23 @@ if (!empty($search_query)) {
             $user_state !== '' &&
             strcasecmp($lender_state, $user_state) === 0;
 
-
-        /*
-         * Same city + district + state
-         */
-        if (
-            $city_match &&
-            $district_match &&
-            $state_match
-        ) {
-
+        // Location controls ordering only. It never removes a result.
+        if ($city_match) {
             $row['location_priority'] = 1;
-
             $same_city_equipment[] = $row;
-        }
-
-        /*
-         * Same district + state
-         */
-        elseif (
-            $district_match &&
-            $state_match
-        ) {
-
+        } elseif ($district_match) {
             $row['location_priority'] = 2;
-
             $same_district_equipment[] = $row;
-        }
-
-        /*
-         * Same state
-         */
-        elseif ($state_match) {
-
+        } elseif ($state_match) {
             $row['location_priority'] = 3;
-
             $same_state_equipment[] = $row;
-        }
-
-        /*
-         * Other serviceable location
-         */
-        else {
-
+        } else {
             $row['location_priority'] = 4;
-
             $other_equipment[] = $row;
         }
     }
 
-
-    /*
-     * Compatibility variable.
-     */
+    // Nearby equipment is shown first, followed by all other matching equipment.
     $nearby_equipment = array_merge(
         $same_city_equipment,
         $same_district_equipment,
@@ -1410,7 +1386,8 @@ function display_equipment_card($eq, $current_lang, $lang_param, $search_query =
                     display_equipment_card(
                         $eq,
                         $current_lang,
-                        $lang_param
+                        $lang_param,
+                        $search_query
                     );
                     ?>
 
@@ -1441,7 +1418,8 @@ function display_equipment_card($eq, $current_lang, $lang_param, $search_query =
                     display_equipment_card(
                         $eq,
                         $current_lang,
-                        $lang_param
+                        $lang_param,
+                        $search_query
                     );
                     ?>
 
