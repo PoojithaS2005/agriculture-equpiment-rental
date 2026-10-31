@@ -427,3 +427,277 @@ WHERE NOT EXISTS
     FROM `users`
     WHERE `users`.`email` = new_users.email
 );
+
+
+--thanu paste madu sql ali
+START TRANSACTION;
+
+INSERT INTO equipment
+(
+    category_id,
+    lender_id,
+    title,
+    category,
+    brand_model,
+    power_hp,
+    drive_type,
+    model_year,
+    fuel_type,
+    working_width,
+    equipment_condition,
+    price_per_day,
+    security_deposit,
+    total_quantity,
+    min_booking_days,
+    max_booking_days,
+    service_location,
+    distance_km,
+    description,
+    image,
+    badge,
+    status,
+    rating,
+    rating_count,
+    is_featured
+)
+
+SELECT
+    new_equipment.category_id,
+    26,
+    new_equipment.title,
+    new_equipment.category,
+    new_equipment.brand_model,
+    new_equipment.power_hp,
+    new_equipment.drive_type,
+    new_equipment.model_year,
+    new_equipment.fuel_type,
+    new_equipment.working_width,
+    new_equipment.equipment_condition,
+    new_equipment.price_per_day,
+    new_equipment.security_deposit,
+    1,
+    1,
+    7,
+    new_equipment.service_location,
+    25.0,
+    new_equipment.description,
+    'default.png',
+    'NONE',
+    'Available',
+    0.0,
+    0,
+    0
+
+FROM
+(
+    SELECT
+        2 AS category_id,
+        'Harvesting' AS category,
+        'Paddy Harvester' AS title,
+        'Kubota Paddy Harvester' AS brand_model,
+        35 AS power_hp,
+        '4WD' AS drive_type,
+        2023 AS model_year,
+        'Diesel' AS fuel_type,
+        '1.5 m' AS working_width,
+        'Good' AS equipment_condition,
+        3000.00 AS price_per_day,
+        1500.00 AS security_deposit,
+        'Bengaluru Rural, Hassan' AS service_location,
+        'Paddy harvesting machine for cutting and collecting rice crops efficiently.' AS description
+
+    UNION ALL
+
+    SELECT
+        2, 'Harvesting',
+        'Mini Combine Harvester',
+        'Mahindra Mini Combine',
+        30, '4WD', 2024, 'Diesel',
+        '1.2 m', 'Good', 2500.00, 1200.00,
+        'Mysuru, Hassan',
+        'Compact combine harvester suitable for harvesting crops on small and medium-sized farms.'
+
+    UNION ALL
+
+    SELECT
+        2, 'Harvesting',
+        'Power Reaper',
+        'Kisan Kraft Power Reaper',
+        7, 'Portable', 2023, 'Petrol',
+        '1.0 m', 'Used', 1000.00, 400.00,
+        'Tumakuru, Mysuru',
+        'Power-operated reaper for cutting standing crops during the harvesting season.'
+
+    UNION ALL
+
+    SELECT
+        6, 'Spraying',
+        'Battery Sprayer',
+        'Kisan Kraft Battery Sprayer',
+        NULL, 'Portable', 2024, 'Battery',
+        '16 L', 'Good', 250.00, 100.00,
+        'Bengaluru Rural, Tumakuru',
+        'Rechargeable battery sprayer for applying suitable agricultural crop treatments.'
+
+    UNION ALL
+
+    SELECT
+        6, 'Spraying',
+        'Knapsack Sprayer',
+        'Manual Knapsack Sprayer',
+        NULL, 'Manual', 2023, 'Manual',
+        '16 L', 'Good', 150.00, 50.00,
+        'Hassan, Mysuru',
+        'Hand-operated backpack sprayer for applying agricultural liquids to crops.'
+
+    UNION ALL
+
+    SELECT
+        6, 'Spraying',
+        'Mist Blower Sprayer',
+        'Kisan Kraft Mist Blower',
+        3, 'Portable', 2024, 'Petrol',
+        '14 L', 'Good', 350.00, 150.00,
+        'Tumakuru, Hassan',
+        'Portable mist blower for crop treatment in suitable agricultural fields.'
+
+    UNION ALL
+
+    SELECT
+        3, 'Irrigation',
+        'Diesel Water Pump',
+        'Kirloskar Diesel Pump',
+        7, 'Portable', 2023, 'Diesel',
+        '3 inch', 'Good', 1200.00, 500.00,
+        'Bengaluru Rural, Mysuru',
+        'Diesel-powered water pump for transferring water to agricultural fields.'
+
+    UNION ALL
+
+    SELECT
+        3, 'Irrigation',
+        'Portable Water Pump',
+        'Kirloskar Portable Pump',
+        5, 'Portable', 2024, 'Diesel',
+        '2 inch', 'Good', 800.00, 300.00,
+        'Hassan, Tumakuru',
+        'Portable irrigation pump suitable for moving water from a water source to farm fields.'
+
+    UNION ALL
+
+    SELECT
+        3, 'Irrigation',
+        'Solar Irrigation Pump',
+        'Shakti Solar Pump',
+        3, 'Portable', 2024, 'Solar',
+        '2 inch', 'Good', 1500.00, 500.00,
+        'Mysuru, Hassan',
+        'Solar-powered irrigation pump designed to support agricultural water supply.'
+
+    UNION ALL
+
+    SELECT
+        3, 'Irrigation',
+        'Sprinkler Irrigation Set',
+        'Agricultural Sprinkler Set',
+        NULL, 'Portable', 2024, 'Manual',
+        '20 m', 'Good', 500.00, 200.00,
+        'Tumakuru, Mysuru',
+        'Portable sprinkler equipment for distributing water across suitable agricultural plots.'
+
+    UNION ALL
+
+    SELECT
+        4, 'Tillage',
+        'Disc Plough',
+        'Field King Disc Plough',
+        45, '3 Point Linkage', 2023, 'Diesel',
+        '3 Disc', 'Good', 900.00, 400.00,
+        'Bengaluru Rural, Hassan',
+        'Disc plough for breaking and turning soil before planting crops.'
+
+    UNION ALL
+
+    SELECT
+        4, 'Tillage',
+        'Cultivator',
+        'Mahindra Agricultural Cultivator',
+        45, '3 Point Linkage', 2024, 'Diesel',
+        '9 Tine', 'Good', 700.00, 300.00,
+        'Mysuru, Tumakuru',
+        'Cultivator for loosening soil, preparing seedbeds, and controlling weeds.'
+
+    UNION ALL
+
+    SELECT
+        4, 'Tillage',
+        'Disc Harrow',
+        'Field King Disc Harrow',
+        40, '3 Point Linkage', 2023, 'Diesel',
+        '6 Feet', 'Used', 650.00, 250.00,
+        'Hassan, Mysuru',
+        'Disc harrow for breaking soil clods and preparing fields for cultivation.'
+
+    UNION ALL
+
+    SELECT
+        5, 'Seeding',
+        'Seed Drill Machine',
+        'Mahindra Seed Drill',
+        40, '3 Point Linkage', 2024, 'Diesel',
+        '9 Tine', 'Good', 800.00, 300.00,
+        'Bengaluru Rural, Tumakuru',
+        'Seed drill for placing seeds in rows at suitable depths and spacing.'
+
+    UNION ALL
+
+    SELECT
+        5, 'Seeding',
+        'Multi Crop Planter',
+        'Agricultural Multi Crop Planter',
+        40, '3 Point Linkage', 2023, 'Diesel',
+        '4 Row', 'Good', 1000.00, 400.00,
+        'Hassan, Mysuru',
+        'Multi-crop planter for sowing suitable crop seeds with consistent spacing.'
+
+    UNION ALL
+
+    SELECT
+        5, 'Seeding',
+        'Maize Seed Planter',
+        'Agricultural Maize Planter',
+        45, '3 Point Linkage', 2024, 'Diesel',
+        '2 Row', 'Good', 900.00, 350.00,
+        'Tumakuru, Hassan',
+        'Seed planter designed to place maize seeds in rows at suitable intervals.'
+
+    UNION ALL
+
+    SELECT
+        5, 'Seeding',
+        'Manual Seed Drill',
+        'Manual Agricultural Seed Drill',
+        NULL, 'Manual', 2023, 'Manual',
+        'Hand Operated', 'Good', 300.00, 100.00,
+        'Mysuru, Tumakuru',
+        'Manually operated seed drill for sowing seeds in small agricultural plots.'
+
+) AS new_equipment
+
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM equipment AS existing_equipment
+    WHERE existing_equipment.lender_id = 26
+      AND existing_equipment.title = new_equipment.title
+);
+
+COMMIT;
+
+SELECT
+    category,
+    COUNT(*) AS total_equipment
+FROM equipment
+WHERE lender_id = 26
+GROUP BY category
+ORDER BY category;
