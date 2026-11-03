@@ -45,16 +45,14 @@ if (count($lender_name_parts) >= 2) {
     $lender_initials = strtoupper(substr($lender_name_parts[0] ?? 'L', 0, 2));
 }
 
-// Fetch Summary Statistics dynamically
+// Fetch Summary Statistics dynamically.
+// Accepted and Rejected show all-time counts so they match the statuses
+// visible in the Rental Requests table, regardless of request date.
 $stats_query = "SELECT
     COUNT(b.booking_id) as total_requests,
-    SUM(CASE WHEN b.status = 'Pending' THEN 1 ELSE 0 END) as pending_requests,
-    SUM(CASE WHEN b.status = 'Accepted'
-        AND MONTH(b.created_at) = MONTH(CURRENT_DATE())
-        AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as accepted_month,
-    SUM(CASE WHEN b.status = 'Rejected'
-        AND MONTH(b.created_at) = MONTH(CURRENT_DATE())
-        AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as rejected_month
+    SUM(CASE WHEN LOWER(TRIM(b.status)) = 'pending' THEN 1 ELSE 0 END) as pending_requests,
+    SUM(CASE WHEN LOWER(TRIM(b.status)) = 'accepted' THEN 1 ELSE 0 END) as accepted_month,
+    SUM(CASE WHEN LOWER(TRIM(b.status)) = 'rejected' THEN 1 ELSE 0 END) as rejected_month
     FROM bookings b
     JOIN equipment e ON b.equipment_id = e.equipment_id
     WHERE e.lender_id = ?
@@ -514,7 +512,7 @@ $total_rows = 0;
                 <div class="stat-details">
                     <span class="stat-title"><?php echo __('stat_accepted_requests'); ?></span>
                     <h2 class="stat-value"><?php echo $stats['accepted_month'] ?? 0; ?></h2>
-                    <span class="stat-desc"><?php echo __('stat_this_month'); ?></span>
+                    <span class="stat-desc"><?php echo __('stat_all_time'); ?></span>
                 </div>
             </div>
 
@@ -523,7 +521,7 @@ $total_rows = 0;
                 <div class="stat-details">
                     <span class="stat-title"><?php echo __('stat_rejected_requests'); ?></span>
                     <h2 class="stat-value"><?php echo $stats['rejected_month'] ?? 0; ?></h2>
-                    <span class="stat-desc"><?php echo __('stat_this_month'); ?></span>
+                    <span class="stat-desc"><?php echo __('stat_all_time'); ?></span>
                 </div>
             </div>
         </div>

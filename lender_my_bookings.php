@@ -1143,7 +1143,9 @@ tr:last-child td {
 
     <div class="toolbar">
 
-        <form method="get" class="search-form">
+        <form method="get" class="search-form" id="bookingFilterForm">
+
+            <input type="hidden" name="lang" value="<?php echo htmlspecialchars($current_lang, ENT_QUOTES, 'UTF-8'); ?>">
 
             <input
                 type="text"
@@ -1153,7 +1155,7 @@ tr:last-child td {
                 value="<?php echo htmlspecialchars($search); ?>"
             >
 
-            <select name="status" class="status-select">
+            <select name="status" class="status-select" aria-label="Filter bookings by status" onchange="this.form.submit()">
 
                 <option value="">
                     <?= htmlspecialchars(lender_bookings_text('all_current_bookings')); ?>

@@ -480,6 +480,38 @@ $booking_ui = [
     ]
 ];
 $bt = $booking_ui[$current_lang] ?? $booking_ui['en'];
+
+// Renter-facing overdue penalty labels in the selected language.
+$overdue_ui = [
+    'en' => [
+        'title' => 'Overdue Penalty',
+        'assessed' => 'Assessed overdue penalty:',
+        'collected' => 'Penalty collected by the lender.',
+        'pending' => 'The overdue penalty has not yet been recorded as collected by the lender.',
+        'amount_collected' => 'Amount collected:',
+        'collection_date' => 'Collection date:',
+        'not_recorded' => 'Not recorded'
+    ],
+    'kn' => [
+        'title' => 'ತಡವಾದ ಬಾಡಿಗೆ ದಂಡ',
+        'assessed' => 'ನಿಗದಿಪಡಿಸಿದ ತಡವಾದ ದಂಡ:',
+        'collected' => 'ಸಾಲದಾತರು ದಂಡವನ್ನು ಸಂಗ್ರಹಿಸಿದ್ದಾರೆ.',
+        'pending' => 'ತಡವಾದ ದಂಡವನ್ನು ಸಾಲದಾತರು ಇನ್ನೂ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ ಎಂದು ದಾಖಲಿಸಿಲ್ಲ.',
+        'amount_collected' => 'ಸಂಗ್ರಹಿಸಿದ ಮೊತ್ತ:',
+        'collection_date' => 'ಸಂಗ್ರಹಿಸಿದ ದಿನಾಂಕ:',
+        'not_recorded' => 'ದಾಖಲಾಗಿಲ್ಲ'
+    ],
+    'hi' => [
+        'title' => 'देरी का जुर्माना',
+        'assessed' => 'निर्धारित देरी का जुर्माना:',
+        'collected' => 'लेंडर ने जुर्माना वसूल कर लिया है।',
+        'pending' => 'लेंडर ने अभी तक देरी का जुर्माना वसूल किया हुआ दर्ज नहीं किया है।',
+        'amount_collected' => 'वसूली गई राशि:',
+        'collection_date' => 'वसूली की तारीख:',
+        'not_recorded' => 'दर्ज नहीं है'
+    ]
+];
+$ot = $overdue_ui[$current_lang] ?? $overdue_ui['en'];
 $status_labels = [
     'Pending' => $bt['pending_approval'], 'Accepted' => $bt['accepted'], 'Delivered' => $bt['delivered'],
     'Returned' => $bt['returned'], 'Completed' => $bt['completed'], 'Cancelled' => $bt['cancelled'], 'Rejected' => $current_lang === 'kn' ? 'ತಿರಸ್ಕರಿಸಲಾಗಿದೆ' : ($current_lang === 'hi' ? 'अस्वीकृत' : 'Rejected'), 'Overdue' => $current_lang === 'kn' ? 'ಅವಧಿ ಮೀರಿದೆ' : ($current_lang === 'hi' ? 'अवधि समाप्त' : 'Overdue')
@@ -1285,6 +1317,43 @@ $status_labels = [
                             echo 'Return confirmed successfully.';
                         }
                         ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php
+                $renter_overdue_amount = (float)($booking['late_charge'] ?? 0);
+                $renter_penalty_collected = (int)($booking['late_charge_collected'] ?? 0) === 1;
+                ?>
+                <?php if ($renter_overdue_amount > 0): ?>
+                    <div class="alert <?php echo $renter_penalty_collected ? 'alert-success' : 'alert-warning'; ?> mt-3 mb-2" style="font-size:13px; border-radius:10px;">
+                        <div class="fw-bold mb-2">
+                            <i class="fa-solid fa-money-bill-wave me-1"></i>
+                            <?php echo htmlspecialchars($ot['title']); ?>
+                        </div>
+                        <div class="mb-1">
+                            <?php echo htmlspecialchars($ot['assessed']); ?>
+                            <strong>₹<?php echo number_format($renter_overdue_amount, 2); ?></strong>
+                        </div>
+                        <?php if ($renter_penalty_collected): ?>
+                            <div class="fw-bold mb-1">
+                                <i class="fa-solid fa-circle-check me-1"></i>
+                                <?php echo htmlspecialchars($ot['collected']); ?>
+                            </div>
+                            <div>
+                                <?php echo htmlspecialchars($ot['amount_collected']); ?>
+                                ₹<?php echo number_format((float)($booking['late_charge_collected_amount'] ?? 0), 2); ?>
+                            </div>
+                            <div>
+                                <?php echo htmlspecialchars($ot['collection_date']); ?>
+                                <?php
+                                echo !empty($booking['late_charge_collected_at'])
+                                    ? htmlspecialchars(date('d M Y, h:i A', strtotime($booking['late_charge_collected_at'])))
+                                    : htmlspecialchars($ot['not_recorded']);
+                                ?>
+                            </div>
+                        <?php else: ?>
+                            <div><?php echo htmlspecialchars($ot['pending']); ?></div>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 

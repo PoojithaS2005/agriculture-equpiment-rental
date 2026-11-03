@@ -48,12 +48,14 @@ try {
      */
     // Repair overdue flags created before delivery was confirmed.
     // These bookings are still awaiting delivery confirmation, not overdue.
-    mysqli_query($conn, "UPDATE bookings
+    if (!mysqli_query($conn, "UPDATE bookings
                          SET status = 'Delivered', late_charge = 0,
                              overdue_notification_sent_at = NULL
                          WHERE status = 'Overdue'
                            AND delivery_confirmed = 0
-                           AND return_confirmed = 0");
+                           AND return_confirmed = 0")) {
+        throw new Exception(mysqli_error($conn));
+    }
 
     $sql = "
         SELECT
@@ -135,8 +137,14 @@ WHERE b.status IN ('Delivered','Overdue')
                        AND reminder_notification_sent_at IS NULL"
                 );
 
+                if (!$stmt) {
+                    throw new Exception(mysqli_error($conn));
+                }
+
                 mysqli_stmt_bind_param($stmt, "i", $bookingId);
-                mysqli_stmt_execute($stmt);
+                if (!mysqli_stmt_execute($stmt)) {
+                    throw new Exception(mysqli_stmt_error($stmt));
+                }
                 mysqli_stmt_close($stmt);
 
                 mysqli_commit($conn);
@@ -169,6 +177,10 @@ WHERE b.status IN ('Delivered','Overdue')
                        AND return_confirmed = 0"
                 );
 
+                if (!$stmt) {
+                    throw new Exception(mysqli_error($conn));
+                }
+
                 mysqli_stmt_bind_param(
                     $stmt,
                     "di",
@@ -176,7 +188,9 @@ WHERE b.status IN ('Delivered','Overdue')
                     $bookingId
                 );
 
-                mysqli_stmt_execute($stmt);
+                if (!mysqli_stmt_execute($stmt)) {
+                    throw new Exception(mysqli_stmt_error($stmt));
+                }
                 mysqli_stmt_close($stmt);
 
                 // Send the initial overdue notification only once.
@@ -209,8 +223,14 @@ WHERE b.status IN ('Delivered','Overdue')
                            AND overdue_notification_sent_at IS NULL"
                     );
 
+                    if (!$stmt) {
+                        throw new Exception(mysqli_error($conn));
+                    }
+
                     mysqli_stmt_bind_param($stmt, "i", $bookingId);
-                    mysqli_stmt_execute($stmt);
+                    if (!mysqli_stmt_execute($stmt)) {
+                        throw new Exception(mysqli_stmt_error($stmt));
+                    }
                     mysqli_stmt_close($stmt);
                 }
 
