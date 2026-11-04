@@ -34,17 +34,36 @@ if (!$user_info) {
     exit();
 }
 
+// Build a clean location using only actual place names.
+// Some user records may accidentally contain an email address in the state field.
 $registered_parts = [];
 foreach (['city', 'district', 'state'] as $location_field) {
     $value = trim((string) ($user_info[$location_field] ?? ''));
-    if ($value !== '' && !in_array(strtolower($value), array_map('strtolower', $registered_parts), true)) {
+
+    // Email addresses and values containing "@" are not valid location names.
+    if ($value === '' || strpos($value, '@') !== false || filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        continue;
+    }
+
+    if (!in_array(strtolower($value), array_map('strtolower', $registered_parts), true)) {
         $registered_parts[] = $value;
     }
 }
-$registered_location = implode(', ', $registered_parts);
-if ($registered_location === '') {
-    $registered_location = trim((string) ($user_info['address'] ?? ''));
+
+// Use the address only when city, district and state are unavailable.
+if (empty($registered_parts)) {
+    $address = trim((string) ($user_info['address'] ?? ''));
+    if ($address !== '') {
+        $address_parts = array_map('trim', explode(',', $address));
+        foreach ($address_parts as $value) {
+            if ($value !== '' && strpos($value, '@') === false && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                $registered_parts[] = $value;
+            }
+        }
+    }
 }
+
+$registered_location = implode(', ', $registered_parts);
 
 function weather_api_get_json(string $url): array
 {
@@ -115,19 +134,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'get_w
     }
 
     try {
-        $geocode_url = 'https://geocoding-api.open-meteo.com/v1/search?' . http_build_query([
-            'name' => $location_query,
-            'count' => 1,
-            'language' => 'en',
-            'format' => 'json'
-        ]);
-        $geo_data = weather_api_get_json($geocode_url);
+        // First try the complete location. For registered locations, also retry
+        // individual place-name parts (for example, "Devanahalli") if needed.
+        $location_candidates = [$location_query];
 
-        if (empty($geo_data['results'][0])) {
-            json_response(['success' => false, 'message' => __('location_not_found')], 404);
+        if ($location_mode === 'registered') {
+            foreach ($registered_parts as $part) {
+                if ($part !== '' && !in_array($part, $location_candidates, true)) {
+                    $location_candidates[] = $part;
+                }
+            }
         }
 
-        $place = $geo_data['results'][0];
+        $place = null;
+        foreach ($location_candidates as $candidate) {
+            $geocode_url = 'https://geocoding-api.open-meteo.com/v1/search?' . http_build_query([
+                'name' => $candidate,
+                'count' => 5,
+                'language' => 'en',
+                'format' => 'json'
+            ]);
+
+            $geo_data = weather_api_get_json($geocode_url);
+            if (!empty($geo_data['results'][0])) {
+                // Prefer a result in India when the API returns multiple matches.
+                $matches = $geo_data['results'];
+                foreach ($matches as $match) {
+                    if (strtolower((string) ($match['country_code'] ?? '')) === 'in') {
+                        $place = $match;
+                        break;
+                    }
+                }
+                if ($place === null) {
+                    $place = $matches[0];
+                }
+                break;
+            }
+        }
+
+        if ($place === null) {
+            json_response(['success' => false, 'message' => __('location_not_found')], 404);
+        }
         $latitude = (float) ($place['latitude'] ?? 0);
         $longitude = (float) ($place['longitude'] ?? 0);
 

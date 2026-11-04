@@ -2041,11 +2041,11 @@ if (count($nameParts) > 1) {
                             <td>
                                 <td>
     <a
-        href="<?php echo $base_url; ?>/rental_request.php"
+        href="<?php echo $base_url; ?>/rental_request.php?lang=<?php echo urlencode($current_lang ?? 'en'); ?>"
         class="btn-act btn-view"
     >
         <i class="fa-solid fa-eye"></i>
-        View Equipment
+        <?php echo htmlspecialchars(__('view_equipment')); ?>
     </a>
 </td>
 
