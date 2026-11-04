@@ -1,10 +1,15 @@
 <?php
 session_start();
 require_once 'includes/lang.php';
-if (file_exists('includes/config.php')) { include('includes/config.php'); }
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'renter') { header("Location: login.php"); exit(); }
+if (file_exists('includes/config.php')) 
+    { include('includes/config.php'); }
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'renter') 
+    { header("Location: login.php"); exit(); }
 $user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
-$user_query = "SELECT full_name, email, COALESCE(address, 'Not Specified') AS address, COALESCE(city, '') AS city, COALESCE(district, '') AS district, COALESCE(state, '') AS state FROM users WHERE user_id = '$user_id'";
+$user_query = "SELECT full_name, email, COALESCE(address, 'Not Specified') 
+AS address, COALESCE(city, '')
+ AS city, COALESCE(district, '') 
+ AS district, COALESCE(state, '') AS state FROM users WHERE user_id = '$user_id'";
 $user_res = mysqli_query($conn, $user_query);
 $user_info = mysqli_fetch_assoc($user_res);
 
@@ -67,10 +72,14 @@ function dashboard_status_label($status) {
     return ($direct !== $key) ? $direct : ucfirst($status);
 }
 
-$notif_count_sql = "SELECT COUNT(*) AS total FROM notifications WHERE user_id = '$user_id' AND is_read = 0";
+$notif_count_sql = "SELECT COUNT(*) AS total 
+FROM notifications WHERE user_id = '$user_id' AND is_read = 0";
 $notif_count_res = mysqli_query($conn, $notif_count_sql);
 $unread_count = ($notif_count_res) ? mysqli_fetch_assoc($notif_count_res)['total'] : 0;
-$notif_list_sql = "SELECT notification_id, title, message, is_read, created_at FROM notifications WHERE user_id = '$user_id' ORDER BY created_at DESC LIMIT 5";
+$notif_list_sql = "SELECT notification_id, title, 
+message, is_read, created_at 
+FROM notifications WHERE user_id = '$user_id' 
+ORDER BY created_at DESC LIMIT 5";
 $notif_list_res = mysqli_query($conn, $notif_list_sql);
 $active_sql = "SELECT COUNT(*) AS total FROM bookings WHERE renter_id = '$user_id' AND status IN ('confirmed', 'active')";
 $active_res = mysqli_query($conn, $active_sql);
