@@ -701,3 +701,10 @@ FROM equipment
 WHERE lender_id = 26
 GROUP BY category
 ORDER BY category;
+
+//date modified:02 novmebr 2026
+--changes: Added new columns to bookings table for late charge collection.
+ALTER TABLE bookings
+ADD COLUMN late_charge_collected TINYINT(1) NOT NULL DEFAULT 0,
+ADD COLUMN late_charge_collected_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+ADD COLUMN late_charge_collected_at DATETIME NULL;

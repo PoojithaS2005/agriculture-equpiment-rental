@@ -7,18 +7,66 @@ $user_id = mysqli_real_escape_string($conn, $_SESSION['user_id']);
 $user_query = "SELECT full_name, email, COALESCE(address, 'Not Specified') AS address, COALESCE(city, '') AS city, COALESCE(district, '') AS district, COALESCE(state, '') AS state FROM users WHERE user_id = '$user_id'";
 $user_res = mysqli_query($conn, $user_query);
 $user_info = mysqli_fetch_assoc($user_res);
+
 function dashboard_category_label($category_name) {
     $key = strtolower(trim($category_name));
-    $category_keys = ['tractor' => 'tractor','harvesting' => 'harvesting','irrigation' => 'irrigation','tillage' => 'tillage','seeding' => 'seeding','spraying' => 'spraying'];
-    if (isset($category_keys[$key])) { $translated = __($category_keys[$key]); return ($translated !== $category_keys[$key]) ? $translated : $category_name; }
-    return $category_name;
+    $category_keys = [
+        'tractor' => 'tractor',
+        'harvesting' => 'harvesting',
+        'irrigation' => 'irrigation',
+        'tillage' => 'tillage',
+        'seeding' => 'seeding',
+        'spraying' => 'spraying'
+    ];
+    if (isset($category_keys[$key])) {
+        $translated = __($category_keys[$key]);
+        if ($translated !== $category_keys[$key]) {
+            return $translated;
+        }
+        $prefixed = __('category_' . $category_keys[$key]);
+        if ($prefixed !== 'category_' . $category_keys[$key]) {
+            return $prefixed;
+        }
+    }
+    $direct_prefixed = __('category_' . $key);
+    if ($direct_prefixed !== 'category_' . $key) {
+        return $direct_prefixed;
+    }
+    $direct = __($key);
+    return ($direct !== $key) ? $direct : $category_name;
 }
+
 function dashboard_status_label($status) {
     $key = strtolower(trim($status));
-    $status_keys = ['pending' => 'pending_approval','accepted' => 'accepted','delivered' => 'delivered','returned' => 'returned','completed' => 'completed','rejected' => 'rejected','overdue' => 'overdue'];
-    if (isset($status_keys[$key])) { $translated = __($status_keys[$key]); return ($translated !== $status_keys[$key]) ? $translated : ucfirst($status); }
-    return ucfirst($status);
+    $status_keys = [
+        'pending' => 'pending_approval',
+        'accepted' => 'accepted',
+        'delivered' => 'delivered',
+        'returned' => 'returned',
+        'completed' => 'completed',
+        'rejected' => 'rejected',
+        'overdue' => 'overdue',
+        'cancelled' => 'cancelled',
+        'confirmed' => 'confirmed'
+    ];
+    if (isset($status_keys[$key])) {
+        $translated = __($status_keys[$key]);
+        if ($translated !== $status_keys[$key]) {
+            return $translated;
+        }
+        $prefixed = __('status_' . $status_keys[$key]);
+        if ($prefixed !== 'status_' . $status_keys[$key]) {
+            return $prefixed;
+        }
+    }
+    $direct_prefixed = __('status_' . $key);
+    if ($direct_prefixed !== 'status_' . $key) {
+        return $direct_prefixed;
+    }
+    $direct = __($key);
+    return ($direct !== $key) ? $direct : ucfirst($status);
 }
+
 $notif_count_sql = "SELECT COUNT(*) AS total FROM notifications WHERE user_id = '$user_id' AND is_read = 0";
 $notif_count_res = mysqli_query($conn, $notif_count_sql);
 $unread_count = ($notif_count_res) ? mysqli_fetch_assoc($notif_count_res)['total'] : 0;

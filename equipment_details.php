@@ -11,6 +11,149 @@ require_once 'includes/config.php';
 
 $current_lang = $_SESSION['lang'] ?? 'en';
 
+// Translate common equipment values stored in the database.
+// Custom titles, brands, models and descriptions are left unchanged unless a known translation exists.
+function translate_equipment_detail_value($value, $type = 'general') {
+    $value = trim((string)$value);
+    if ($value === '' || $value === 'N/A') {
+        return $value;
+    }
+
+    $key = strtolower($value);
+    $maps = [
+        'category' => [
+            'seeding' => ['seeding', 'ಬಿತ್ತನೆ', 'बुवाई'],
+            'tractor' => ['tractor', 'ಟ್ರಾಕ್ಟರ್', 'ट्रैक्टर'],
+            'harvesting' => ['harvesting', 'ಕೊಯ್ಲು', 'कटाई'],
+            'irrigation' => ['irrigation', 'ನೀರಾವರಿ', 'सिंचाई'],
+            'tillage' => ['tillage', 'ಉಳುಮೆ', 'जुताई'],
+            'spraying' => ['spraying', 'ಸಿಂಪಡಣೆ', 'छिड़काव'],
+        ],
+        'condition' => [
+            'good' => ['condition_good_value', 'condition_good_value', 'condition_good_value'],
+            'excellent' => ['condition_excellent_value', 'condition_excellent_value', 'condition_excellent_value'],
+            'fair' => ['condition_fair_value', 'condition_fair_value', 'condition_fair_value'],
+            'poor' => ['condition_poor_value', 'condition_poor_value', 'condition_poor_value'],
+        ],
+        'status' => [
+            'available' => ['available_value', 'available_value', 'available_value'],
+            'rented' => ['rented_value', 'rented_value', 'rented_value'],
+            'not available' => ['not_available_value', 'not_available_value', 'not_available_value'],
+        ],
+        'drive' => [
+            'manual' => ['Manual', 'ಕೈಚಾಲಿತ', 'मैनुअल'],
+            'automatic' => ['Automatic', 'ಸ್ವಯಂಚಾಲಿತ', 'स्वचालित'],
+            'four wheel drive' => ['Four Wheel Drive', 'ನಾಲ್ಕು ಚಕ್ರ ಚಾಲನೆ', 'चार पहिया ड्राइव'],
+            '2wd' => ['2WD', '2WD', '2WD'],
+            '4wd' => ['4WD', '4WD', '4WD'],
+        ],
+        
+          'fuel' => [
+    'diesel' => ['Diesel', 'ಡೀಸೆಲ್', 'डीजल'],
+    'petrol' => ['Petrol', 'ಪೆಟ್ರೋಲ್', 'पेट्रोल'],
+    'electric' => ['Electric', 'ವಿದ್ಯುತ್', 'इलेक्ट्रिक'],
+    'manual' => ['Manual', 'ಕೈಚಾಲಿತ', 'मैनुअल']
+
+        ],
+        'location' => [
+            'bagalkot' => 'district_bagalkot',
+            'bagalkote' => 'district_bagalkot',
+            'ballari' => 'district_ballari',
+            'bellary' => 'district_ballari',
+            'belagavi' => 'district_belagavi',
+            'belgaum' => 'district_belagavi',
+            'bengaluru rural' => 'district_bengaluru_rural',
+            'bangalore rural' => 'district_bengaluru_rural',
+            'bengaluru urban' => 'district_bengaluru_urban',
+            'bangalore urban' => 'district_bengaluru_urban',
+            'bengaluru' => 'district_bengaluru_urban',
+            'bangalore' => 'district_bengaluru_urban',
+            'bidar' => 'district_bidar',
+            'chamarajanagar' => 'district_chamarajanagar',
+            'chamrajnagar' => 'district_chamarajanagar',
+            'chikkaballapur' => 'district_chikkaballapur',
+            'chikballapur' => 'district_chikkaballapur',
+            'chikkamagaluru' => 'district_chikkamagaluru',
+            'chikmagalur' => 'district_chikkamagaluru',
+            'chitradurga' => 'district_chitradurga',
+            'dakshina kannada' => 'district_dakshina_kannada',
+            'south kanara' => 'district_dakshina_kannada',
+            'davanagere' => 'district_davanagere',
+            'davangere' => 'district_davanagere',
+            'dharwad' => 'district_dharwad',
+            'gadag' => 'district_gadag',
+            'hassan' => 'district_hassan',
+            'haveri' => 'district_haveri',
+            'kalaburagi' => 'district_kalaburagi',
+            'gulbarga' => 'district_kalaburagi',
+            'kodagu' => 'district_kodagu',
+            'coorg' => 'district_kodagu',
+            'kolar' => 'district_kolar',
+            'koppal' => 'district_koppal',
+            'mandya' => 'district_mandya',
+            'mysuru' => 'district_mysuru',
+            'mysore' => 'district_mysuru',
+            'raichur' => 'district_raichur',
+            'ramanagara' => 'district_ramanagara',
+            'ramnagaram' => 'district_ramanagara',
+            'shivamogga' => 'district_shivamogga',
+            'shimoga' => 'district_shivamogga',
+            'tumakuru' => 'district_tumakuru',
+            'tumkur' => 'district_tumakuru',
+            'udupi' => 'district_udupi',
+            'uttara kannada' => 'district_uttara_kannada',
+            'north kanara' => 'district_uttara_kannada',
+            'vijayapura' => 'district_vijayapura',
+            'bijapur' => 'district_vijayapura',
+            'yadgir' => 'district_yadgir',
+            'yadagiri' => 'district_yadgir',
+            'vijayanagara' => 'district_vijayanagara',
+            'vijayanagaram' => 'district_vijayanagara',
+        ],
+        'brand_model' => [
+            'manual agricultural seed drill' => ['Manual Agricultural Seed Drill', 'ಕೈಚಾಲಿತ ಕೃಷಿ ಬೀಜ ಬಿತ್ತನೆ ಯಂತ್ರ', 'मैनुअल कृषि बीज ड्रिल'],
+        ],
+        'title' => [
+            'manual seed drill' => ['Manual Seed Drill', 'ಮ್ಯಾನುಯಲ್ ಸೀಡ್ ಡ್ರಿಲ್', 'मैनुअल सीड ड्रिल'],
+            'maize seed planter' => ['Maize Seed Planter', 'ಮೆಕ್ಕೆಜೋಳ ಬೀಜ ಬಿತ್ತನೆ ಯಂತ್ರ', 'मक्का बीज बोने की मशीन'],
+            'multi crop planter' => ['Multi Crop Planter', 'ಬಹು ಬೆಳೆ ಪ್ಲಾಂಟರ್', 'बहु-फसल प्लांटर'],
+            'seed drill machine' => ['Seed Drill Machine', 'ಬೀಜ ಬಿತ್ತನೆ ಯಂತ್ರ', 'बीज ड्रिल मशीन'],
+        ],
+        'description' => [
+            'manually operated seed drill for sowing seeds in small agricultural plots.' =>
+                ['Manually operated seed drill for sowing seeds in small agricultural plots.', 'ಸಣ್ಣ ಕೃಷಿ ಜಮೀನುಗಳಲ್ಲಿ ಬೀಜ ಬಿತ್ತಲು ಕೈಯಿಂದ ಕಾರ್ಯನಿರ್ವಹಿಸುವ ಬೀಜ ಬಿತ್ತನೆ ಯಂತ್ರ.', 'छोटे कृषि खेतों में बीज बोने के लिए हाथ से चलने वाली बीज ड्रिल मशीन।'],
+        ],
+    ];
+
+    $lang_index = ['en' => 0, 'kn' => 1, 'hi' => 2];
+    $lang = $GLOBALS['current_lang'] ?? 'en';
+
+    if ($type === 'location') {
+        $parts = preg_split('/\s*,\s*/u', $value);
+        $translated = [];
+        foreach ($parts as $part) {
+            $part_key = strtolower(trim($part));
+            if (isset($maps['location'][$part_key])) {
+                $translated[] = __($maps['location'][$part_key]);
+            } else {
+                $translated[] = trim($part);
+            }
+        }
+        return implode(', ', $translated);
+    }
+
+    if (isset($maps[$type][$key])) {
+        $entry = $maps[$type][$key];
+        if ($type === 'condition' || $type === 'status') {
+            return __($entry[$lang_index[$lang] ?? 0]);
+        }
+        return $entry[$lang_index[$lang] ?? 0];
+    }
+
+    return $value;
+}
+
+
 // Protect Page: Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -839,19 +982,19 @@ if ($from === 'recommended') {
         <div class="content-body">
 
             <h1 class="equipment-title">
-                <?php echo htmlspecialchars($eq['title'] ?? __('unnamed_equipment')); ?>
+                <?php echo htmlspecialchars(translate_equipment_detail_value($eq['title'] ?? __('unnamed_equipment'), 'title'), ENT_QUOTES, 'UTF-8'); ?>
             </h1>
 
             <div class="specs-grid">
 
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('category_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['category'] ?? 'N/A'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars(translate_equipment_detail_value($eq['category'] ?? 'N/A', 'category'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('brand_model_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['brand_model'] ?? 'N/A'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars(translate_equipment_detail_value($eq['brand_model'] ?? 'N/A', 'brand_model'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="spec-box">
@@ -861,7 +1004,7 @@ if ($from === 'recommended') {
 
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('drive_type_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['drive_type'] ?? 'N/A'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars(translate_equipment_detail_value($eq['drive_type'] ?? 'N/A', 'drive'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="spec-box">
@@ -871,17 +1014,17 @@ if ($from === 'recommended') {
 
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('fuel_type_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['fuel_type'] ?? 'N/A'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars(translate_equipment_detail_value($eq['fuel_type'] ?? 'N/A', 'fuel'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="spec-box">
-                    <div class="spec-label"><?php echo __('working_width_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['working_width'] ?? 'N/A'); ?></div>
+                    <div class="spec-label"><?php echo __('working_hours'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars($eq['working_hours'] ?? 'N/A'); ?></div>
                 </div>
 
                 <div class="spec-box">
                     <div class="spec-label"><?php echo __('equipment_condition_spec'); ?></div>
-                    <div class="spec-value"><?php echo htmlspecialchars($eq['equipment_condition'] ?? 'N/A'); ?></div>
+                    <div class="spec-value"><?php echo htmlspecialchars(translate_equipment_detail_value($eq['equipment_condition'] ?? 'N/A', 'condition'), ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
 
                 <div class="spec-box">
@@ -892,9 +1035,9 @@ if ($from === 'recommended') {
                 </div>
 
                 <div class="spec-box">
-                    <div class="spec-label">Quantity Available</div>
+                    <div class="spec-label"><?php echo __('quantity_available_label'); ?></div>
                     <div class="spec-value">
-                        <?php echo (int)($eq['total_quantity'] ?? 1); ?> unit(s)
+                        <?php $detail_quantity = (int)($eq['total_quantity'] ?? 1); echo $detail_quantity; ?> <?php echo ($detail_quantity === 1) ? __('unit_label_detail') : __('units_label_detail'); ?>
                     </div>
                 </div>
 
@@ -907,14 +1050,14 @@ if ($from === 'recommended') {
                 </div>
 
                 <div class="spec-box">
-                    <div class="spec-label">Security Deposit</div>
+                    <div class="spec-label"><?php echo __('security_deposit_label'); ?></div>
                     <div class="spec-value">
                         ₹<?php echo number_format((float)($eq['security_deposit'] ?? 0), 2); ?>
                     </div>
                 </div>
 
                 <div class="spec-box">
-                    <div class="spec-label">Maximum Booking Days</div>
+                    <div class="spec-label"><?php echo __('maximum_booking_days_label'); ?></div>
                     <div class="spec-value">
                         <?php echo htmlspecialchars((string)($eq['max_booking_days'] ?? 'N/A')); ?>
                         <?php echo isset($eq['max_booking_days']) && $eq['max_booking_days'] !== '' ? __('days_label') : ''; ?>
@@ -925,12 +1068,12 @@ if ($from === 'recommended') {
                     <div class="spec-label"><?php echo __('service_location_spec'); ?></div>
                     <div class="spec-value">
 
-                        <?php echo htmlspecialchars($eq['service_location'] ?? 'N/A'); ?>
+                        <?php echo htmlspecialchars(translate_equipment_detail_value($eq['service_location'] ?? 'N/A', 'location'), ENT_QUOTES, 'UTF-8'); ?>
 
                         <?php if (!empty($eq['distance_km'])): ?>
 
                             <small class="text-muted">
-                                (<?php echo htmlspecialchars($eq['distance_km']); ?> km)
+                                (<?php echo htmlspecialchars($eq['distance_km']); ?> <?php echo __('distance_unit'); ?>)
                             </small>
 
                         <?php endif; ?>
@@ -944,7 +1087,7 @@ if ($from === 'recommended') {
 
                         <span class="badge-status <?php echo (strtolower($eq['status'] ?? '') === 'rented') ? 'status-rented' : 'status-available'; ?>">
 
-                            <?php echo htmlspecialchars(ucfirst($eq['status'] ?? 'Available')); ?>
+                            <?php echo htmlspecialchars(translate_equipment_detail_value($eq['status'] ?? 'Available', 'status'), ENT_QUOTES, 'UTF-8'); ?>
 
                         </span>
 
@@ -984,7 +1127,7 @@ if ($from === 'recommended') {
                 </div>
 
                 <div class="spec-value fw-normal text-muted mt-1">
-                    <?php echo nl2br(htmlspecialchars($eq['description'] ?? __('no_description_provided'))); ?>
+                    <?php echo nl2br(htmlspecialchars(translate_equipment_detail_value($eq['description'] ?? __('no_description_provided'), 'description'), ENT_QUOTES, 'UTF-8')); ?>
                 </div>
 
             </div>

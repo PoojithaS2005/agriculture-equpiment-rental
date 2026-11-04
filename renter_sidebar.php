@@ -12,7 +12,7 @@ require_once 'includes/lang.php';
 ?>
 
 <style>
-/* Renter Sidebar - Green Glassmorphism Theme */
+/* Premium Emerald Glassmorphism - visual styling only */
 .renter-sidebar {
     width: 250px;
     min-height: 100vh;
@@ -21,55 +21,86 @@ require_once 'includes/lang.php';
     top: 0;
     left: 0;
     z-index: 1000;
-    padding-top: 20px;
+    padding: 18px 12px 22px 12px;
     overflow-y: auto;
     box-sizing: border-box;
 
-    /* Soft green glass effect */
-    background: linear-gradient(
-        180deg,
-        rgba(190, 224, 183, 0.96) 0%,
-        rgba(143, 190, 135, 0.96) 50%,
-        rgba(112, 166, 105, 0.96) 100%
-    );
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-right: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: 4px 0 20px rgba(35, 75, 39, 0.10);
+    background:
+        radial-gradient(circle at 15% 8%, rgba(255, 255, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 90% 75%, rgba(45, 106, 55, 0.10), transparent 32%),
+        linear-gradient(160deg, #338323 0%, #1f844c 50%, #8eb489 100%);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 8px 0 28px rgba(5, 48, 39, 0.18);
 }
 
-/* Brand */
+/* Soft decorative glow; does not affect sidebar content or clicks */
+.renter-sidebar::before {
+    content: "";
+    position: absolute;
+    top: 150px;
+    right: -75px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    filter: blur(35px);
+    pointer-events: none;
+}
+
 .renter-sidebar .renter-brand-logo {
-    padding: 0 20px 20px;
+    position: relative;
+    z-index: 1;
+    min-height: 94px;
+    margin: 0 3px 20px;
+    padding: 17px 13px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.38), rgba(255,255,255,0.16));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 8px 20px rgba(0,0,0,0.10);
 }
 
 .renter-sidebar .renter-brand-logo i {
-    font-size: 1.8rem;
-    color: #356b3c;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 13px;
+    color: #3c6342;
+    font-size: 1.65rem;
+    background: rgba(255,255,255,0.13);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
 }
 
 .renter-sidebar .renter-brand-name {
-    color: #356b3c;
+    color: #21852f;
     display: block;
-    line-height: 1;
-    font-size: 1rem;
-    font-weight: 700;
+    line-height: 1.15;
+    font-size: .96rem;
+    font-weight: 800;
+    letter-spacing: .35px;
 }
 
 .renter-sidebar .renter-brand-subtitle {
-    font-size: .65rem;
-    color: #456c49;
+    font-size: .61rem;
+    color: #1d4721;
     font-weight: 700;
     display: block;
-    margin-top: 5px;
+    margin-top: 6px;
     white-space: nowrap;
+    letter-spacing: .45px;
 }
 
 /* Navigation */
 .renter-sidebar .renter-nav {
+    position: relative;
+    z-index: 1;
     list-style: none;
     padding: 0;
     margin: 0;
@@ -77,71 +108,88 @@ require_once 'includes/lang.php';
 
 .renter-sidebar .renter-nav-item {
     list-style: none;
-    margin: 0;
+    margin: 0 0 5px;
     padding: 0;
 }
 
-/* Default navigation link */
 .renter-sidebar .renter-nav-link {
-    color: #f7fff5;
-    padding: 10px 20px;
-    font-size: .9rem;
-    font-weight: 500;
+    position: relative;
+    color: #ffffff;
+    padding: 11px 13px;
+    font-size: .88rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 13px;
     text-decoration: none;
-    min-height: 42px;
+    min-height: 44px;
     box-sizing: border-box;
-    border-radius: 0 8px 8px 0;
-    margin-right: 3px;
-    transition:
-        background .25s ease,
-        color .25s ease,
-        padding-left .25s ease;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    margin-right: 0;
+    transition: background .22s ease, color .22s ease, transform .22s ease,
+                box-shadow .22s ease, border-color .22s ease;
 }
 
-/* Navigation icons */
 .renter-sidebar .renter-nav-link i {
-    width: 18px;
+    width: 20px;
     text-align: center;
-    font-size: 1rem;
+    font-size: 1.03rem;
     flex-shrink: 0;
-    color: inherit;
+    color: #f7fff5;
+    transition: color .22s ease, transform .22s ease;
 }
 
-/* Hover effect */
 .renter-sidebar .renter-nav-link:hover {
     background: rgba(255, 255, 255, 0.22);
-    color: #244f2d;
-    padding-left: 24px;
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    transform: translateX(3px);
 }
 
-/* Active navigation item */
+.renter-sidebar .renter-nav-link:hover i {
+    color: #ffffff;
+    transform: scale(1.08);
+}
+
+/* Active page */
 .renter-sidebar .renter-nav-link.active {
-    background: #2f6b3a;
+    background: linear-gradient(110deg, #2f6b3a 0%, #397b45 100%);
     color: #ffffff;
-    font-weight: 600;
-    box-shadow: 0 3px 10px rgba(30, 75, 39, 0.15);
+    font-weight: 750;
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 5px 16px rgba(30, 75, 39, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-/* Active item hover */
-.renter-sidebar .renter-nav-link.active:hover {
-    background: #285d32;
+.renter-sidebar .renter-nav-link.active i {
     color: #ffffff;
+}
+
+.renter-sidebar .renter-nav-link.active:hover {
+    background: linear-gradient(110deg, #285d32 0%, #34713e 100%);
+    color: #ffffff;
+    transform: translateX(2px);
 }
 
 /* Logout */
 .renter-sidebar .renter-logout {
-    margin-top: 12px;
+    margin-top: 17px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.17);
 }
 
 .renter-sidebar .renter-logout-link {
     color: #fff3f0 !important;
 }
 
+.renter-sidebar .renter-logout-link i {
+    color: #fff3f0;
+}
+
 .renter-sidebar .renter-logout-link:hover {
     background: rgba(220, 53, 69, 0.14);
+    border-color: rgba(255, 255, 255, 0.14);
     color: #842029 !important;
 }
 
@@ -159,7 +207,7 @@ require_once 'includes/lang.php';
     background: transparent;
 }
 
-/* Mobile responsive behavior */
+/* Mobile responsive behavior - existing show/hide behavior retained */
 @media (max-width: 768px) {
     .renter-sidebar {
         width: 250px;

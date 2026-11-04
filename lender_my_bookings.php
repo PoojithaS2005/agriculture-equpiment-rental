@@ -889,10 +889,16 @@ function statusClass(string $status): string {
 
     <div class="toolbar">
 
+<<<<<<< HEAD
         <form
             method="get"
             class="search-form"
         >
+=======
+        <form method="get" class="search-form" id="bookingFilterForm">
+
+            <input type="hidden" name="lang" value="<?php echo htmlspecialchars($current_lang, ENT_QUOTES, 'UTF-8'); ?>">
+>>>>>>> 86122d4b1d91c9f282cefbe6342dac831e528065
 
             <input
                 type="text"
@@ -902,10 +908,14 @@ function statusClass(string $status): string {
                 value="<?php echo htmlspecialchars($search); ?>"
             >
 
+<<<<<<< HEAD
             <select
                 name="status"
                 class="status-select"
             >
+=======
+            <select name="status" class="status-select" aria-label="Filter bookings by status" onchange="this.form.submit()">
+>>>>>>> 86122d4b1d91c9f282cefbe6342dac831e528065
 
                 <option value="">
                     <?= htmlspecialchars(lender_bookings_text('all_current_bookings')); ?>

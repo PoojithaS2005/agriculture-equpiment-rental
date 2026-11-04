@@ -104,6 +104,148 @@ if ($table_check && $table_check->num_rows > 0) {
     }
 }
 
+
+/* Translate notification text while preserving renter names, equipment names,
+   request codes, dates, and other values stored in the database. */
+function localize_lender_notification($title, $message, $lang)
+{
+    $title = (string)$title;
+    $message = (string)$message;
+
+    if ($lang === 'en') {
+        return [$title, $message];
+    }
+
+    $translations = [
+        'hi' => [
+            'New Rental Request' => 'नया किराया अनुरोध',
+            'Booking Accepted' => 'बुकिंग स्वीकार की गई',
+            'Booking Rejected' => 'बुकिंग अस्वीकार की गई',
+            'Booking Cancelled by Renter' => 'किरायेदार ने बुकिंग रद्द की',
+            'Delivery Confirmed' => 'डिलीवरी की पुष्टि हुई',
+            'Equipment Returned' => 'उपकरण वापस किया गया',
+            'Overdue Rental' => 'किराया अवधि समाप्त',
+            'New Review' => 'नई समीक्षा',
+            'Mark as read' => 'पढ़ा हुआ चिह्नित करें',
+            'Mark all as read' => 'सभी को पढ़ा हुआ चिह्नित करें',
+            'Notifications' => 'सूचनाएं',
+            'No notifications' => 'कोई सूचना नहीं',
+            'You are all caught up. New notifications will appear here.' => 'आपने सभी सूचनाएं देख ली हैं। नई सूचनाएं यहां दिखाई देंगी।',
+            'Notifications and updates about your equipment rentals.' => 'आपके उपकरण किराये से संबंधित सूचनाएं और अपडेट।',
+            'Unread' => 'अपठित',
+        ],
+        'kn' => [
+            'New Rental Request' => 'ಹೊಸ ಬಾಡಿಗೆ ವಿನಂತಿ',
+            'Booking Accepted' => 'ಬುಕಿಂಗ್ ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+            'Booking Rejected' => 'ಬುಕಿಂಗ್ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
+            'Booking Cancelled by Renter' => 'ಬಾಡಿಗೆದಾರರು ಬುಕಿಂಗ್ ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ',
+            'Delivery Confirmed' => 'ವಿತರಣೆಯನ್ನು ದೃಢೀಕರಿಸಲಾಗಿದೆ',
+            'Equipment Returned' => 'ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+            'Overdue Rental' => 'ಅವಧಿ ಮೀರಿದ ಬಾಡಿಗೆ',
+            'New Review' => 'ಹೊಸ ವಿಮರ್ಶೆ',
+            'Mark as read' => 'ಓದಿದಂತೆ ಗುರುತಿಸಿ',
+            'Mark all as read' => 'ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರುತಿಸಿ',
+            'Notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+            'No notifications' => 'ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ',
+            'You are all caught up. New notifications will appear here.' => 'ನೀವು ಎಲ್ಲಾ ಅಧಿಸೂಚನೆಗಳನ್ನು ನೋಡಿದ್ದೀರಿ. ಹೊಸ ಅಧಿಸೂಚನೆಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.',
+            'Notifications and updates about your equipment rentals.' => 'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆಗಳ ಅಧಿಸೂಚನೆಗಳು ಮತ್ತು ನವೀಕರಣಗಳು.',
+            'Unread' => 'ಓದದಿರುವುದು',
+            // Rental Notifications
+             'rental_ending_tomorrow' => 'ನಿಮ್ಮ {equipment} ಬಾಡಿಗೆ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ. ದಯವಿಟ್ಟು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲು ವ್ಯವಸ್ಥೆ ಮಾಡಿ ಮತ್ತು {lender} ಅವರನ್ನು {phone} ಸಂಖ್ಯೆಯಲ್ಲಿ ಸಂಪರ್ಕಿಸಿ.',
+
+              'rental_overdue_notification' => 'ನಿಮ್ಮ {equipment} ಬಾಡಿಗೆ ಅವಧಿ ಮುಕ್ತಾಯಗೊಂಡಿದೆ. ದಯವಿಟ್ಟು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿ ಮತ್ತು ನಿಮ್ಮ ಸಾಲದಾತರನ್ನು {phone} ಸಂಖ್ಯೆಯಲ್ಲಿ ಸಂಪರ್ಕಿಸಿ. ಪ್ರಸ್ತುತ ವಿಳಂಬ ಶುಲ್ಕ: {days} ದಿನಕ್ಕೆ ₹{100}.',
+
+        ],
+    ];
+
+    $dict = $translations[$lang] ?? $translations['hi'];
+    foreach ($dict as $english => $translated) {
+        if ($title === $english) {
+            $title = $translated;
+        }
+    }
+
+    $patterns = [
+        '/^(.+?) has sent a rental request for (.+?)\\. Request Code: (.+?)\\.?$/i' => [
+            'hi' => '$1 ने $2 के लिए किराये का अनुरोध भेजा है। अनुरोध कोड: $3',
+            'kn' => '$1 ಅವರು $2 ಗಾಗಿ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಿದ್ದಾರೆ. ವಿನಂತಿ ಕೋಡ್: $3',
+        ],
+        '/^(.+?) has submitted a new ([0-9.]+)-star review for your equipment [“"]?(.+?)[”"]?\\.?$/i' => [
+            'hi' => '$1 ने आपके उपकरण $3 के लिए $2-स्टार की नई समीक्षा दी है।',
+            'kn' => '$1 ಅವರು ನಿಮ್ಮ $3 ಉಪಕರಣಕ್ಕೆ $2-ಸ್ಟಾರ್ ಹೊಸ ವಿಮರ್ಶೆಯನ್ನು ಸಲ್ಲಿಸಿದ್ದಾರೆ.',
+        ],
+        '/^The renter has cancelled the booking for (.+?)\\.?$/i' => [
+            'hi' => 'किरायेदार ने $1 की बुकिंग रद्द कर दी है।',
+            'kn' => 'ಬಾಡಿಗೆದಾರರು $1 ಗಾಗಿ ಬುಕಿಂಗ್ ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ.',
+        ],
+        '/^Your booking for (.+?) has been accepted\\.?$/i' => [
+            'hi' => '$1 के लिए आपकी बुकिंग स्वीकार कर ली गई है।',
+            'kn' => '$1 ಗಾಗಿ ನಿಮ್ಮ ಬುಕಿಂಗ್ ಸ್ವೀಕರಿಸಲಾಗಿದೆ.',
+        ],
+        '/^Your booking for (.+?) has been rejected\\.?$/i' => [
+            'hi' => '$1 के लिए आपकी बुकिंग अस्वीकार कर दी गई है।',
+            'kn' => '$1 ಗಾಗಿ ನಿಮ್ಮ ಬುಕಿಂಗ್ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.',
+        ],
+        '/^(.+?) has confirmed delivery of (.+?)\\.?$/i' => [
+            'hi' => '$1 ने $2 की डिलीवरी की पुष्टि की है।',
+            'kn' => '$1 ಅವರು $2 ವಿತರಣೆಯನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.',
+        ],
+        '/^(.+?) has returned (.+?)\\.?$/i' => [
+            'hi' => '$1 ने $2 वापस कर दिया है।',
+            'kn' => '$1 ಅವರು $2 ಅನ್ನು ಹಿಂತಿರುಗಿಸಿದ್ದಾರೆ.',
+        ],
+    ];
+
+    foreach ($patterns as $pattern => $localized) {
+        if (preg_match($pattern, $message, $matches)) {
+            $template = $localized[$lang] ?? $localized['hi'];
+            for ($i = 1; $i < count($matches); $i++) {
+                $template = str_replace('$' . $i, $matches[$i], $template);
+            }
+            $message = $template;
+            break;
+        }
+    }
+
+    return [$title, $message];
+}
+
+function lender_notification_ui_text($key, $lang)
+{
+    $labels = [
+        'hi' => [
+            'notifications' => 'सूचनाएं',
+            'lender_notifications_subtitle' => 'आपके उपकरण किराये से संबंधित सूचनाएं और अपडेट।',
+            'mark_all_read' => 'सभी को पढ़ा हुआ चिह्नित करें',
+            'no_notifications' => 'कोई सूचना नहीं',
+            'no_notifications_message' => 'आपने सभी सूचनाएं देख ली हैं। नई सूचनाएं यहां दिखाई देंगी।',
+            'unread' => 'अपठित',
+            'mark_read' => 'पढ़ा हुआ चिह्नित करें',
+            'my_profile' => 'मेरी प्रोफ़ाइल',
+            'brand_main' => 'कृषि',
+            'brand_sub' => 'उपकरण किराया प्रणाली',
+        ],
+        'kn' => [
+            'notifications' => 'ಅಧಿಸೂಚನೆಗಳು',
+            'lender_notifications_subtitle' => 'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆಗಳ ಅಧಿಸೂಚನೆಗಳು ಮತ್ತು ನವೀಕರಣಗಳು.',
+            'mark_all_read' => 'ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರುತಿಸಿ',
+            'no_notifications' => 'ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ',
+            'no_notifications_message' => 'ನೀವು ಎಲ್ಲಾ ಅಧಿಸೂಚನೆಗಳನ್ನು ನೋಡಿದ್ದೀರಿ. ಹೊಸ ಅಧಿಸೂಚನೆಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.',
+            'unread' => 'ಓದದಿರುವುದು',
+            'mark_read' => 'ಓದಿದಂತೆ ಗುರುತಿಸಿ',
+            'my_profile' => 'ನನ್ನ ಪ್ರೊಫೈಲ್',
+            'brand_main' => 'ಕೃಷಿ',
+            'brand_sub' => 'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ',
+        ],
+    ];
+
+    if ($lang === 'en') {
+        return __($key);
+    }
+    return $labels[$lang][$key] ?? __($key);
+}
+
+
 /* Notification icon based on notification type */
 function notification_icon($title, $message)
 {
@@ -146,8 +288,8 @@ function notification_icon($title, $message)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        <?php echo htmlspecialchars(__('notifications')); ?> -
-        <?php echo htmlspecialchars(__('brand_main') . ' ' . __('brand_sub')); ?>
+        <?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?> -
+        <?php echo htmlspecialchars(lender_notification_ui_text('brand_main', $current_lang) . ' ' . lender_notification_ui_text('brand_sub', $current_lang)); ?>
     </title>
 
     <link
@@ -549,8 +691,8 @@ function notification_icon($title, $message)
         <a
             href="lender_notifications.php<?php echo $lang_param; ?>"
             class="notification-bell"
-            title="<?php echo htmlspecialchars(__('notifications')); ?>"
-            aria-label="<?php echo htmlspecialchars(__('notifications')); ?>"
+            title="<?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?>"
+            aria-label="<?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?>"
         >
             <i class="fa-solid fa-bell"></i>
 
@@ -564,8 +706,8 @@ function notification_icon($title, $message)
         <a
             href="profile.php<?php echo $lang_param; ?>"
             class="profile-btn"
-            title="<?php echo htmlspecialchars(__('my_profile')); ?>"
-            aria-label="<?php echo htmlspecialchars(__('my_profile')); ?>"
+            title="<?php echo htmlspecialchars(lender_notification_ui_text('my_profile', $current_lang)); ?>"
+            aria-label="<?php echo htmlspecialchars(lender_notification_ui_text('my_profile', $current_lang)); ?>"
         >
             <i class="fa-solid fa-user"></i>
         </a>
@@ -579,11 +721,11 @@ function notification_icon($title, $message)
 
             <div>
                 <h1 class="page-title">
-                    <?php echo htmlspecialchars(__('notifications')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?>
                 </h1>
 
                 <div class="page-subtitle">
-                    <?php echo htmlspecialchars(__('lender_notifications_subtitle')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('lender_notifications_subtitle', $current_lang)); ?>
                 </div>
             </div>
 
@@ -595,7 +737,7 @@ function notification_icon($title, $message)
                         class="mark-all-btn"
                     >
                         <i class="fa-solid fa-check-double me-1"></i>
-                        <?php echo htmlspecialchars(__('mark_all_read')); ?>
+                        <?php echo htmlspecialchars(lender_notification_ui_text('mark_all_read', $current_lang)); ?>
                     </button>
                 </form>
             <?php endif; ?>
@@ -609,11 +751,11 @@ function notification_icon($title, $message)
                 <i class="fa-regular fa-bell-slash"></i>
 
                 <h5>
-                    <?php echo htmlspecialchars(__('no_notifications')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('no_notifications', $current_lang)); ?>
                 </h5>
 
                 <p>
-                    <?php echo htmlspecialchars(__('no_notifications_message')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('no_notifications_message', $current_lang)); ?>
                 </p>
             </div>
 
@@ -628,6 +770,11 @@ function notification_icon($title, $message)
                     );
 
                     $is_unread = empty($notification['is_read']);
+                    [$display_title, $display_message] = localize_lender_notification(
+                        $notification['title'] ?? '',
+                        $notification['message'] ?? '',
+                        $current_lang
+                    );
                 ?>
 
                 <div class="notification-card <?php echo $is_unread ? 'unread' : ''; ?>">
@@ -641,14 +788,14 @@ function notification_icon($title, $message)
                         <h5 class="notification-title">
                             <?php
                                 echo htmlspecialchars(
-                                    $notification['title'] ?? __('notifications')
+                                    $display_title !== '' ? $display_title : lender_notification_ui_text('notifications', $current_lang)
                                 );
                             ?>
 
                             <?php if ($is_unread): ?>
                                 <span
                                     class="unread-dot"
-                                    title="<?php echo htmlspecialchars(__('unread')); ?>"
+                                    title="<?php echo htmlspecialchars(lender_notification_ui_text('unread', $current_lang)); ?>"
                                 ></span>
                             <?php endif; ?>
                         </h5>
@@ -656,7 +803,7 @@ function notification_icon($title, $message)
                         <p class="notification-message">
                             <?php
                                 echo nl2br(
-                                    htmlspecialchars($notification['message'] ?? '')
+                                    htmlspecialchars($display_message)
                                 );
                             ?>
                         </p>
@@ -694,7 +841,7 @@ function notification_icon($title, $message)
                                 class="read-btn"
                             >
                                 <i class="fa-solid fa-check me-1"></i>
-                                <?php echo htmlspecialchars(__('mark_read')); ?>
+                                <?php echo htmlspecialchars(lender_notification_ui_text('mark_read', $current_lang)); ?>
                             </button>
 
                         </form>

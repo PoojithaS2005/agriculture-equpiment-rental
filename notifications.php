@@ -167,8 +167,12 @@ function notification_title_key(string $title): string
         return 'rental_completed';
     }
 
-    if (strpos($t, 'overdue') !== false) {
+    if (strpos($t, 'overdue') !== false || strpos($t, 'ended') !== false) {
         return 'rental_overdue';
+    }
+
+    if (strpos($t, 'tomorrow') !== false || strpos($t, 'ends') !== false) {
+        return 'rental_ending_tomorrow_title';
     }
 
     if (strpos($t, 'request') !== false) {
@@ -180,8 +184,6 @@ function notification_title_key(string $title): string
 
 /*
  * Notification-specific translations.
- * These are kept here because the current includes/lang.php does not
- * contain all of the notification keys used by this page.
  */
 function notification_text(string $key, string $lang): string
 {
@@ -194,6 +196,7 @@ function notification_text(string $key, string $lang): string
             'rental_rejected' => 'Rental Request Rejected',
             'rental_completed' => 'Rental Completed',
             'rental_overdue' => 'Rental Overdue',
+            'rental_ending_tomorrow_title' => 'Rental Ending Tomorrow',
             'new_rental_request' => 'New Rental Request',
             'delivery_confirmation_required' => 'Please confirm that you received the equipment.',
             'return_confirmation_required' => 'Please confirm that the equipment was collected.',
@@ -204,6 +207,8 @@ function notification_text(string $key, string $lang): string
             'mark_all_read' => 'Mark All as Read',
             'mark_read' => 'Mark as Read',
             'no_notifications' => 'No notifications found.',
+            'rental_ending_tomorrow' => 'Your rental for {equipment} ends tomorrow. Please arrange to return the equipment and contact {lender} at {phone}.',
+            'rental_overdue_notification' => 'Your rental period for {equipment} has ended. Please return the equipment and contact your lender at {phone}. Current overdue charge: ₹{amount} per day extra charges for {days} day(s).',
         ],
         'hi' => [
             'notifications_title' => 'सूचनाएं',
@@ -213,6 +218,7 @@ function notification_text(string $key, string $lang): string
             'rental_rejected' => 'किराये का अनुरोध अस्वीकार किया गया',
             'rental_completed' => 'किराया पूरा हुआ',
             'rental_overdue' => 'किराया अतिदेय है',
+            'rental_ending_tomorrow_title' => 'किराया कल समाप्त हो रहा है',
             'new_rental_request' => 'नया किराये का अनुरोध',
             'delivery_confirmation_required' => 'कृपया पुष्टि करें कि आपको उपकरण प्राप्त हो गया है।',
             'return_confirmation_required' => 'कृपया पुष्टि करें कि उपकरण एकत्र कर लिया गया है।',
@@ -223,6 +229,8 @@ function notification_text(string $key, string $lang): string
             'mark_all_read' => 'सभी को पढ़ा हुआ चिन्हित करें',
             'mark_read' => 'पढ़ा हुआ चिन्हित करें',
             'no_notifications' => 'कोई सूचना नहीं मिली।',
+            'rental_ending_tomorrow' => 'आपका {equipment} का किराया कल समाप्त हो रहा है। कृपया उपकरण वापस करने की व्यवस्था करें और {lender} से {phone} पर संपर्क करें।',
+            'rental_overdue_notification' => 'आपके {equipment} की किराये की अवधि समाप्त हो गई है। कृपया उपकरण वापस करें और अपने ऋणदाता से {phone} पर संपर्क करें। वर्तमान अतिदेय शुल्क: प्रति दिन ₹{amount} अतिरिक्त शुल्क ({days} दिन)।',
         ],
         'kn' => [
             'notifications_title' => 'ಅಧಿಸೂಚನೆಗಳು',
@@ -232,6 +240,7 @@ function notification_text(string $key, string $lang): string
             'rental_rejected' => 'ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
             'rental_completed' => 'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
             'rental_overdue' => 'ಬಾಡಿಗೆ ಅವಧಿ ಮೀರಿದೆ',
+            'rental_ending_tomorrow_title' => 'ಬಾಡಿಗೆ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ',
             'new_rental_request' => 'ಹೊಸ ಬಾಡಿಗೆ ವಿನಂತಿ',
             'delivery_confirmation_required' => 'ನೀವು ಉಪಕರಣವನ್ನು ಸ್ವೀಕರಿಸಿದ್ದೀರಿ ಎಂಬುದನ್ನು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
             'return_confirmation_required' => 'ಉಪಕರಣವನ್ನು ಸಂಗ್ರಹಿಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ದಯವಿಟ್ಟು ದೃಢೀಕರಿಸಿ.',
@@ -242,6 +251,8 @@ function notification_text(string $key, string $lang): string
             'mark_all_read' => 'ಎಲ್ಲವನ್ನೂ ಓದಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
             'mark_read' => 'ಓದಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿ',
             'no_notifications' => 'ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
+            'rental_ending_tomorrow' => 'ನಿಮ್ಮ {equipment} ಬಾಡಿಗೆ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ. ದಯವಿಟ್ಟು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲು ವ್ಯವಸ್ಥೆ ಮಾಡಿ ಮತ್ತು {lender} ಅವರನ್ನು {phone} ಸಂಖ್ಯೆಯಲ್ಲಿ ಸಂಪರ್ಕಿಸಿ.',
+            'rental_overdue_notification' => 'ನಿಮ್ಮ {equipment} ಬಾಡಿಗೆ ಅವಧಿ ಮುಕ್ತಾಯಗೊಂಡಿದೆ. ದಯವಿಟ್ಟು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿ ಮತ್ತು ನಿಮ್ಮ ಸಾಲದಾತರನ್ನು {phone} ಸಂಖ್ಯೆಯಲ್ಲಿ ಸಂಪರ್ಕಿಸಿ. ಪ್ರಸ್ತುತ ವಿಳಂಬ ಶುಲ್ಕ: ಪ್ರತಿ ದಿನ ₹{amount} ರಂತೆ ಹೆಚ್ಚುವರಿ ಶುಲ್ಕ ({days} ದಿನಗಳು).',
         ],
     ];
 
@@ -276,6 +287,10 @@ function notification_message(string $title, string $message, string $lang): str
         $key = 'booking_request_rejected';
     } elseif (strpos($t, 'completed') !== false) {
         $key = 'booking_completed_message';
+    } elseif (strpos($t, 'overdue') !== false || strpos($t, 'ended') !== false || strpos($message, 'overdue') !== false) {
+        $key = 'rental_overdue_notification';
+    } elseif (strpos($t, 'tomorrow') !== false || strpos($t, 'ends') !== false) {
+        $key = 'rental_ending_tomorrow';
     }
 
     if ($key === null) {
@@ -286,7 +301,26 @@ function notification_message(string $title, string $message, string $lang): str
 
     $translated = notification_text($key, $lang);
 
-    // Keep the booking/request code from the database notification.
+    // Dynamic replacement for custom message templates
+    if ($key === 'rental_ending_tomorrow') {
+        if (preg_match('/Your rental for\s+(.*?)\s+ends tomorrow\..*?contact\s+(.*?)\s+at\s+([\d]+)\./i', $message, $matches)) {
+            $translated = str_replace(
+                ['{equipment}', '{lender}', '{phone}'],
+                [$matches[1], $matches[2], $matches[3]],
+                $translated
+            );
+        }
+    } elseif ($key === 'rental_overdue_notification') {
+        if (preg_match('/Your rental period for\s+(.*?)\s+has ended\..*?contact.*?at\s+([\d]+)\..*?charge:\s*[^0-9]*([0-9]+)\s+for\s+([0-9]+)\s+day/i', $message, $matches)) {
+            $translated = str_replace(
+                ['{equipment}', '{phone}', '{amount}', '{days}'],
+                [$matches[1], $matches[2], $matches[3], $matches[4]],
+                $translated
+            );
+        }
+    }
+
+    // Keep the booking/request code from the database notification if present.
     if (preg_match('/\b(?:REQ|BK)[-]?[A-Z0-9-]+\b/i', $message, $match)) {
         $translated .= ' (' . htmlspecialchars($match[0], ENT_QUOTES, 'UTF-8') . ')';
     }

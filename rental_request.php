@@ -23,7 +23,7 @@ if (isset($_GET['action'], $_GET['id']) && in_array($_GET['action'], ['accept', 
     $update_stmt->bind_param("sii", $new_status, $action_id, $lender_id);
     $update_stmt->execute();
 
-    header("Location: rental_request.php");
+    header("Location: rental_request.php?lang=" . urlencode($current_lang ?? 'en'));
     exit();
 }
 
@@ -45,16 +45,14 @@ if (count($lender_name_parts) >= 2) {
     $lender_initials = strtoupper(substr($lender_name_parts[0] ?? 'L', 0, 2));
 }
 
-// Fetch Summary Statistics dynamically
+// Fetch Summary Statistics dynamically.
+// Accepted and Rejected show all-time counts so they match the statuses
+// visible in the Rental Requests table, regardless of request date.
 $stats_query = "SELECT
     COUNT(b.booking_id) as total_requests,
-    SUM(CASE WHEN b.status = 'Pending' THEN 1 ELSE 0 END) as pending_requests,
-    SUM(CASE WHEN b.status = 'Accepted'
-        AND MONTH(b.created_at) = MONTH(CURRENT_DATE())
-        AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as accepted_month,
-    SUM(CASE WHEN b.status = 'Rejected'
-        AND MONTH(b.created_at) = MONTH(CURRENT_DATE())
-        AND YEAR(b.created_at) = YEAR(CURRENT_DATE()) THEN 1 ELSE 0 END) as rejected_month
+    SUM(CASE WHEN LOWER(TRIM(b.status)) = 'pending' THEN 1 ELSE 0 END) as pending_requests,
+    SUM(CASE WHEN LOWER(TRIM(b.status)) = 'accepted' THEN 1 ELSE 0 END) as accepted_month,
+    SUM(CASE WHEN LOWER(TRIM(b.status)) = 'rejected' THEN 1 ELSE 0 END) as rejected_month
     FROM bookings b
     JOIN equipment e ON b.equipment_id = e.equipment_id
     WHERE e.lender_id = ?
@@ -64,6 +62,16 @@ $stats_stmt->bind_param("i", $lender_id);
 $stats_stmt->execute();
 $stats = $stats_stmt->get_result()->fetch_assoc();
 $total_rows = 0;
+
+// Translate database status and category values only for display.
+// Database values remain unchanged.
+$translate_request_value = static function ($value, $prefix) {
+    $normalized = strtolower(trim((string) $value));
+    $normalized = preg_replace('/[^a-z0-9]+/', '_', $normalized);
+    $key = $prefix . $normalized;
+    $translated = __($key);
+    return ($translated !== $key) ? $translated : (string) $value;
+};
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($current_lang ?? 'en'); ?>">
@@ -514,7 +522,7 @@ $total_rows = 0;
                 <div class="stat-details">
                     <span class="stat-title"><?php echo __('stat_accepted_requests'); ?></span>
                     <h2 class="stat-value"><?php echo $stats['accepted_month'] ?? 0; ?></h2>
-                    <span class="stat-desc"><?php echo __('stat_this_month'); ?></span>
+                    <span class="stat-desc"><?php echo __('stat_all_time'); ?></span>
                 </div>
             </div>
 
@@ -523,7 +531,7 @@ $total_rows = 0;
                 <div class="stat-details">
                     <span class="stat-title"><?php echo __('stat_rejected_requests'); ?></span>
                     <h2 class="stat-value"><?php echo $stats['rejected_month'] ?? 0; ?></h2>
-                    <span class="stat-desc"><?php echo __('stat_this_month'); ?></span>
+                    <span class="stat-desc"><?php echo __('stat_all_time'); ?></span>
                 </div>
             </div>
         </div>
@@ -578,7 +586,7 @@ $total_rows = 0;
                                      onerror="this.onerror=null; this.src='uploads/default.png';">
                                 <div>
                                     <strong><?php echo htmlspecialchars($row['eq_title'] ?? ''); ?></strong><br>
-                                    <small><?php echo htmlspecialchars($row['eq_cat'] ?? ''); ?></small>
+                                    <small><?php echo htmlspecialchars($translate_request_value($row['eq_cat'] ?? '', 'category_')); ?></small>
                                 </div>
                             </div>
                         </td>
@@ -602,7 +610,7 @@ $total_rows = 0;
                         <td>₹<?php echo number_format((float) $row['total_amount'], 2); ?></td>
                         <td>
                             <span class="badge-status <?php echo $status_class; ?>">
-                                <?php echo htmlspecialchars($row['status']); ?>
+                                <?php echo htmlspecialchars($translate_request_value($row['status'] ?? '', 'status_')); ?>
                             </span>
                         </td>
                         <td>
@@ -611,16 +619,16 @@ $total_rows = 0;
                         <td>
                             <div class="action-buttons">
                                 <?php if ($row['status'] === 'Pending'): ?>
-                                    <a href="rental_request.php?action=accept&amp;id=<?php echo (int) $row['booking_id']; ?>"
+                                    <a href="rental_request.php?lang=<?php echo urlencode($current_lang ?? 'en'); ?>&amp;action=accept&amp;id=<?php echo (int) $row['booking_id']; ?>"
                                        class="btn-action btn-accept" aria-label="Accept request" title="Accept">
                                         <i class="fa-solid fa-check"></i>
                                     </a>
-                                    <a href="rental_request.php?action=reject&amp;id=<?php echo (int) $row['booking_id']; ?>"
+                                    <a href="rental_request.php?lang=<?php echo urlencode($current_lang ?? 'en'); ?>&amp;action=reject&amp;id=<?php echo (int) $row['booking_id']; ?>"
                                        class="btn-action btn-reject" aria-label="Reject request" title="Reject">
                                         <i class="fa-solid fa-xmark"></i>
                                     </a>
                                 <?php endif; ?>
-                                <a href="lender_booking_details.php?booking_id=<?php echo (int) $row['booking_id']; ?>"
+                                <a href="lender_booking_details.php?lang=<?php echo urlencode($current_lang ?? 'en'); ?>&amp;booking_id=<?php echo (int) $row['booking_id']; ?>"
                                    class="btn-action btn-view" aria-label="View booking details" title="View">
                                     <i class="fa-regular fa-eye"></i>
                                 </a>

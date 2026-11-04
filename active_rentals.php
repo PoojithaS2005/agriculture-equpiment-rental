@@ -84,6 +84,86 @@ function active_rental__(string $key): string {
     return __($key);
 }
 
+function active_rental_category_label($category_name) {
+    $key = strtolower(trim($category_name));
+    $category_keys = [
+        'tractor' => 'tractor',
+        'harvesting' => 'harvesting',
+        'irrigation' => 'irrigation',
+        'tillage' => 'tillage',
+        'seeding' => 'seeding',
+        'spraying' => 'spraying'
+    ];
+    if (isset($category_keys[$key])) {
+        $translated = active_rental__($category_keys[$key]);
+        if ($translated !== $category_keys[$key]) {
+            return $translated;
+        }
+        $prefixed = active_rental__('category_' . $category_keys[$key]);
+        if ($prefixed !== 'category_' . $category_keys[$key]) {
+            return $prefixed;
+        }
+    }
+    $direct_prefixed = active_rental__('category_' . $key);
+    if ($direct_prefixed !== 'category_' . $key) {
+        return $direct_prefixed;
+    }
+    $direct = active_rental__($key);
+    return ($direct !== $key) ? $direct : $category_name;
+}
+
+$active_rental_status_text = [
+    'en' => [
+        'return_marked_lender'=>'Return marked by lender','waiting_return_confirm'=>'Waiting for renter to confirm returned equipment',
+        'awaiting_return_confirm'=>'Awaiting Return Confirmation','rental_completed'=>'Rental completed',
+        'renter_confirmed_return'=>'Renter confirmed the equipment return','completed'=>'Completed',
+        'not_delivered'=>'Not delivered yet','delivered_confirmation_pending'=>'Delivered - confirmation pending',
+        'waiting_lender_delivery'=>'Waiting for lender to deliver equipment','waiting_renter_delivery'=>'Waiting for renter to confirm delivery',
+        'awaiting_delivery'=>'Awaiting Delivery','waiting_delivery_confirm'=>'Waiting for Delivery Confirmation',
+        'in_use'=>'In Use','awaiting_return'=>'Awaiting return','equipment_alt'=>'Equipment','to'=>'to','notifications'=>'Notifications',
+        'overdue' => 'Overdue', 'due_today' => 'Due Today'
+    ],
+    'kn' => [
+        'return_marked_lender'=>'ಸಾಲದಾತರು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿದ್ದಾರೆ','waiting_return_confirm'=>'ಹಿಂತಿರುಗಿಸಿದ ಉಪಕರಣವನ್ನು ಬಾಡಿಗೆದಾರರು ದೃಢೀಕರಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ',
+        'awaiting_return_confirm'=>'ಹಿಂತಿರುಗಿಸುವ ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ','rental_completed'=>'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'renter_confirmed_return'=>'ಬಾಡಿಗೆದಾರರು ಉಪಕರಣ ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ','completed'=>'ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'not_delivered'=>'ಇನ್ನೂ ತಲುಪಿಸಲಾಗಿಲ್ಲ','delivered_confirmation_pending'=>'ತಲುಪಿಸಲಾಗಿದೆ - ದೃಢೀಕರಣ ಬಾಕಿಯಿದೆ',
+        'waiting_lender_delivery'=>'ಸಾಲದಾತರು ಉಪಕರಣ ತಲುಪಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ','waiting_renter_delivery'=>'ಉಪಕರಣ ಸ್ವೀಕರಿಸಿರುವುದನ್ನು ಬಾಡಿಗೆದಾರರು ದೃಢೀಕರಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ',
+        'awaiting_delivery'=>'ತಲುಪಿಸುವಿಕೆ ಬಾಕಿಯಿದೆ','waiting_delivery_confirm'=>'ತಲುಪಿಸುವಿಕೆಯ ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ',
+        'in_use'=>'ಬಳಕೆಯಲ್ಲಿದೆ','awaiting_return'=>'ಹಿಂತಿರುಗಿಸುವಿಕೆ ಬಾಕಿಯಿದೆ','equipment_alt'=>'ಉಪಕರಣ','to'=>'ಇಂದ','notifications'=>'ಅಧಿಸೂಚನೆಗಳು',
+        'overdue' => 'ಅತಿದಾಟಿ ಹೋಗಿದೆ (Overdue)', 'due_today' => 'ಇಂದಿಗೆ ಬಾಕಿ (Due Today)'
+    ],
+    'hi' => [
+        'return_marked_lender'=>'ऋणदाता ने वापसी दर्ज की है','waiting_return_confirm'=>'किरायेदार द्वारा उपकरण की वापसी की पुष्टि की प्रतीक्षा है',
+        'awaiting_return_confirm'=>'वापसी की पुष्टि की प्रतीक्षा है','rental_completed'=>'किराया पूरा हुआ',
+        'renter_confirmed_return'=>'किरायेदार ने उपकरण की वापसी की पुष्टि की','completed'=>'पूरा हुआ',
+        'not_delivered'=>'अभी तक वितरित नहीं हुआ','delivered_confirmation_pending'=>'वितरित - पुष्टि बाकी है',
+        'waiting_lender_delivery'=>'ऋणदाता द्वारा उपकरण वितरित करने की प्रतीक्षा है','waiting_renter_delivery'=>'किरायेदार द्वारा डिलीवरी की पुष्टि की प्रतीक्षा है',
+        'awaiting_delivery'=>'डिलीवरी की प्रतीक्षा है','waiting_delivery_confirm'=>'डिलीवरी की पुष्टि की प्रतीक्षा है',
+        'in_use'=>'उपयोग में','awaiting_return'=>'वापसी की प्रतीक्षा है','equipment_alt'=>'उपकरण','to'=>'से','notifications'=>'सूचनाएँ',
+        'overdue' => 'अतिदेय (Overdue)', 'due_today' => 'आज देय (Due Today)'
+    ],
+];
+
+function active_rental_status__(string $key): string {
+    global $current_lang, $active_rental_status_text;
+    $l = isset($active_rental_status_text[$current_lang]) ? $current_lang : 'en';
+    if (isset($active_rental_status_text[$l][$key])) {
+        return $active_rental_status_text[$l][$key];
+    }
+    return $active_rental_status_text['en'][$key] ?? $key;
+}
+
+function active_rental_image_src($stored_image): string {
+    $image = trim((string)$stored_image);
+    if ($image === '') return '';
+    if (preg_match('~^(https?://|data:)~i', $image)) return $image;
+    $image = str_replace('\\\\', '/', $image);
+    $image = preg_replace('~^(\\./)+~', '', $image);
+    if (strpos($image, '/') === false) return 'uploads/' . $image;
+    return ltrim($image, '/');
+}
+
 // Database connection configuration
 $host = 'localhost';
 $db   = 'agri_rental_db';
@@ -120,7 +200,7 @@ $stats_query = "SELECT
                     COALESCE(SUM(b.total_days), 0) as total_days
                 FROM bookings b
                 JOIN equipment e ON b.equipment_id = e.equipment_id
-                WHERE e.lender_id = ? AND b.status IN ('Accepted', 'Delivered', 'Overdue')";
+                WHERE e.lender_id = ? AND b.status IN ('Accepted', 'Delivered', 'Overdue', 'Returned')";
 $stmt = $conn->prepare($stats_query);
 $stmt->bind_param("i", $lender_id);
 $stmt->execute();
@@ -434,6 +514,10 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             border: 1px solid #C8DDF5;
         }
 
+        .eq-thumb-wrap { width:45px; height:45px; flex:0 0 45px; position:relative; }
+        .eq-thumb-wrap .eq-thumb { display:block; width:100%; height:100%; }
+        .eq-thumb-placeholder { width:45px; height:45px; border-radius:6px; border:1px solid #C8DDF5; background:#EAF3FF; color:#0B3478; display:flex; align-items:center; justify-content:center; font-size:20px; }
+
         /* Badges & Actions */
         .badge-status {
             padding: 4px 10px;
@@ -483,13 +567,7 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
             background: #e3f2fd;
         }
 
-        .btn-track {
-            color: #0B3478;
-            border-color: #A6C8F5;
-            background: #D9E9FC;
-        }
-
-        @media (max-width: 1200px) {
+@media (max-width: 1200px) {
             .stats-cards-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -605,7 +683,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                 </select>
             </div>
 
-            <a href="lender_notifications.php?lang=<?php echo urlencode($current_lang); ?>" class="notification-icon" style="color: #333; text-decoration: none;" title="Notifications">
+            <a href="lender_notifications.php?lang=<?php echo urlencode($current_lang); ?>" class="notification-icon" style="color: #333; text-decoration: none;" title="<?php echo htmlspecialchars(active_rental_status__('notifications'), ENT_QUOTES, 'UTF-8'); ?>" >
                 <i class="fa-regular fa-bell"></i>
                 <span class="badge">3</span>
             </a>
@@ -788,7 +866,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                     JOIN users u 
                                         ON b.renter_id = u.user_id
                                     WHERE e.lender_id = ?
-                                    AND b.status IN ('Accepted', 'Delivered', 'Overdue')";
+                                    AND b.status IN ('Accepted', 'Delivered', 'Overdue', 'Returned')";
 
                             $stmt_bookings = $conn->prepare($sql);
                             $stmt_bookings->bind_param("i", $lender_id);
@@ -800,7 +878,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
 
                                 while ($row = $result->fetch_assoc()) {
 
-                                    // Never label a booking overdue until delivery is confirmed.
+                                    // Delivery/return only become effective after renter confirmation.
                                     $current_date = new DateTime(date('Y-m-d'));
                                     $end_date = new DateTime($row['end_date']);
                                     $interval = $current_date->diff($end_date);
@@ -808,40 +886,54 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                     $booking_status = $row['status'] ?? '';
                                     $delivery_confirmed = (int)($row['delivery_confirmed'] ?? 0) === 1;
                                     $return_confirmed = (int)($row['return_confirmed'] ?? 0) === 1;
-                                    $can_be_overdue = in_array($booking_status, ['Delivered', 'Overdue'], true)
-                                        && $delivery_confirmed && !$return_confirmed;
 
-                                    if (!$delivery_confirmed && in_array($booking_status, ['Accepted', 'Delivered', 'Overdue'], true)) {
-                                        $days_left_text = 'Not delivered yet';
-                                        $sub_text = 'Waiting for renter to confirm delivery';
+                                    if ($booking_status === 'Returned' && !$return_confirmed) {
+                                        $days_left_text = active_rental_status__('return_marked_lender');
+                                        $sub_text = active_rental_status__('waiting_return_confirm');
+                                        $status_class = 'status-due';
+                                        $status_text = active_rental_status__('awaiting_return_confirm');
+                                    } elseif ($booking_status === 'Returned' && $return_confirmed) {
+                                        $days_left_text = active_rental_status__('rental_completed');
+                                        $sub_text = active_rental_status__('renter_confirmed_return');
                                         $status_class = 'status-active';
-                                        $status_text = 'Awaiting Delivery';
+                                        $status_text = active_rental_status__('completed');
+                                    } elseif (!$delivery_confirmed && in_array($booking_status, ['Accepted', 'Delivered', 'Overdue'], true)) {
+                                        $days_left_text = ($booking_status === 'Accepted')
+                                            ? active_rental_status__('not_delivered')
+                                            : active_rental_status__('delivered_confirmation_pending');
+                                        $sub_text = ($booking_status === 'Accepted')
+                                            ? active_rental_status__('waiting_lender_delivery')
+                                            : active_rental_status__('waiting_renter_delivery');
+                                        $status_class = 'status-active';
+                                        $status_text = ($booking_status === 'Accepted')
+                                            ? active_rental_status__('awaiting_delivery')
+                                            : active_rental_status__('waiting_delivery_confirm');
                                     } elseif ($booking_status === 'Accepted') {
-                                        $days_left_text = 'Not delivered yet';
-                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $days_left_text = active_rental_status__('not_delivered');
+                                        $sub_text = active_rental_status__('waiting_lender_delivery');
                                         $status_class = 'status-active';
-                                        $status_text = 'Awaiting Delivery';
-                                    } elseif ($can_be_overdue && $days_diff < 0) {
-                                        $days_left_text = active_rental__('overdue');
-                                        $sub_text = active_rental__('returned_on') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $status_text = active_rental_status__('awaiting_delivery');
+                                    } elseif (in_array($booking_status, ['Delivered', 'Overdue'], true) && $delivery_confirmed && $days_diff < 0) {
+                                        $days_left_text = active_rental_status__('overdue');
+                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-overdue';
-                                        $status_text = active_rental__('overdue');
+                                        $status_text = active_rental_status__('overdue');
                                     } elseif ($days_diff > 0) {
                                         $days_left_text = $days_diff . ' ' . active_rental__('days_left');
                                         $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-active';
-                                        $status_text = active_rental__('active');
+                                        $status_text = active_rental_status__('in_use');
                                     } elseif ($days_diff === 0) {
-                                        $days_left_text = active_rental__('due_today');
+                                        $days_left_text = active_rental_status__('due_today');
                                         $sub_text = active_rental__('return_today');
                                         $status_class = 'status-due';
-                                        $status_text = active_rental__('due_today');
+                                        $status_text = active_rental_status__('due_today');
                                     } else {
-                                        // Past end date alone is not enough: delivery must have been confirmed.
-                                        $days_left_text = 'Awaiting return';
+                                        // A past end date is not overdue unless delivery was confirmed.
+                                        $days_left_text = active_rental_status__('awaiting_return');
                                         $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-active';
-                                        $status_text = 'Awaiting Return';
+                                        $status_text = active_rental_status__('in_use');
                                     }
 
                                     $per_day_price =
@@ -855,12 +947,18 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                 <td>
                                     <div class="table-equipment-info">
 
-                                        <img
-                                            src="uploads/<?php echo htmlspecialchars($row['eq_image']); ?>"
-                                            alt="Equipment"
-                                            class="eq-thumb"
-                                            onerror="this.src='assets/images/default.png'"
-                                        >
+                                        <?php $equipment_image_src = active_rental_image_src($row['eq_image'] ?? ''); ?>
+                                        <div class="eq-thumb-wrap">
+                                            <?php if ($equipment_image_src !== ''): ?>
+                                                <img src="<?php echo htmlspecialchars($equipment_image_src, ENT_QUOTES, 'UTF-8'); ?>"
+                                                     alt="<?php echo htmlspecialchars(active_rental_status__('equipment_alt'), ENT_QUOTES, 'UTF-8'); ?>"
+                                                     class="eq-thumb"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <?php endif; ?>
+                                            <div class="eq-thumb-placeholder" <?php echo ($equipment_image_src !== '') ? 'style="display:none;"' : ''; ?>>
+                                                <i class="fa-solid fa-tractor" aria-hidden="true"></i>
+                                            </div>
+                                        </div>
 
                                         <div>
                                             <strong>
@@ -870,7 +968,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                             <br>
 
                                             <span>
-                                                <?php echo htmlspecialchars($row['eq_cat']); ?>
+                                                <?php echo htmlspecialchars(active_rental_category_label($row['eq_cat'])); ?>
                                             </span>
 
                                             <br>
@@ -921,7 +1019,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                         <br>
 
                                         <small>
-                                            to
+                                            <?php echo active_rental_status__('to'); ?>
                                             <?php
                                             echo date(
                                                 'd M Y',
@@ -929,7 +1027,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                             );
                                             ?>
 
-                                            (<?php echo $row['total_days']; ?>d)
+                                            (<?php echo $row['total_days']; ?> <?php echo active_rental__('days'); ?>)
                                         </small>
 
                                     </div>
@@ -1020,16 +1118,6 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                             </span>
                                         </button>
 
-                                        <button
-                                            class="btn-action btn-track"
-                                            onclick="trackEquipment(<?php echo $row['booking_id']; ?>)"
-                                        >
-                                            <i class="fa-solid fa-location-crosshairs"></i>
-
-                                            <span>
-                                                <?php echo active_rental__('btn_track_equipment'); ?>
-                                            </span>
-                                        </button>
 
                                     </div>
 
@@ -1070,13 +1158,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                 `lender_booking_details.php?booking_id=${bookingId}`;
         }
 
-        function trackEquipment(bookingId) {
-            alert(
-                "Tracking feature for booking session #" +
-                bookingId +
-                " is initialized through map services."
-            );
-        }
+
     </script>
 
 </body>

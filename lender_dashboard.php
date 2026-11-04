@@ -607,7 +607,7 @@ body {
 .top-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-bottom: 25px;
     gap: 20px;
     padding: 14px 22px;
@@ -616,56 +616,50 @@ body {
     box-shadow: 0 12px 30px rgba(11, 58, 126, .28);
 }
 
-.search-box {
-    position: relative;
-    width: 350px;
-}
 
-.search-box input {
-    width: 100%;
-    padding: 10px 45px 10px 38px;
-    border: 1px solid rgba(255, 255, 255, .30);
-    border-radius: 25px;
-    outline: none;
-    background: rgba(255, 255, 255, .16);
+
+
+.topbar-welcome {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: auto;
+    min-width: 0;
     color: #fff;
 }
 
-.search-box input::placeholder {
-    color: rgba(255, 255, 255, .75);
-}
-
-.search-box input:focus {
-    border-color: rgba(255, 255, 255, .60);
-    background: rgba(255, 255, 255, .22);
-}
-
-.search-box > i {
-    position: absolute;
-    left: 13px;
-    top: 11px;
-    color: #cfe0ff;
-}
-
-.mic-btn {
-    position: absolute;
-    right: 5px;
-    top: 4px;
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 50%;
-    background: #3b82f6;
+.topbar-welcome-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
     color: #fff;
-    cursor: pointer;
+    font-size: 19px;
+    background: linear-gradient(135deg, rgba(255,255,255,.25), rgba(147,197,253,.18));
+    border: 1px solid rgba(255,255,255,.25);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
 }
 
-.mic-btn:hover {
-    background: #2563eb;
+.topbar-welcome-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
 }
 
-.mic-btn.recording {
-    background: #ef4444;
+.topbar-welcome-copy strong {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .2px;
+}
+
+.topbar-welcome-copy small {
+    color: rgba(231,241,255,.78);
+    font-size: 11px;
 }
 
 
@@ -1023,12 +1017,13 @@ td small {
         align-items: stretch;
     }
 
-    .search-box {
-        width: 100%;
+    .topbar-welcome {
+        margin-right: 0;
     }
 
     .user-menu {
         justify-content: flex-end;
+        flex-wrap: wrap;
     }
 
 }
@@ -1455,62 +1450,33 @@ td small {
 
     <div class="top-bar">
 
-
-        <!-- SEARCH -->
-
-        <form
-
-            action="<?php echo $base_url; ?>/search_equipment.php"
-
-            method="GET"
-
-            id="searchForm"
-
-            class="search-box"
-
-        >
-
-            <i class="fa-solid fa-magnifying-glass"></i>
-
-            <input
-
-                type="text"
-
-                name="q"
-
-                id="searchInput"
-
-                placeholder="<?php echo __('search_placeholder'); ?>"
-
-            >
-
-            <button
-
-                type="button"
-
-                id="micBtn"
-
-                class="mic-btn"
-
-                onclick="startVoiceSearch()"
-
-            >
-
-                <i
-
-                    class="fa-solid fa-microphone"
-
-                    id="micIcon"
-
-                ></i>
-
-            </button>
-
-        </form>
-
+        <div class="topbar-welcome">
+            <div class="topbar-welcome-icon" aria-hidden="true">
+                <i class="fa-solid fa-tractor"></i>
+            </div>
+            <div class="topbar-welcome-copy">
+                <strong><?php
+                    if (($current_lang ?? 'en') === 'kn') {
+                        echo 'ಲೇಂದ್ರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಸ್ವಾಗತ';
+                    } elseif (($current_lang ?? 'en') === 'hi') {
+                        echo 'लेंडर डैशबोर्ड में आपका स्वागत है';
+                    } else {
+                        echo 'Welcome to your dashboard';
+                    }
+                ?></strong>
+                <small><?php
+                    if (($current_lang ?? 'en') === 'kn') {
+                        echo 'ನಿಮ್ಮ ಉಪಕರಣಗಳು ಮತ್ತು ಬಾಡಿಗೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ';
+                    } elseif (($current_lang ?? 'en') === 'hi') {
+                        echo 'अपने उपकरण और किराये आसानी से प्रबंधित करें';
+                    } else {
+                        echo 'Manage your equipment and rentals with ease';
+                    }
+                ?></small>
+            </div>
+        </div>
 
         <!-- USER -->
-
         <div class="user-menu">
 
 
@@ -2073,35 +2039,17 @@ if (count($nameParts) > 1) {
 
 
                             <td>
+                                <td>
+    <a
+        href="<?php echo $base_url; ?>/rental_request.php"
+        class="btn-act btn-view"
+    >
+        <i class="fa-solid fa-eye"></i>
+        View Equipment
+    </a>
+</td>
 
-                                <a
-
-                                    href="<?php echo $base_url; ?>/update_booking.php?id=<?php echo (int)$row['booking_id']; ?>&action=approve"
-
-                                    class="btn-act btn-accept"
-
-                                    onclick="return confirm('Approve this rental request?');"
-
-                                >
-
-                                    <?php echo __('accept'); ?>
-
-                                </a>
-
-                                <a
-
-                                    href="<?php echo $base_url; ?>/update_booking.php?id=<?php echo (int)$row['booking_id']; ?>&action=reject"
-
-                                    class="btn-act btn-reject"
-
-                                    onclick="return confirm('Reject this rental request?');"
-
-                                >
-
-                                    <?php echo __('reject'); ?>
-
-                                </a>
-
+                                
                             </td>
 
                         </tr>
@@ -2325,137 +2273,6 @@ function changeLanguage(lang) {
         "<?php echo $base_url; ?>/lender_dashboard.php?lang="
 
         + encodeURIComponent(lang);
-
-}
-
-
-/* =========================================================
-   VOICE SEARCH
-   ========================================================= */
-
-function startVoiceSearch() {
-
-    const SpeechRecognition =
-
-        window.SpeechRecognition ||
-
-        window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-
-        alert(
-
-            "Voice search is not supported. " +
-
-            "Please use Google Chrome or Microsoft Edge."
-
-        );
-
-        return;
-
-    }
-
-
-    const recognition =
-
-        new SpeechRecognition();
-
-
-    const input =
-
-        document.getElementById('searchInput');
-
-    const form =
-
-        document.getElementById('searchForm');
-
-    const mic =
-
-        document.getElementById('micBtn');
-
-    const icon =
-
-        document.getElementById('micIcon');
-
-
-    const lang =
-
-        "<?php echo htmlspecialchars($current_lang ?? 'en'); ?>";
-
-
-    if (lang === 'hi') {
-
-        recognition.lang = 'hi-IN';
-
-    } else if (lang === 'kn') {
-
-        recognition.lang = 'kn-IN';
-
-    } else {
-
-        recognition.lang = 'en-US';
-
-    }
-
-
-    recognition.interimResults = false;
-
-    recognition.maxAlternatives = 1;
-
-
-    mic.classList.add('recording');
-
-    icon.className =
-
-        'fa-solid fa-spinner fa-spin';
-
-
-    recognition.start();
-
-
-    recognition.onresult = function(event) {
-
-        input.value =
-
-            event.results[0][0].transcript;
-
-        mic.classList.remove('recording');
-
-        icon.className =
-
-            'fa-solid fa-microphone';
-
-        form.submit();
-
-    };
-
-
-    recognition.onerror = function() {
-
-        mic.classList.remove('recording');
-
-        icon.className =
-
-            'fa-solid fa-microphone';
-
-        alert(
-
-            "Could not recognize your voice. Please try again."
-
-        );
-
-    };
-
-
-    recognition.onend = function() {
-
-        mic.classList.remove('recording');
-
-        icon.className =
-
-            'fa-solid fa-microphone';
-
-    };
 
 }
 

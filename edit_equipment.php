@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $drive_type        = trim($_POST['drive_type'] ?? '');
     $model_year        = trim($_POST['model_year'] ?? '');
     $fuel_type         = trim($_POST['fuel_type'] ?? '');
-    $wrorking_width    = trim($_POST['wrorking_width'] ?? '');
+    $wrorking_width    = trim($_POST['working_hours'] ?? '');
     $equipment_condition = trim($_POST['equipment_condition'] ?? '');
     $price_per_day     = floatval($_POST['price_per_day'] ?? 0);
     $security_deposit = floatval($_POST['security_deposit'] ?? 0);
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update_stmt->bind_param(
         "ssssisisssddiiisdssiii",
         $title, $category, $status, $brand_model, $power_hp, $drive_type,
-        $model_year, $fuel_type, $wrorking_width, $equipment_condition,
+        $model_year, $fuel_type, $working_hours, $equipment_condition,
         $price_per_day, $security_deposit, $total_quantity, $min_booking_days,
         $max_booking_days, $service_location, $distance_km, $description,
         $image_name, $is_featured, $equipment_id, $lender_id
@@ -295,8 +295,8 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                         <input type="text" name="fuel_type" class="form-control" value="<?php echo htmlspecialchars($eq['fuel_type'] ?? ''); ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold"><?php echo __('working_width_label'); ?></label>
-                        <input type="text" name="wrorking_width" class="form-control" value="<?php echo htmlspecialchars($eq['wrorking_width'] ?? ''); ?>">
+                        <label class="form-label fw-bold"><?php echo __('working_hours'); ?></label>
+                        <input type="text" name="wrorking_width" class="form-control" value="<?php echo htmlspecialchars($eq['working_hours'] ?? ''); ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold"><?php echo __('equipment_condition_label'); ?></label>
