@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -13,35 +14,58 @@ $lender_id = (int)$_SESSION['user_id'];
 $current_lang = $_SESSION['lang'] ?? 'en';
 $lang_param = '?lang=' . urlencode($current_lang);
 
+/** Return the uploaded equipment photo when it exists; otherwise show the same
+ * blue tractor tile used on the Active Rentals page. The fallback is inline SVG,
+ * so it cannot blink or trigger a broken-image retry. */
+function lender_equipment_thumbnail($stored_image): string {
+    $image = trim((string)$stored_image);
+    if ($image !== '' && preg_match('~^(https?://|data:)~i', $image)) return $image;
+    if ($image !== '') {
+        $image = str_replace('\\\\', '/', $image);
+        $relative = ltrim($image, '/');
+        if (strpos($relative, 'uploads/') !== 0) $relative = 'uploads/' . $relative;
+        if (strpos($relative, '../') === false && is_file(__DIR__ . '/' . $relative)) return $relative;
+    }
+    return '';
+}
+
+
 // Lender name + profile picture
 $lender_name = $_SESSION['full_name'] ?? 'Lender';
 $profile_pic = '';
 $has_profile_pic = false;
 $profile_initials = strtoupper(mb_substr(trim($lender_name), 0, 2, 'UTF-8'));
+
 if ($profile_initials === '') {
     $profile_initials = 'LE';
 }
 
 $user_stmt = $conn->prepare("SELECT full_name, profile_pic FROM users WHERE user_id = ? LIMIT 1");
+
 if ($user_stmt) {
     $user_stmt->bind_param('i', $lender_id);
     $user_stmt->execute();
     $user_data = $user_stmt->get_result()->fetch_assoc();
+
     if ($user_data) {
         $lender_name = $user_data['full_name'] ?: $lender_name;
+
         if (!empty($user_data['profile_pic']) && $user_data['profile_pic'] !== 'default_avatar.png') {
             $profile_pic = $user_data['profile_pic'];
             $has_profile_pic = true;
         }
+
         $profile_initials = strtoupper(mb_substr(trim($lender_name), 0, 2, 'UTF-8'));
+
         if ($profile_initials === '') {
             $profile_initials = 'LE';
         }
     }
+
     $user_stmt->close();
 }
 
-// Page-specific translations for texts that are not yet available as keys in lang.php.
+// Page-specific translations
 $lender_bookings_text = [
     'en' => [
         'page_title' => 'My Bookings',
@@ -60,6 +84,7 @@ $lender_bookings_text = [
         'search' => 'Search',
         'reset' => 'Reset',
     ],
+
     'kn' => [
         'page_title' => 'ನನ್ನ ಬುಕ್ಕಿಂಗ್‌ಗಳು',
         'page_subtitle' => 'ನಿಮ್ಮ ಸ್ವೀಕರಿಸಿದ ಮತ್ತು ಪ್ರಸ್ತುತ ಬಾಡಿಗೆ ಬುಕ್ಕಿಂಗ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ.',
@@ -77,6 +102,7 @@ $lender_bookings_text = [
         'search' => 'ಹುಡುಕಿ',
         'reset' => 'ಮರುಹೊಂದಿಸಿ',
     ],
+
     'hi' => [
         'page_title' => 'मेरी बुकिंग',
         'page_subtitle' => 'अपनी स्वीकृत और चल रही किराये की बुकिंग प्रबंधित करें।',
@@ -98,33 +124,41 @@ $lender_bookings_text = [
 
 function lender_bookings_text(string $key): string {
     global $lender_bookings_text, $current_lang;
+
     return $lender_bookings_text[$current_lang][$key]
         ?? $lender_bookings_text['en'][$key]
         ?? $key;
 }
 
-// Notification count for the top bell
+// Notification count
 $unread_notifications = 0;
-$notif_stmt = $conn->prepare("SELECT COUNT(*) AS total FROM notifications WHERE user_id = ? AND is_read = 0");
+
+$notif_stmt = $conn->prepare(
+    "SELECT COUNT(*) AS total FROM notifications WHERE user_id = ? AND is_read = 0"
+);
+
 if ($notif_stmt) {
     $notif_stmt->bind_param('i', $lender_id);
     $notif_stmt->execute();
+
     $notif_data = $notif_stmt->get_result()->fetch_assoc();
+
     $unread_notifications = (int)($notif_data['total'] ?? 0);
+
     $notif_stmt->close();
 }
 
 // Search/filter
 $search = trim($_GET['search'] ?? '');
 $status_filter = trim($_GET['status'] ?? '');
+
 $allowed_statuses = ['Accepted', 'Delivered', 'Returned'];
 
 if (!in_array($status_filter, $allowed_statuses, true)) {
     $status_filter = '';
 }
 
-// Current lender bookings only. Pending requests are handled in Rental Requests;
-// Completed/Rejected bookings are handled in Rental History.
+// Current lender bookings
 $sql = "SELECT
             b.booking_id,
             b.request_code,
@@ -159,12 +193,20 @@ if ($status_filter !== '') {
 }
 
 if ($search !== '') {
-    $sql .= " AND (b.request_code LIKE ? OR e.title LIKE ? OR u.full_name LIKE ? OR u.phone LIKE ?)";
+    $sql .= " AND (
+        b.request_code LIKE ?
+        OR e.title LIKE ?
+        OR u.full_name LIKE ?
+        OR u.phone LIKE ?
+    )";
+
     $term = '%' . $search . '%';
+
     $params[] = $term;
     $params[] = $term;
     $params[] = $term;
     $params[] = $term;
+
     $types .= 'ssss';
 }
 
@@ -178,9 +220,10 @@ if (!$stmt) {
 
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
+
 $result = $stmt->get_result();
 
-// Counts for summary cards
+// Summary counts
 $count_sql = "SELECT
     SUM(b.status = 'Accepted') AS accepted_count,
     SUM(b.status = 'Delivered') AS delivered_count,
@@ -219,521 +262,739 @@ function statusClass(string $status): string {
 
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title><?= htmlspecialchars(lender_bookings_text('page_title')); ?> - <?= htmlspecialchars(__('title')); ?></title>
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    >
-
-    <style>
-:root{--navy-primary:#0B3478;--navy-dark:#082B65;--blue-hover:#164C9A;--sidebar-bg:#C7DDF7;--sidebar-active:#A6C8F5;--text-dark:#10194A;--text-muted:#425D80;--bg-body:#EAF3FF;--card-bg:#F8FBFF;--border-color:#C8DDF5;--blue-accent:#8DB8F0;}
-
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: #EAF3FF;
-            color: #10194A;
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 250px;
-            background: #F8FBFF;
-            min-height: 100vh;
-            padding: 20px;
-            border-right: 1px solid #C8DDF5;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            overflow-y: auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-            color: #082B65;
-            font-size: 15px;
-            margin-bottom: 30px;
-        }
-
-        .logo i {
-            font-size: 24px;
-            color: #0B3478;
-        }
-
-        .nav-list {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: 8px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            color: #425D80;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: .2s;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: #A6C8F5;
-            color: #10194A;
-        }
-
-        .nav-link .badge {
-            margin-left: auto;
-            background: #ef4444;
-            color: #F8FBFF;
-            font-size: 11px;
-            padding: 2px 7px;
-            border-radius: 12px;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            padding: 20px 30px;
-            min-width: 0;
-        }
-
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            gap: 20px;
-        }
-
-        .page-title h1 {
-            color: #10194A;
-            font-size: 25px;
-            margin-bottom: 5px;
-        }
-
-        .page-title p {
-            color: #425D80;
-            font-size: 14px;
-        }
-
-        .top-actions {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .notification-link {
-            position: relative;
-            width: 38px;
-            height: 38px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #0B3478;
-            text-decoration: none;
-            border-radius: 50%;
-        }
-
-        .notification-link:hover {
-            background: #D9E9FC;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -2px;
-            right: -1px;
-            min-width: 18px;
-            height: 18px;
-            padding: 0 5px;
-            border-radius: 999px;
-            background: #ef4444;
-            color: #F8FBFF;
-            font-size: 10px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #F8FBFF;
-        }
-
-        .lang-select {
-            padding: 7px 10px;
-            border: 1px solid #C8DDF5;
-            border-radius: 6px;
-            background: #F8FBFF;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-        }
-
-        .user-profile-img,
-        .user-profile-initials {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #0B3478;
-        }
-
-        .user-profile-initials {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0B3478;
-            color: #F8FBFF;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            flex-shrink: 0;
-        }
-
-        .user-text strong {
-            display: block;
-            font-size: 13px;
-            color: #10194A;
-        }
-
-        .user-text span {
-            display: block;
-            font-size: 11px;
-            color: #425D80;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            margin-bottom: 22px;
-        }
-
-        .summary-card {
-            background: #F8FBFF;
-            border: 1px solid #C8DDF5;
-            border-radius: 12px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .summary-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #F8FBFF;
-            background: #0B3478;
-        }
-
-        .summary-card h3 {
-            font-size: 21px;
-            color: #10194A;
-        }
-
-        .summary-card p {
-            color: #425D80;
-            font-size: 12px;
-            margin-top: 2px;
-        }
-
-        .toolbar {
-            background: #F8FBFF;
-            border: 1px solid #C8DDF5;
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .search-form {
-            display: flex;
-            gap: 8px;
-            flex: 1;
-            max-width: 650px;
-        }
-
-        .search-input,
-        .status-select {
-            border: 1px solid #C8DDF5;
-            border-radius: 8px;
-            padding: 10px 12px;
-            outline: none;
-            background: #F8FBFF;
-        }
-
-        .search-input {
-            flex: 1;
-        }
-
-        .btn-search {
-            border: 0;
-            border-radius: 8px;
-            background: #0B3478;
-            color: #F8FBFF;
-            padding: 0 18px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-reset {
-            display: inline-flex;
-            align-items: center;
-            padding: 0 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            border: 1px solid #C8DDF5;
-            color: #425D80;
-            background: #F8FBFF;
-            font-size: 13px;
-        }
-
-        .table-card {
-            background: #F8FBFF;
-            border: 1px solid #C8DDF5;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 18px 20px;
-            border-bottom: 1px solid #C8DDF5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-header h2 {
-            font-size: 16px;
-            color: #10194A;
-        }
-
-        .table-header span {
-            font-size: 12px;
-            color: #425D80;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            min-width: 980px;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px 14px;
-            color: #425D80;
-            background: #F8FBFF;
-            border-bottom: 1px solid #C8DDF5;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        td {
-            padding: 13px 14px;
-            border-bottom: 1px solid #EAF3FF;
-            vertical-align: middle;
-        }
-
-        tr:last-child td {
-            border-bottom: 0;
-        }
-
-        .equipment-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 190px;
-        }
-
-        .equipment-img {
-            width: 45px;
-            height: 45px;
-            border-radius: 7px;
-            object-fit: cover;
-            background: #EAF3FF;
-            border: 1px solid #C8DDF5;
-        }
-
-        .equipment-info strong {
-            display: block;
-            color: #10194A;
-            font-size: 13px;
-        }
-
-        .equipment-info small {
-            color: #425D80;
-        }
-
-        .renter strong {
-            display: block;
-            color: #10194A;
-        }
-
-        .renter small {
-            color: #425D80;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 5px 9px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .status-accepted {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-delivered {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .status-returned {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-other {
-            background: #C8DDF5;
-            color: #425D80;
-        }
-
-        .btn-view {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 11px;
-            border-radius: 7px;
-            background: #0B3478;
-            color: #F8FBFF;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .btn-view:hover {
-            background: #0b3844;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 55px 20px;
-            color: #425D80;
-        }
-
-        .empty i {
-            font-size: 38px;
-            color: #94a3b8;
-            margin-bottom: 12px;
-        }
-
-        .empty h3 {
-            color: #334155;
-            margin-bottom: 6px;
-        }
-
-        @media(max-width:1100px) {
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media(max-width:800px) {
-            .sidebar {
-                position: relative;
-                width: 100%;
-                min-height: auto;
-            }
-
-            body {
-                display: block;
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 18px;
-            }
-
-            .top-bar {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .top-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-
-            .toolbar {
-                flex-direction: column;
-            }
-
-            .search-form {
-                max-width: none;
-            }
-        }
-
-        @media(max-width:550px) {
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .search-form {
-                flex-wrap: wrap;
-            }
-
-            .search-input {
-                min-width: 100%;
-            }
-
-            .btn-search,
-            .btn-reset {
-                height: 40px;
-                padding: 0 15px;
-            }
-        }
-
-    </style>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+<?= htmlspecialchars(lender_bookings_text('page_title')); ?>
+- <?= htmlspecialchars(__('title')); ?>
+</title>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+>
+
+<style>
+
+/* =========================================
+   BLUEFIELD LENDING - BLUE GLASS THEME
+========================================= */
+
+:root {
+    --navy-primary: #0B3478;
+    --navy-dark: #082B65;
+    --navy-light: #164C9A;
+
+    --blue-accent: #3979D8;
+    --blue-soft: #A6C8F5;
+
+    --bg-body: #DCEBFC;
+    --bg-light: #EAF3FF;
+
+    --glass-bg: rgba(255, 255, 255, 0.48);
+    --glass-bg-strong: rgba(255, 255, 255, 0.65);
+
+    --border-color: rgba(255, 255, 255, 0.65);
+
+    --text-dark: #10194A;
+    --text-muted: #425D80;
+
+    --shadow: 0 8px 25px rgba(11, 52, 120, 0.10);
+    --glass-blur: blur(14px);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(
+        135deg,
+        #DCEBFC 0%,
+        #EAF3FF 45%,
+        #C9DFFA 100%
+    );
+
+    color: var(--text-dark);
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR - EXISTING STYLING */
+
+.sidebar {
+    width: 250px;
+    background: #F8FBFF;
+    min-height: 100vh;
+    padding: 20px;
+    border-right: 1px solid #C8DDF5;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: var(--navy-dark);
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+.logo i {
+    font-size: 24px;
+    color: var(--navy-primary);
+}
+
+.nav-list {
+    list-style: none;
+}
+
+.nav-item {
+    margin-bottom: 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #A6C8F5;
+    color: var(--text-dark);
+}
+
+.nav-link .badge {
+    margin-left: auto;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 12px;
+}
+
+/* MAIN CONTENT */
+
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 25px 30px;
+    min-width: 0;
+}
+
+/* TOP BAR */
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px;
+    padding: 18px 22px;
+
+    background: linear-gradient(
+        135deg,
+        #0B3478,
+        #164C9A
+    );
+
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(8,43,101,.20);
+}
+
+.page-title h1 {
+    color: #FFFFFF;
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
+.page-title p {
+    color: #D5E7FF;
+    font-size: 14px;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.notification-link {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    text-decoration: none;
+    border-radius: 50%;
+    transition: .2s;
+}
+
+.notification-link:hover {
+    background: rgba(255,255,255,.18);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -1px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #0B3478;
+}
+
+.lang-select {
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 8px;
+    background: rgba(255,255,255,.15);
+    color: #FFFFFF;
+    outline: none;
+}
+
+.lang-select option {
+    background: #FFFFFF;
+    color: #10194A;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.user-profile-img,
+.user-profile-initials {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,.8);
+}
+
+.user-profile-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #A6C8F5;
+    color: #082B65;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.user-text strong {
+    display: block;
+    font-size: 13px;
+    color: #FFFFFF;
+}
+
+.user-text span {
+    display: block;
+    font-size: 11px;
+    color: #D5E7FF;
+}
+
+/* SUMMARY CARDS */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    box-shadow: var(--shadow);
+
+    transition: transform .25s, box-shadow .25s;
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(11,52,120,.16);
+}
+
+.summary-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--navy-primary);
+    background: rgba(166,200,245,.55);
+
+    border: 1px solid rgba(255,255,255,.8);
+
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+.summary-card h3 {
+    font-size: 25px;
+    color: var(--navy-dark);
+    font-weight: 700;
+}
+
+.summary-card p {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* SEARCH TOOLBAR */
+
+.toolbar {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+
+    padding: 16px;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 20px;
+
+    box-shadow: var(--shadow);
+}
+
+.search-form {
+    display: flex;
+    gap: 9px;
+    flex: 1;
+    max-width: 650px;
+}
+
+.search-input,
+.status-select {
+    border: 1px solid rgba(75,130,200,.25);
+    border-radius: 9px;
+    padding: 11px 13px;
+    outline: none;
+
+    background: rgba(255,255,255,.75);
+    color: var(--text-dark);
+
+    transition: .2s;
+}
+
+.search-input {
+    flex: 1;
+}
+
+.search-input:focus,
+.status-select:focus {
+    border-color: var(--blue-accent);
+    box-shadow: 0 0 0 3px rgba(57,121,216,.13);
+}
+
+.search-input::placeholder {
+    color: #7188A7;
+}
+
+.btn-search {
+    border: none;
+    border-radius: 9px;
+
+    background: linear-gradient(
+        135deg,
+        var(--navy-primary),
+        var(--navy-light)
+    );
+
+    color: #FFFFFF;
+    padding: 0 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn-search:hover {
+    background: #164C9A;
+    transform: translateY(-1px);
+}
+
+.btn-reset {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 16px;
+
+    border-radius: 9px;
+    text-decoration: none;
+
+    border: 1px solid #B7D0F1;
+    color: var(--navy-primary);
+    background: rgba(255,255,255,.65);
+
+    font-size: 13px;
+    transition: .2s;
+}
+
+.btn-reset:hover {
+    background: #D5E7FF;
+}
+
+/* BOOKING TABLE CARD */
+
+.table-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+}
+
+.table-header {
+    padding: 20px 22px;
+
+    border-bottom: 1px solid rgba(75,130,200,.18);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: rgba(255,255,255,.25);
+}
+
+.table-header h2 {
+    font-size: 18px;
+    color: var(--navy-dark);
+}
+
+.table-header span {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 980px;
+}
+
+th {
+    text-align: left;
+    padding: 15px 14px;
+
+    color: var(--navy-primary);
+    background: rgba(166,200,245,.28);
+
+    border-bottom: 1px solid rgba(75,130,200,.20);
+
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+td {
+    padding: 15px 14px;
+
+    border-bottom: 1px solid rgba(75,130,200,.12);
+
+    vertical-align: middle;
+    color: var(--text-dark);
+}
+
+tbody tr {
+    transition: background .2s;
+}
+
+tbody tr:hover {
+    background: rgba(166,200,245,.20);
+}
+
+tr:last-child td {
+    border-bottom: 0;
+}
+
+/* EQUIPMENT INFORMATION */
+
+.equipment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 190px;
+}
+
+.equipment-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 9px;
+    object-fit: cover;
+
+    background: #EAF3FF;
+    border: 1px solid #B7D0F1;
+}
+
+.equipment-placeholder {
+    width: 45px;
+    height: 45px;
+    border-radius: 9px;
+    flex: 0 0 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #EAF3FF;
+    border: 1px solid #B7D0F1;
+    color: #174B91;
+    font-size: 22px;
+}
+
+.equipment-info strong {
+    display: block;
+    color: var(--navy-dark);
+    font-size: 13px;
+}
+
+.equipment-info small {
+    color: var(--text-muted);
+}
+
+.renter strong {
+    display: block;
+    color: var(--navy-dark);
+}
+
+.renter small {
+    color: var(--text-muted);
+}
+
+/* STATUS LABELS */
+
+.status {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-accepted {
+    background: #FEF0C7;
+    color: #946200;
+}
+
+.status-delivered {
+    background: #D7E8FF;
+    color: #1453A1;
+}
+
+.status-returned {
+    background: #D5F5E2;
+    color: #167044;
+}
+
+.status-other {
+    background: #DCEBFC;
+    color: #425D80;
+}
+
+/* VIEW BUTTON */
+
+.btn-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 12px;
+    border-radius: 8px;
+
+    background: linear-gradient(
+        135deg,
+        #0B3478,
+        #164C9A
+    );
+
+    color: #FFFFFF;
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition: .2s;
+}
+
+.btn-view:hover {
+    background: #082B65;
+    transform: translateY(-1px);
+}
+
+/* EMPTY STATE */
+
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty i {
+    font-size: 42px;
+    color: #719BD1;
+    margin-bottom: 14px;
+}
+
+.empty h3 {
+    color: var(--navy-dark);
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.empty p {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media(max-width:1100px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media(max-width:800px) {
+
+    .sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+    }
+
+    body {
+        display: block;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 18px;
+    }
+
+    .top-bar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .top-actions {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .search-form {
+        max-width: none;
+    }
+
+    .table-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media(max-width:550px) {
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-form {
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        min-width: 100%;
+    }
+
+    .status-select {
+        flex: 1;
+    }
+
+    .btn-search,
+    .btn-reset {
+        height: 42px;
+        padding: 0 15px;
+    }
+
+    .main-content {
+        padding: 12px;
+    }
+
+    .top-bar {
+        padding: 16px;
+    }
+
+    .page-title h1 {
+        font-size: 21px;
+    }
+}
+
+</style>
 
 </head>
 
@@ -747,9 +1008,13 @@ function statusClass(string $status): string {
 
         <div class="page-title">
 
-            <h1><?= htmlspecialchars(lender_bookings_text('page_title')); ?></h1>
+            <h1>
+                <?= htmlspecialchars(lender_bookings_text('page_title')); ?>
+            </h1>
 
-            <p><?= htmlspecialchars(lender_bookings_text('page_subtitle')); ?></p>
+            <p>
+                <?= htmlspecialchars(lender_bookings_text('page_subtitle')); ?>
+            </p>
 
         </div>
 
@@ -761,6 +1026,7 @@ function statusClass(string $status): string {
                 title="<?= htmlspecialchars(lender_bookings_text('notifications')); ?>"
                 aria-label="<?= htmlspecialchars(lender_bookings_text('notifications')); ?>"
             >
+
                 <i class="fa-regular fa-bell"></i>
 
                 <?php if ($unread_notifications > 0): ?>
@@ -777,52 +1043,54 @@ function statusClass(string $status): string {
                 class="lang-select"
                 onchange="changeLanguage(this.value)"
             >
-                <option
-                    value="en"
-                    <?php echo $current_lang === 'en' ? 'selected' : ''; ?>
-                >
+
+                <option value="en" <?php echo $current_lang === 'en' ? 'selected' : ''; ?>>
                     English
                 </option>
 
-                <option
-                    value="kn"
-                    <?php echo $current_lang === 'kn' ? 'selected' : ''; ?>
-                >
+                <option value="kn" <?php echo $current_lang === 'kn' ? 'selected' : ''; ?>>
                     ಕನ್ನಡ
                 </option>
 
-                <option
-                    value="hi"
-                    <?php echo $current_lang === 'hi' ? 'selected' : ''; ?>
-                >
+                <option value="hi" <?php echo $current_lang === 'hi' ? 'selected' : ''; ?>>
                     हिन्दी
                 </option>
+
             </select>
 
             <div class="user-menu">
 
                 <?php if ($has_profile_pic): ?>
+
                     <img
                         src="uploads/<?php echo htmlspecialchars($profile_pic); ?>"
                         class="user-profile-img"
                         alt="Profile"
                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                     >
+
                     <div class="user-profile-initials" style="display:none;">
                         <?php echo htmlspecialchars($profile_initials); ?>
                     </div>
+
                 <?php else: ?>
+
                     <div class="user-profile-initials">
                         <?php echo htmlspecialchars($profile_initials); ?>
                     </div>
+
                 <?php endif; ?>
 
                 <div class="user-text">
+
                     <strong>
                         <?php echo htmlspecialchars($lender_name); ?>
                     </strong>
 
-                    <span><?= htmlspecialchars(__('lender')); ?></span>
+                    <span>
+                        <?= htmlspecialchars(__('lender')); ?>
+                    </span>
+
                 </div>
 
             </div>
@@ -830,6 +1098,8 @@ function statusClass(string $status): string {
         </div>
 
     </div>
+
+    <!-- SUMMARY CARDS -->
 
     <div class="summary-grid">
 
@@ -841,7 +1111,10 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $total_current; ?></h3>
-                <p><?= htmlspecialchars(lender_bookings_text('current_bookings')); ?></p>
+
+                <p>
+                    <?= htmlspecialchars(lender_bookings_text('current_bookings')); ?>
+                </p>
             </div>
 
         </div>
@@ -854,7 +1127,10 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $accepted_count; ?></h3>
-                <p><?= htmlspecialchars(lender_bookings_text('accepted_awaiting_delivery')); ?></p>
+
+                <p>
+                    <?= htmlspecialchars(lender_bookings_text('accepted_awaiting_delivery')); ?>
+                </p>
             </div>
 
         </div>
@@ -867,7 +1143,10 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $delivered_count; ?></h3>
-                <p><?= htmlspecialchars(lender_bookings_text('delivered_active')); ?></p>
+
+                <p>
+                    <?= htmlspecialchars(lender_bookings_text('delivered_active')); ?>
+                </p>
             </div>
 
         </div>
@@ -880,18 +1159,21 @@ function statusClass(string $status): string {
 
             <div>
                 <h3><?php echo $returned_count; ?></h3>
-                <p><?= htmlspecialchars(lender_bookings_text('returned_awaiting_confirmation')); ?></p>
+
+                <p>
+                    <?= htmlspecialchars(lender_bookings_text('returned_awaiting_confirmation')); ?>
+                </p>
             </div>
 
         </div>
 
     </div>
 
+    <!-- SEARCH AND FILTER -->
+
     <div class="toolbar">
 
-        <form method="get" class="search-form" id="bookingFilterForm">
-
-            <input type="hidden" name="lang" value="<?php echo htmlspecialchars($current_lang, ENT_QUOTES, 'UTF-8'); ?>">
+        <form method="get" class="search-form">
 
             <input
                 type="text"
@@ -901,7 +1183,7 @@ function statusClass(string $status): string {
                 value="<?php echo htmlspecialchars($search); ?>"
             >
 
-            <select name="status" class="status-select" aria-label="Filter bookings by status" onchange="this.form.submit()">
+            <select name="status" class="status-select">
 
                 <option value="">
                     <?= htmlspecialchars(lender_bookings_text('all_current_bookings')); ?>
@@ -930,12 +1212,12 @@ function statusClass(string $status): string {
 
             </select>
 
-            <button
-                type="submit"
-                class="btn-search"
-            >
+            <button type="submit" class="btn-search">
+
                 <i class="fa-solid fa-magnifying-glass"></i>
+
                 <?= htmlspecialchars(lender_bookings_text('search')); ?>
+
             </button>
 
             <?php if ($search !== '' || $status_filter !== ''): ?>
@@ -953,11 +1235,15 @@ function statusClass(string $status): string {
 
     </div>
 
+    <!-- BOOKINGS TABLE -->
+
     <section class="table-card">
 
         <div class="table-header">
 
-            <h2><?= htmlspecialchars(lender_bookings_text('current_booking_management')); ?></h2>
+            <h2>
+                <?= htmlspecialchars(lender_bookings_text('current_booking_management')); ?>
+            </h2>
 
             <span>
                 <?= htmlspecialchars(lender_bookings_text('pending_requests_note')); ?>
@@ -974,13 +1260,21 @@ function statusClass(string $status): string {
                     <thead>
 
                         <tr>
+
                             <th><?= htmlspecialchars(__('request')); ?></th>
+
                             <th><?= htmlspecialchars(__('equipment')); ?></th>
+
                             <th><?= htmlspecialchars(__('renter')); ?></th>
+
                             <th><?= htmlspecialchars(__('rental_period')); ?></th>
+
                             <th><?= htmlspecialchars(__('amount')); ?></th>
+
                             <th><?= htmlspecialchars(__('status')); ?></th>
+
                             <th><?= htmlspecialchars(__('action')); ?></th>
+
                         </tr>
 
                     </thead>
@@ -1004,7 +1298,7 @@ function statusClass(string $status): string {
 
                                 <br>
 
-                                <small style="color:#94a3b8;">
+                                <small style="color:#7188A7;">
                                     #<?php echo (int)$row['booking_id']; ?>
                                 </small>
 
@@ -1015,17 +1309,22 @@ function statusClass(string $status): string {
                                 <div class="equipment-info">
 
                                     <?php
-                                    $img = !empty($row['equipment_image'])
-                                        ? 'uploads/' . $row['equipment_image']
-                                        : 'assets/images/default.png';
+
+                                    $img = lender_equipment_thumbnail($row['equipment_image'] ?? '');
+
                                     ?>
 
-                                    <img
-                                        src="<?php echo htmlspecialchars($img); ?>"
-                                        class="equipment-img"
-                                        alt="Equipment"
-                                       onerror="this.onerror=null; this.src='uploads/default.png';"
-                                    >
+                                    <?php if ($img !== ''): ?>
+                                        <img
+                                            src="<?php echo htmlspecialchars($img); ?>"
+                                            class="equipment-img"
+                                            alt="Equipment"
+                                        >
+                                    <?php else: ?>
+                                        <div class="equipment-placeholder" aria-label="Default tractor icon">
+                                            <i class="fa-solid fa-tractor" aria-hidden="true"></i>
+                                        </div>
+                                    <?php endif; ?>
 
                                     <div>
 
@@ -1065,9 +1364,12 @@ function statusClass(string $status): string {
 
                                 <br>
 
-                                <small style="color:#64748b;">
+                                <small style="color:#7188A7;">
+
                                     to
+
                                     <?php echo date('d M Y', strtotime($row['end_date'])); ?>
+
                                 </small>
 
                             </td>
@@ -1082,18 +1384,25 @@ function statusClass(string $status): string {
 
                             <td>
 
-                                <span
-                                    class="status <?php echo statusClass($row['status']); ?>"
-                                >
+                                <span class="status <?php echo statusClass($row['status']); ?>">
+
                                     <?php
+
                                     $status_key = match ($row['status']) {
                                         'Accepted' => 'accepted',
                                         'Delivered' => 'delivered',
                                         'Returned' => 'returned',
                                         default => ''
                                     };
-                                    echo htmlspecialchars($status_key !== '' ? __($status_key) : $row['status']);
+
+                                    echo htmlspecialchars(
+                                        $status_key !== ''
+                                            ? __($status_key)
+                                            : $row['status']
+                                    );
+
                                     ?>
+
                                 </span>
 
                             </td>
@@ -1104,8 +1413,11 @@ function statusClass(string $status): string {
                                     class="btn-view"
                                     href="lender_booking_details.php?booking_id=<?php echo (int)$row['booking_id']; ?><?php echo '&lang=' . urlencode($current_lang); ?>"
                                 >
+
                                     <i class="fa-regular fa-eye"></i>
+
                                     <?= htmlspecialchars(__('view_details')); ?>
+
                                 </a>
 
                             </td>
@@ -1124,7 +1436,9 @@ function statusClass(string $status): string {
 
                     <i class="fa-regular fa-calendar-xmark"></i>
 
-                    <h3><?= htmlspecialchars(lender_bookings_text('no_current_bookings')); ?></h3>
+                    <h3>
+                        <?= htmlspecialchars(lender_bookings_text('no_current_bookings')); ?>
+                    </h3>
 
                     <p>
                         <?= htmlspecialchars(lender_bookings_text('no_current_bookings_desc')); ?>

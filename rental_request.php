@@ -10,6 +10,20 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'lender') {
 }
 $lender_id = (int) $_SESSION['user_id'];
 
+/** Return a valid uploaded equipment photo path, or an empty string when absent. */
+function lender_equipment_thumbnail($stored_image): string {
+    $image = trim((string)$stored_image);
+    if ($image === '') return '';
+    if (preg_match('~^https?://~i', $image)) return $image;
+    $image = str_replace('\\', '/', $image);
+    $relative = ltrim($image, '/');
+    if (strpos($relative, 'uploads/') !== 0) $relative = 'uploads/' . $relative;
+    if (strpos($relative, '../') !== false || !is_file(__DIR__ . '/' . $relative)) return '';
+    return $relative;
+}
+
+
+
 // Handle Status Updates (Accept / Reject)
 if (isset($_GET['action'], $_GET['id']) && in_array($_GET['action'], ['accept', 'reject'], true)) {
     $action_id = (int) $_GET['id'];
@@ -342,12 +356,25 @@ $translate_request_value = static function ($value, $prefix) {
             min-width: 180px;
         }
 
-        .eq-thumb {
+        .eq-thumb,
+        .eq-thumb-placeholder {
             width: 48px;
             height: 48px;
+            flex: 0 0 48px;
             border-radius: 8px;
-            object-fit: cover;
             border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        .eq-thumb { object-fit: cover; }
+
+        .eq-thumb-placeholder {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #EAF2FF;
+            color: #174B91;
+            font-size: 24px;
         }
 
         .table-equipment-info small,
@@ -581,9 +608,19 @@ $translate_request_value = static function ($value, $prefix) {
                         <td><strong>REQ<?php echo (int) $row['booking_id']; ?></strong></td>
                         <td>
                             <div class="table-equipment-info">
-                                <img src="uploads/<?php echo htmlspecialchars($row['eq_image'] ?? ''); ?>"
-                                     alt="Equipment" class="eq-thumb"
-                                     onerror="this.onerror=null; this.src='uploads/default.png';">
+                                <?php $equipment_image_path = lender_equipment_thumbnail($row['eq_image'] ?? ''); ?>
+                                <?php if ($equipment_image_path !== ''): ?>
+                                    <img src="<?php echo htmlspecialchars($equipment_image_path, ENT_QUOTES, 'UTF-8'); ?>"
+                                         alt="Equipment" class="eq-thumb"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                                    <span class="eq-thumb-placeholder" aria-label="Default tractor icon" style="display:none;">
+                                        <i class="fa-solid fa-tractor" aria-hidden="true"></i>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="eq-thumb-placeholder" aria-label="Default tractor icon">
+                                        <i class="fa-solid fa-tractor" aria-hidden="true"></i>
+                                    </span>
+                                <?php endif; ?>
                                 <div>
                                     <strong><?php echo htmlspecialchars($row['eq_title'] ?? ''); ?></strong><br>
                                     <small><?php echo htmlspecialchars($translate_request_value($row['eq_cat'] ?? '', 'category_')); ?></small>

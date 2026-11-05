@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_SERVER['HTTP_REFERER'])) {
     $allowed_return_pages = [
         'lender_my_bookings.php',
         'rental_request.php',
-        'rental_history.php',
+        'lender_rental_history.php',
         'active_rentals.php'
     ];
     $is_allowed_return_page = $is_php_page

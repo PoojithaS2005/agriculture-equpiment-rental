@@ -121,7 +121,7 @@ $active_rental_status_text = [
         'waiting_lender_delivery'=>'Waiting for lender to deliver equipment','waiting_renter_delivery'=>'Waiting for renter to confirm delivery',
         'awaiting_delivery'=>'Awaiting Delivery','waiting_delivery_confirm'=>'Waiting for Delivery Confirmation',
         'in_use'=>'In Use','awaiting_return'=>'Awaiting return','equipment_alt'=>'Equipment','to'=>'to','notifications'=>'Notifications',
-        'overdue' => 'Overdue', 'due_today' => 'Due Today'
+        'overdue' => 'Overdue', 'due_today' => 'Due Today','return_by' => 'Return by'
     ],
     'kn' => [
         'return_marked_lender'=>'ಸಾಲದಾತರು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿದ್ದಾರೆ','waiting_return_confirm'=>'ಹಿಂತಿರುಗಿಸಿದ ಉಪಕರಣವನ್ನು ಬಾಡಿಗೆದಾರರು ದೃಢೀಕರಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ',
@@ -131,7 +131,7 @@ $active_rental_status_text = [
         'waiting_lender_delivery'=>'ಸಾಲದಾತರು ಉಪಕರಣ ತಲುಪಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ','waiting_renter_delivery'=>'ಉಪಕರಣ ಸ್ವೀಕರಿಸಿರುವುದನ್ನು ಬಾಡಿಗೆದಾರರು ದೃಢೀಕರಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ',
         'awaiting_delivery'=>'ತಲುಪಿಸುವಿಕೆ ಬಾಕಿಯಿದೆ','waiting_delivery_confirm'=>'ತಲುಪಿಸುವಿಕೆಯ ದೃಢೀಕರಣಕ್ಕಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ',
         'in_use'=>'ಬಳಕೆಯಲ್ಲಿದೆ','awaiting_return'=>'ಹಿಂತಿರುಗಿಸುವಿಕೆ ಬಾಕಿಯಿದೆ','equipment_alt'=>'ಉಪಕರಣ','to'=>'ಇಂದ','notifications'=>'ಅಧಿಸೂಚನೆಗಳು',
-        'overdue' => 'ಅತಿದಾಟಿ ಹೋಗಿದೆ (Overdue)', 'due_today' => 'ಇಂದಿಗೆ ಬಾಕಿ (Due Today)'
+        'overdue' => 'ಅವಧಿ ಮೀರಿದೆ', 'due_today' => 'ಇಂದು ಹಿಂತಿರುಗಿಸಬೇಕು','return_by' => 'ಹಿಂತಿರುಗಿಸಬೇಕಾದ ದಿನಾಂಕ:'
     ],
     'hi' => [
         'return_marked_lender'=>'ऋणदाता ने वापसी दर्ज की है','waiting_return_confirm'=>'किरायेदार द्वारा उपकरण की वापसी की पुष्टि की प्रतीक्षा है',
@@ -141,7 +141,7 @@ $active_rental_status_text = [
         'waiting_lender_delivery'=>'ऋणदाता द्वारा उपकरण वितरित करने की प्रतीक्षा है','waiting_renter_delivery'=>'किरायेदार द्वारा डिलीवरी की पुष्टि की प्रतीक्षा है',
         'awaiting_delivery'=>'डिलीवरी की प्रतीक्षा है','waiting_delivery_confirm'=>'डिलीवरी की पुष्टि की प्रतीक्षा है',
         'in_use'=>'उपयोग में','awaiting_return'=>'वापसी की प्रतीक्षा है','equipment_alt'=>'उपकरण','to'=>'से','notifications'=>'सूचनाएँ',
-        'overdue' => 'अतिदेय (Overdue)', 'due_today' => 'आज देय (Due Today)'
+        'overdue' => 'किराये की अवधि समाप्त', 'due_today' => 'आज वापस करें','return_by' => 'वापसी की अंतिम तारीख:'
     ],
 ];
 
@@ -358,8 +358,14 @@ $eq_stats = $stmt_eq->get_result()->fetch_assoc();
 
         .user-info .user-role {
             font-size: 11px;
-            color: #425D80;
+            color: #FFFFFF;
+            opacity: 0.88;
+            font-weight: 600;
         }
+
+        .user-info .user-name { color: #FFFFFF; }
+        .user-profile-menu { color: #FFFFFF; }
+        .avatar { background: #FFFFFF; color: #0B3478; border-color: #FFFFFF; }
 
         /* Main Layout */
         .dashboard-container {
@@ -915,12 +921,12 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                         $status_text = active_rental_status__('awaiting_delivery');
                                     } elseif (in_array($booking_status, ['Delivered', 'Overdue'], true) && $delivery_confirmed && $days_diff < 0) {
                                         $days_left_text = active_rental_status__('overdue');
-                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $sub_text = active_rental_status__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-overdue';
                                         $status_text = active_rental_status__('overdue');
                                     } elseif ($days_diff > 0) {
                                         $days_left_text = $days_diff . ' ' . active_rental__('days_left');
-                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $sub_text = active_rental_status__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-active';
                                         $status_text = active_rental_status__('in_use');
                                     } elseif ($days_diff === 0) {
@@ -931,7 +937,7 @@ button.primary:hover, .btn-primary:hover, .primary-btn:hover,
                                     } else {
                                         // A past end date is not overdue unless delivery was confirmed.
                                         $days_left_text = active_rental_status__('awaiting_return');
-                                        $sub_text = active_rental__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
+                                        $sub_text = active_rental_status__('return_by') . ' ' . date('d M Y', strtotime($row['end_date']));
                                         $status_class = 'status-active';
                                         $status_text = active_rental_status__('in_use');
                                     }
