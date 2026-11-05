@@ -14,6 +14,22 @@ $lender_id = (int)$_SESSION['user_id'];
 $current_lang = $_SESSION['lang'] ?? 'en';
 $lang_param = '?lang=' . urlencode($current_lang);
 
+/** Return the uploaded equipment photo when it exists; otherwise show the same
+ * blue tractor tile used on the Active Rentals page. The fallback is inline SVG,
+ * so it cannot blink or trigger a broken-image retry. */
+function lender_equipment_thumbnail($stored_image): string {
+    $image = trim((string)$stored_image);
+    if ($image !== '' && preg_match('~^(https?://|data:)~i', $image)) return $image;
+    if ($image !== '') {
+        $image = str_replace('\\\\', '/', $image);
+        $relative = ltrim($image, '/');
+        if (strpos($relative, 'uploads/') !== 0) $relative = 'uploads/' . $relative;
+        if (strpos($relative, '../') === false && is_file(__DIR__ . '/' . $relative)) return $relative;
+    }
+    return '';
+}
+
+
 // Lender name + profile picture
 $lender_name = $_SESSION['full_name'] ?? 'Lender';
 $profile_pic = '';
@@ -772,6 +788,20 @@ tr:last-child td {
     border: 1px solid #B7D0F1;
 }
 
+.equipment-placeholder {
+    width: 45px;
+    height: 45px;
+    border-radius: 9px;
+    flex: 0 0 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #EAF3FF;
+    border: 1px solid #B7D0F1;
+    color: #174B91;
+    font-size: 22px;
+}
+
 .equipment-info strong {
     display: block;
     color: var(--navy-dark);
@@ -1280,18 +1310,21 @@ tr:last-child td {
 
                                     <?php
 
-                                    $img = !empty($row['equipment_image'])
-                                        ? 'uploads/' . $row['equipment_image']
-                                        : 'assets/images/default.png';
+                                    $img = lender_equipment_thumbnail($row['equipment_image'] ?? '');
 
                                     ?>
 
-                                    <img
-                                        src="<?php echo htmlspecialchars($img); ?>"
-                                        class="equipment-img"
-                                        alt="Equipment"
-                                        onerror="this.onerror=null; this.src='uploads/default.png';"
-                                    >
+                                    <?php if ($img !== ''): ?>
+                                        <img
+                                            src="<?php echo htmlspecialchars($img); ?>"
+                                            class="equipment-img"
+                                            alt="Equipment"
+                                        >
+                                    <?php else: ?>
+                                        <div class="equipment-placeholder" aria-label="Default tractor icon">
+                                            <i class="fa-solid fa-tractor" aria-hidden="true"></i>
+                                        </div>
+                                    <?php endif; ?>
 
                                     <div>
 

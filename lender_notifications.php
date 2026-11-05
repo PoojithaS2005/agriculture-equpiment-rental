@@ -104,6 +104,199 @@ if ($table_check && $table_check->num_rows > 0) {
     }
 }
 
+
+/* Translate lender notification titles/messages while preserving names, equipment,
+   phone numbers, request IDs, dates, and amounts from the database. */
+function localize_lender_notification($title, $message, $lang)
+{
+    $title = trim((string)$title);
+    $message = trim((string)$message);
+    if ($lang === 'en') return [$title, $message];
+
+    $titles = [
+      'hi' => [
+        'New Rental Request'=>'नया किराया अनुरोध',
+        'Booking Accepted'=>'बुकिंग स्वीकार की गई',
+        'Booking Rejected'=>'बुकिंग अस्वीकार की गई',
+        'Booking Cancelled by Renter'=>'किरायेदार ने बुकिंग रद्द की',
+        'Delivery Confirmed'=>'डिलीवरी की पुष्टि हुई',
+        'Equipment Returned'=>'उपकरण वापस किया गया',
+        'Overdue Rental'=>'किराया अवधि समाप्त',
+        'Equipment Return Overdue'=>'उपकरण लौटाने में देरी',
+        'Rental Ends Tomorrow'=>'किराये की अवधि कल समाप्त होगी',
+        'New Review'=>'नई समीक्षा',
+        'New Customer Review'=>'ग्राहक की नई समीक्षा',
+        'Rental Request'=>'किराये का अनुरोध',
+        'Booking Request'=>'बुकिंग अनुरोध',
+        'Rental Completed'=>'किराया पूरा हुआ',
+        'Rental Marked Delivered'=>'उपकरण डिलीवर किया गया',
+        'Return Requested'=>'वापसी का अनुरोध',
+        'Return Confirmed'=>'वापसी की पुष्टि हुई',
+        'Booking Cancelled'=>'बुकिंग रद्द की गई',
+        'Payment Received'=>'भुगतान प्राप्त हुआ',
+        'Rental Reminder'=>'किराये की याद दिलाना',
+      ],
+      'kn' => [
+        'New Rental Request'=>'ಹೊಸ ಬಾಡಿಗೆ ವಿನಂತಿ',
+        'Booking Accepted'=>'ಬುಕಿಂಗ್ ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+        'Booking Rejected'=>'ಬುಕಿಂಗ್ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ',
+        'Booking Cancelled by Renter'=>'ಬಾಡಿಗೆದಾರರು ಬುಕಿಂಗ್ ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ',
+        'Delivery Confirmed'=>'ವಿತರಣೆಯನ್ನು ದೃಢೀಕರಿಸಲಾಗಿದೆ',
+        'Equipment Returned'=>'ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಲಾಗಿದೆ',
+        'Overdue Rental'=>'ಅವಧಿ ಮೀರಿದ ಬಾಡಿಗೆ',
+        'Equipment Return Overdue'=>'ಉಪಕರಣ ಹಿಂತಿರುಗಿಸುವಿಕೆ ವಿಳಂಬವಾಗಿದೆ',
+        'Rental Ends Tomorrow'=>'ಬಾಡಿಗೆ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ',
+        'New Review'=>'ಹೊಸ ವಿಮರ್ಶೆ',
+        'New Customer Review'=>'ಗ್ರಾಹಕರ ಹೊಸ ವಿಮರ್ಶೆ',
+        'Rental Request'=>'ಬಾಡಿಗೆ ವಿನಂತಿ',
+        'Booking Request'=>'ಬುಕಿಂಗ್ ವಿನಂತಿ',
+        'Rental Completed'=>'ಬಾಡಿಗೆ ಪೂರ್ಣಗೊಂಡಿದೆ',
+        'Rental Marked Delivered'=>'ಉಪಕರಣವನ್ನು ವಿತರಿಸಲಾಗಿದೆ',
+        'Return Requested'=>'ಹಿಂತಿರುಗಿಸುವ ವಿನಂತಿ',
+        'Return Confirmed'=>'ಹಿಂತಿರುಗಿಸುವಿಕೆಯನ್ನು ದೃಢೀಕರಿಸಲಾಗಿದೆ',
+        'Booking Cancelled'=>'ಬುಕಿಂಗ್ ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ',
+        'Payment Received'=>'ಪಾವತಿ ಸ್ವೀಕರಿಸಲಾಗಿದೆ',
+        'Rental Reminder'=>'ಬಾಡಿಗೆ ಜ್ಞಾಪನೆ',
+      ]
+    ];
+    $dict = $titles[$lang] ?? $titles['hi'];
+    if (isset($dict[$title])) $title = $dict[$title];
+
+    $patterns = [
+      '/^(.+?) has sent a rental request for (.+?)\\.\\s*Request Code:\\s*(.+?)\\.?$/i' => [
+        'hi'=>'$1 ने $2 के लिए किराये का अनुरोध भेजा है। अनुरोध कोड: $3',
+        'kn'=>'$1 ಅವರು $2 ಗಾಗಿ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಿದ್ದಾರೆ. ವಿನಂತಿ ಕೋಡ್: $3'],
+      '/^(.+?) has submitted a new ([0-9.]+)-star review for your equipment [“"]?(.+?)[”"]?\\.?$/i' => [
+        'hi'=>'$1 ने आपके उपकरण $3 के लिए $2 स्टार की नई समीक्षा दी है।',
+        'kn'=>'$1 ಅವರು ನಿಮ್ಮ $3 ಉಪಕರಣಕ್ಕೆ $2 ಸ್ಟಾರ್ ಹೊಸ ವಿಮರ್ಶೆಯನ್ನು ಸಲ್ಲಿಸಿದ್ದಾರೆ.'],
+      '/^The renter has cancelled the booking for (.+?)\\.?$/i'=>[
+        'hi'=>'किरायेदार ने $1 की बुकिंग रद्द कर दी है।','kn'=>'ಬಾಡಿಗೆದಾರರು $1 ಗಾಗಿ ಬುಕಿಂಗ್ ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ.'],
+      '/^Your booking for (.+?) has been accepted\\.?$/i'=>[
+        'hi'=>'$1 के लिए बुकिंग स्वीकार कर ली गई है।','kn'=>'$1 ಗಾಗಿ ಬುಕಿಂಗ್ ಸ್ವೀಕರಿಸಲಾಗಿದೆ.'],
+      '/^Your booking for (.+?) has been rejected\\.?$/i'=>[
+        'hi'=>'$1 के लिए बुकिंग अस्वीकार कर दी गई है।','kn'=>'$1 ಗಾಗಿ ಬುಕಿಂಗ್ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ.'],
+      '/^(.+?) has confirmed delivery of (.+?)\\.?$/i'=>[
+        'hi'=>'$1 ने $2 की डिलीवरी की पुष्टि की है।','kn'=>'$1 ಅವರು $2 ವಿತರಣೆಯನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has returned (.+?)\\.?$/i'=>[
+        'hi'=>'$1 ने $2 वापस कर दिया है।','kn'=>'$1 ಅವರು $2 ಅನ್ನು ಹಿಂತಿರುಗಿಸಿದ್ದಾರೆ.'],
+      '/^The rental period for (.+?) ends tomorrow\\. (.+)$/i'=>[
+        'hi'=>'$1 की किराये की अवधि कल समाप्त होगी। $2','kn'=>'$1 ಬಾಡಿಗೆ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ. $2'],
+      '/^The rental period for (.+?) has ended, but the equipment is still marked as unreturned\\. (.+)$/i'=>[
+        'hi'=>'$1 की किराये की अवधि समाप्त हो गई है, लेकिन उपकरण अभी भी वापस नहीं किया गया है। $2','kn'=>'$1 ಬಾಡಿಗೆ ಅವಧಿ ಮುಗಿದಿದೆ, ಆದರೆ ಉಪಕರಣ ಇನ್ನೂ ಹಿಂತಿರುಗಿಸಿಲ್ಲ ಎಂದು ತೋರಿಸುತ್ತದೆ. $2'],
+      '/^(.+?) marked (.+?) as delivered\\.?$/i'=>[
+        'hi'=>'$1 ने $2 को डिलीवर किया हुआ चिह्नित किया है।','kn'=>'$1 ಅವರು $2 ಅನ್ನು ವಿತರಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) confirmed the return of (.+?)\\.?$/i'=>[
+        'hi'=>'$1 ने $2 की वापसी की पुष्टि की है।','kn'=>'$1 ಅವರು $2 ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has requested to return (.+?)\\.?$/i'=>[
+        'hi'=>'$1 ने $2 वापस करने का अनुरोध किया है।','kn'=>'$1 ಅವರು $2 ಹಿಂತಿರುಗಿಸಲು ವಿನಂತಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has completed the rental for (.+?)\\.?$/i'=>[
+        'hi'=>'$1 ने $2 का किराया पूरा कर लिया है।','kn'=>'$1 ಅವರು $2 ಬಾಡಿಗೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has paid ₹?([0-9,.]+) for (.+?)\\.?$/i'=>[
+        'hi'=>'$1 ने $3 के लिए ₹$2 का भुगतान किया है।','kn'=>'$1 ಅವರು $3 ಗಾಗಿ ₹$2 ಪಾವತಿಸಿದ್ದಾರೆ.'],
+      /* Common lender reminder wording variants (the equipment/renter/phone/amount
+         captures are intentionally kept in the translated sentence). */
+      '/^(?:The )?rental (?:period )?(?:for|of) (.+?) (?:has ended|ended), but (?:the )?equipment is still (?:marked as )?unreturned\.?\s*(.*)$/i'=>[
+        'hi'=>'$1 की किराये की अवधि समाप्त हो गई है, लेकिन उपकरण अभी वापस नहीं किया गया है। $2',
+        'kn'=>'$1 ಬಾಡಿಗೆ ಅವಧಿ ಮುಗಿದಿದೆ, ಆದರೆ ಉಪಕರಣ ಇನ್ನೂ ಹಿಂತಿರುಗಿಸಿಲ್ಲ. $2'],
+      '/^(?:The )?rental (?:period )?(?:for|of) (.+?) (?:ends|will end) tomorrow\.?\s*(.*)$/i'=>[
+        'hi'=>'$1 की किराये की अवधि कल समाप्त होगी। $2',
+        'kn'=>'$1 ಬಾಡಿಗೆ ಅವಧಿ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ. $2'],
+      '/^The rental for (.+?) ends tomorrow\.?\s*(.*)$/i'=>[
+        'hi'=>'$1 का किराया कल समाप्त होगा। $2',
+        'kn'=>'$1 ಬಾಡಿಗೆ ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ. $2'],
+      '/^(.+?) rental (?:period )?(?:has ended|ended), but (?:the )?equipment is still (?:marked as )?unreturned\.?\s*(.*)$/i'=>[
+        'hi'=>'$1 की किराये की अवधि समाप्त हो गई है, लेकिन उपकरण अभी वापस नहीं किया गया है। $2',
+        'kn'=>'$1 ಬಾಡಿಗೆ ಅವಧಿ ಮುಗಿದಿದೆ, ಆದರೆ ಉಪಕರಣ ಇನ್ನೂ ಹಿಂತಿರುಗಿಸಿಲ್ಲ. $2'],
+      '/^(.+?) has sent (?:you )?a rental request for (.+?)(?:\.?\s*Request Code:\s*(.+))?\.?$/i'=>[
+        'hi'=>'$1 ने $2 के लिए किराये का अनुरोध भेजा है। अनुरोध कोड: $3',
+        'kn'=>'$1 ಅವರು $2 ಗಾಗಿ ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಿದ್ದಾರೆ. ವಿನಂತಿ ಕೋಡ್: $3'],
+      '/^(.+?) has accepted (?:the )?booking for (.+?)\.?$/i'=>[
+        'hi'=>'$1 ने $2 की बुकिंग स्वीकार कर ली है।',
+        'kn'=>'$1 ಅವರು $2 ಬುಕಿಂಗ್ ಅನ್ನು ಸ್ವೀಕರಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has rejected (?:the )?booking for (.+?)\.?$/i'=>[
+        'hi'=>'$1 ने $2 की बुकिंग अस्वीकार कर दी है।',
+        'kn'=>'$1 ಅವರು $2 ಬುಕಿಂಗ್ ಅನ್ನು ತಿರಸ್ಕರಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has cancelled (?:the )?booking for (.+?)\.?$/i'=>[
+        'hi'=>'$1 ने $2 की बुकिंग रद्द कर दी है।',
+        'kn'=>'$1 ಅವರು $2 ಬುಕಿಂಗ್ ಅನ್ನು ರದ್ದುಗೊಳಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has (?:confirmed|marked) (?:the )?delivery of (.+?)\.?$/i'=>[
+        'hi'=>'$1 ने $2 की डिलीवरी की पुष्टि की है।',
+        'kn'=>'$1 ಅವರು $2 ವಿತರಣೆಯನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has (?:confirmed|completed) (?:the )?return of (.+?)\.?$/i'=>[
+        'hi'=>'$1 ने $2 की वापसी की पुष्टि की है।',
+        'kn'=>'$1 ಅವರು $2 ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has completed (?:the )?rental (?:for|of) (.+?)\.?$/i'=>[
+        'hi'=>'$1 ने $2 का किराया पूरा कर लिया है।',
+        'kn'=>'$1 ಅವರು $2 ಬಾಡಿಗೆಯನ್ನು ಪೂರ್ಣಗೊಳಿಸಿದ್ದಾರೆ.'],
+      '/^(.+?) has left (?:a )?review for (.+?)(?:\.|$)/i'=>[
+        'hi'=>'$1 ने $2 के लिए समीक्षा दी है।',
+        'kn'=>'$1 ಅವರು $2 ಕುರಿತು ವಿಮರ್ಶೆ ನೀಡಿದ್ದಾರೆ.'],
+    ];
+    foreach ($patterns as $pattern=>$localized) {
+      if (preg_match($pattern,$message,$m)) {
+        $template=$localized[$lang] ?? $localized['hi'];
+        for($i=1;$i<count($m);$i++) $template=str_replace('$'.$i,$m[$i],$template);
+        $message=$template; break;
+      }
+    }
+
+    /* Translate common English phrases embedded in notification messages. */
+    $phrases = [
+      'hi'=>[
+        'Please contact the renter at'=>'कृपया किरायेदार से इस नंबर पर संपर्क करें:',
+        'Current overdue charge:'=>'वर्तमान विलंब शुल्क:',
+        'but the equipment is still marked as unreturned.'=>'लेकिन उपकरण अभी वापस नहीं किया गया है।',
+        'ends tomorrow.'=>'कल समाप्त होगा।',
+        'Please contact renter'=>'कृपया किरायेदार से संपर्क करें',
+        'to arrange the return.'=>'वापसी की व्यवस्था करने के लिए।',
+        'Request Code:'=>'अनुरोध कोड:',
+        'The renter'=>'किरायेदार',
+        'has sent a rental request for'=>'ने किराये का अनुरोध भेजा है:',
+        'Please arrange the return.'=>'कृपया उपकरण वापस करने की व्यवस्था करें।',
+        'Please contact the renter'=>'कृपया किरायेदार से संपर्क करें',
+        'to arrange the return.'=>'वापसी की व्यवस्था करने के लिए।',
+        'Current overdue charge: ₹'=>'वर्तमान विलंब शुल्क: ₹',
+      ],
+      'kn'=>[
+        'Please contact the renter at'=>'ದಯವಿಟ್ಟು ಬಾಡಿಗೆದಾರರನ್ನು ಈ ಸಂಖ್ಯೆಯಲ್ಲಿ ಸಂಪರ್ಕಿಸಿ:',
+        'Current overdue charge:'=>'ಪ್ರಸ್ತುತ ವಿಳಂಬ ಶುಲ್ಕ:',
+        'but the equipment is still marked as unreturned.'=>'ಆದರೆ ಉಪಕರಣ ಇನ್ನೂ ಹಿಂತಿರುಗಿಸಿಲ್ಲ ಎಂದು ತೋರಿಸುತ್ತದೆ.',
+        'ends tomorrow.'=>'ನಾಳೆ ಮುಕ್ತಾಯಗೊಳ್ಳುತ್ತದೆ.',
+        'Please contact renter'=>'ದಯವಿಟ್ಟು ಬಾಡಿಗೆದಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ',
+        'to arrange the return.'=>'ಹಿಂತಿರುಗಿಸುವ ವ್ಯವಸ್ಥೆ ಮಾಡಲು.',
+        'Request Code:'=>'ವಿನಂತಿ ಕೋಡ್:',
+        'The renter'=>'ಬಾಡಿಗೆದಾರರು',
+        'has sent a rental request for'=>'ಬಾಡಿಗೆ ವಿನಂತಿಯನ್ನು ಕಳುಹಿಸಿದ್ದಾರೆ:',
+        'Please arrange the return.'=>'ದಯವಿಟ್ಟು ಉಪಕರಣ ಹಿಂತಿರುಗಿಸಲು ವ್ಯವಸ್ಥೆ ಮಾಡಿ.',
+        'Please contact the renter'=>'ದಯವಿಟ್ಟು ಬಾಡಿಗೆದಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ',
+        'to arrange the return.'=>'ಹಿಂತಿರುಗಿಸುವ ವ್ಯವಸ್ಥೆ ಮಾಡಲು.',
+        'Current overdue charge: ₹'=>'ಪ್ರಸ್ತುತ ವಿಳಂಬ ಶುಲ್ಕ: ₹',
+      ]
+    ];
+    foreach (($phrases[$lang] ?? []) as $from=>$to) $message=str_ireplace($from,$to,$message);
+    return [$title,$message];
+}
+
+function lender_notification_ui_text($key, $lang)
+{
+    $labels = [
+      'hi'=>[
+        'notifications'=>'सूचनाएं','lender_notifications_subtitle'=>'आपके उपकरण किराये से संबंधित सूचनाएं और अपडेट।',
+        'mark_all_read'=>'सभी को पढ़ा हुआ चिह्नित करें','no_notifications'=>'कोई सूचना नहीं',
+        'no_notifications_message'=>'आपने सभी सूचनाएं देख ली हैं। नई सूचनाएं यहां दिखाई देंगी।',
+        'unread'=>'अपठित','mark_read'=>'पढ़ा हुआ चिह्नित करें','my_profile'=>'मेरी प्रोफ़ाइल',
+        'brand_main'=>'कृषि','brand_sub'=>'उपकरण किराया प्रणाली'],
+      'kn'=>[
+        'notifications'=>'ಅಧಿಸೂಚನೆಗಳು','lender_notifications_subtitle'=>'ನಿಮ್ಮ ಉಪಕರಣ ಬಾಡಿಗೆಗಳ ಅಧಿಸೂಚನೆಗಳು ಮತ್ತು ನವೀಕರಣಗಳು.',
+        'mark_all_read'=>'ಎಲ್ಲವನ್ನೂ ಓದಿದಂತೆ ಗುರುತಿಸಿ','no_notifications'=>'ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ',
+        'no_notifications_message'=>'ನೀವು ಎಲ್ಲಾ ಅಧಿಸೂಚನೆಗಳನ್ನು ನೋಡಿದ್ದೀರಿ. ಹೊಸ ಅಧಿಸೂಚನೆಗಳು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತವೆ.',
+        'unread'=>'ಓದದಿರುವುದು','mark_read'=>'ಓದಿದಂತೆ ಗುರುತಿಸಿ','my_profile'=>'ನನ್ನ ಪ್ರೊಫೈಲ್',
+        'brand_main'=>'ಕೃಷಿ','brand_sub'=>'ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ']
+    ];
+    if ($lang==='en') return __($key);
+    return $labels[$lang][$key] ?? __($key);
+}
+
 /* Notification icon based on notification type */
 function notification_icon($title, $message)
 {
@@ -146,8 +339,8 @@ function notification_icon($title, $message)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        <?php echo htmlspecialchars(__('notifications')); ?> -
-        <?php echo htmlspecialchars(__('brand_main') . ' ' . __('brand_sub')); ?>
+        <?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?> -
+        <?php echo htmlspecialchars(lender_notification_ui_text('brand_main', $current_lang) . ' ' . lender_notification_ui_text('brand_sub', $current_lang)); ?>
     </title>
 
     <link
@@ -549,8 +742,8 @@ function notification_icon($title, $message)
         <a
             href="lender_notifications.php<?php echo $lang_param; ?>"
             class="notification-bell"
-            title="<?php echo htmlspecialchars(__('notifications')); ?>"
-            aria-label="<?php echo htmlspecialchars(__('notifications')); ?>"
+            title="<?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?>"
+            aria-label="<?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?>"
         >
             <i class="fa-solid fa-bell"></i>
 
@@ -564,8 +757,8 @@ function notification_icon($title, $message)
         <a
             href="profile.php<?php echo $lang_param; ?>"
             class="profile-btn"
-            title="<?php echo htmlspecialchars(__('my_profile')); ?>"
-            aria-label="<?php echo htmlspecialchars(__('my_profile')); ?>"
+            title="<?php echo htmlspecialchars(lender_notification_ui_text('my_profile', $current_lang)); ?>"
+            aria-label="<?php echo htmlspecialchars(lender_notification_ui_text('my_profile', $current_lang)); ?>"
         >
             <i class="fa-solid fa-user"></i>
         </a>
@@ -579,11 +772,11 @@ function notification_icon($title, $message)
 
             <div>
                 <h1 class="page-title">
-                    <?php echo htmlspecialchars(__('notifications')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('notifications', $current_lang)); ?>
                 </h1>
 
                 <div class="page-subtitle">
-                    <?php echo htmlspecialchars(__('lender_notifications_subtitle')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('lender_notifications_subtitle', $current_lang)); ?>
                 </div>
             </div>
 
@@ -595,7 +788,7 @@ function notification_icon($title, $message)
                         class="mark-all-btn"
                     >
                         <i class="fa-solid fa-check-double me-1"></i>
-                        <?php echo htmlspecialchars(__('mark_all_read')); ?>
+                        <?php echo htmlspecialchars(lender_notification_ui_text('mark_all_read', $current_lang)); ?>
                     </button>
                 </form>
             <?php endif; ?>
@@ -609,11 +802,11 @@ function notification_icon($title, $message)
                 <i class="fa-regular fa-bell-slash"></i>
 
                 <h5>
-                    <?php echo htmlspecialchars(__('no_notifications')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('no_notifications', $current_lang)); ?>
                 </h5>
 
                 <p>
-                    <?php echo htmlspecialchars(__('no_notifications_message')); ?>
+                    <?php echo htmlspecialchars(lender_notification_ui_text('no_notifications_message', $current_lang)); ?>
                 </p>
             </div>
 
@@ -628,6 +821,11 @@ function notification_icon($title, $message)
                     );
 
                     $is_unread = empty($notification['is_read']);
+                    [$display_title, $display_message] = localize_lender_notification(
+                        $notification['title'] ?? '',
+                        $notification['message'] ?? '',
+                        $current_lang
+                    );
                 ?>
 
                 <div class="notification-card <?php echo $is_unread ? 'unread' : ''; ?>">
@@ -641,14 +839,14 @@ function notification_icon($title, $message)
                         <h5 class="notification-title">
                             <?php
                                 echo htmlspecialchars(
-                                    $notification['title'] ?? __('notifications')
+                                    $display_title !== '' ? $display_title : lender_notification_ui_text('notifications', $current_lang)
                                 );
                             ?>
 
                             <?php if ($is_unread): ?>
                                 <span
                                     class="unread-dot"
-                                    title="<?php echo htmlspecialchars(__('unread')); ?>"
+                                    title="<?php echo htmlspecialchars(lender_notification_ui_text('unread', $current_lang)); ?>"
                                 ></span>
                             <?php endif; ?>
                         </h5>
@@ -656,7 +854,7 @@ function notification_icon($title, $message)
                         <p class="notification-message">
                             <?php
                                 echo nl2br(
-                                    htmlspecialchars($notification['message'] ?? '')
+                                    htmlspecialchars($display_message)
                                 );
                             ?>
                         </p>
@@ -694,7 +892,7 @@ function notification_icon($title, $message)
                                 class="read-btn"
                             >
                                 <i class="fa-solid fa-check me-1"></i>
-                                <?php echo htmlspecialchars(__('mark_read')); ?>
+                                <?php echo htmlspecialchars(lender_notification_ui_text('mark_read', $current_lang)); ?>
                             </button>
 
                         </form>

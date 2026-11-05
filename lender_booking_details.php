@@ -23,7 +23,101 @@ if (!in_array($current_lang, $allowed_languages, true)) {
 
 require_once 'includes/lang.php';
 
+/* =========================================================
+   OVERDUE PENALTY TRANSLATIONS (page-local)
+   ========================================================= */
+$overdue_text = [
+    'en' => [
+        'title' => 'Overdue Penalty',
+        'assessed' => 'Assessed overdue amount:',
+        'waiting' => 'The overdue penalty is recorded. Collection can be confirmed only after the renter confirms the equipment return.',
+        'collected' => 'Penalty collected and recorded.',
+        'amount_collected' => 'Amount collected:',
+        'collection_date' => 'Collection date:',
+        'recorded' => 'Recorded',
+        'return_confirmed' => 'The renter has confirmed the equipment return.',
+        'collect_instruction' => 'Collect the amount physically, then confirm it below.',
+        'button' => 'Penalty Collected & Clear Overdue',
+        'confirm' => 'Confirm that you have received {amount} from the renter?',
+        'success' => 'Overdue penalty collection recorded successfully.',
+        'error' => 'Penalty could not be recorded. Confirm that the renter has confirmed the return and that the penalty has not already been collected.'
+    ],
+    'kn' => [
+        'title' => 'ತಡವಾದ ಬಾಡಿಗೆ ದಂಡ',
+        'assessed' => 'ಒಟ್ಟು ತಡವಾದ ದಂಡದ ಮೊತ್ತ:',
+        'waiting' => 'ತಡವಾದ ದಂಡವನ್ನು ದಾಖಲಿಸಲಾಗಿದೆ. ಬಾಡಿಗೆದಾರರು ಉಪಕರಣ ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ ನಂತರ ಮಾತ್ರ ಸಂಗ್ರಹವನ್ನು ದೃಢೀಕರಿಸಬಹುದು.',
+        'collected' => 'ದಂಡವನ್ನು ಸಂಗ್ರಹಿಸಿ ದಾಖಲಿಸಲಾಗಿದೆ.',
+        'amount_collected' => 'ಸಂಗ್ರಹಿಸಿದ ಮೊತ್ತ:',
+        'collection_date' => 'ಸಂಗ್ರಹಿಸಿದ ದಿನಾಂಕ:',
+        'recorded' => 'ದಾಖಲಿಸಲಾಗಿದೆ',
+        'return_confirmed' => 'ಬಾಡಿಗೆದಾರರು ಉಪಕರಣವನ್ನು ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆ.',
+        'collect_instruction' => 'ಮೊದಲು ಹಣವನ್ನು ನೇರವಾಗಿ ಸಂಗ್ರಹಿಸಿ, ನಂತರ ಕೆಳಗೆ ದೃಢೀಕರಿಸಿ.',
+        'button' => 'ದಂಡ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ ಮತ್ತು ಬಾಕಿ ತೆರವುಗೊಳಿಸಿ',
+        'confirm' => 'ಬಾಡಿಗೆದಾರರಿಂದ {amount} ಸ್ವೀಕರಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸುತ್ತೀರಾ?',
+        'success' => 'ತಡವಾದ ದಂಡದ ಸಂಗ್ರಹವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ದಾಖಲಿಸಲಾಗಿದೆ.',
+        'error' => 'ದಂಡವನ್ನು ದಾಖಲಿಸಲಾಗಲಿಲ್ಲ. ಬಾಡಿಗೆದಾರರು ಉಪಕರಣ ಹಿಂತಿರುಗಿಸಿರುವುದನ್ನು ದೃಢೀಕರಿಸಿದ್ದಾರೆಯೇ ಮತ್ತು ದಂಡವನ್ನು ಈಗಾಗಲೇ ಸಂಗ್ರಹಿಸಿಲ್ಲವೇ ಎಂಬುದನ್ನು ಪರಿಶೀಲಿಸಿ.'
+    ],
+    'hi' => [
+        'title' => 'देरी का जुर्माना',
+        'assessed' => 'कुल देरी का जुर्माना:',
+        'waiting' => 'देरी का जुर्माना दर्ज है। वसूली की पुष्टि किरायेदार द्वारा उपकरण लौटाने की पुष्टि के बाद ही की जा सकती है।',
+        'collected' => 'जुर्माना वसूल करके दर्ज कर लिया गया है।',
+        'amount_collected' => 'वसूली गई राशि:',
+        'collection_date' => 'वसूली की तारीख:',
+        'recorded' => 'दर्ज किया गया',
+        'return_confirmed' => 'किरायेदार ने उपकरण वापस करने की पुष्टि कर दी है।',
+        'collect_instruction' => 'पहले राशि सीधे वसूल करें, फिर नीचे पुष्टि करें।',
+        'button' => 'जुर्माना वसूल हुआ और बकाया साफ करें',
+        'confirm' => 'क्या आप पुष्टि करते हैं कि आपने किरायेदार से {amount} प्राप्त कर लिया है?',
+        'success' => 'देरी के जुर्माने की वसूली सफलतापूर्वक दर्ज की गई।',
+        'error' => 'जुर्माना दर्ज नहीं हो सका। पुष्टि करें कि किरायेदार ने उपकरण लौटाने की पुष्टि की है और जुर्माना पहले से वसूला नहीं गया है।'
+    ]
+];
+$overdue_lang = $overdue_text[$current_lang] ?? $overdue_text['en'];
+
 $lang_param = '?lang=' . urlencode($current_lang);
+
+/*
+ * Remember the lender page that opened this booking.
+ * Only accept same-site lender pages, so an external URL can never become
+ * the destination of the Back link.
+ */
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_SERVER['HTTP_REFERER'])) {
+    $referer = $_SERVER['HTTP_REFERER'];
+    $referer_parts = parse_url($referer);
+    $current_host = strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? ''));
+    $referer_host = strtolower($referer_parts['host'] ?? '');
+    $referer_file = basename($referer_parts['path'] ?? '');
+
+    $is_same_site = $referer_host !== '' && $referer_host === $current_host;
+    $is_booking_page = $referer_file === 'lender_booking_details.php';
+
+    // Accept the same-site PHP page that opened the booking details.
+    // This covers Rental Requests, My Bookings, Active Rentals,
+    // Rental History, and other pages with a View Details link.
+    $is_php_page = strtolower(pathinfo($referer_file, PATHINFO_EXTENSION)) === 'php';
+    // These are the exact lender pages that contain the View Details icon.
+    // Keep this list synchronized with the actual PHP filenames in the project.
+    $allowed_return_pages = [
+        'lender_my_bookings.php',
+        'rental_request.php',
+        'lender_rental_history.php',
+        'active_rentals.php'
+    ];
+    $is_allowed_return_page = $is_php_page
+        && in_array(strtolower($referer_file), $allowed_return_pages, true);
+
+    if ($is_same_site && !$is_booking_page && $is_allowed_return_page) {
+        $return_path = $referer_parts['path'] ?? '';
+        $return_query = [];
+        if (!empty($referer_parts['query'])) {
+            parse_str($referer_parts['query'], $return_query);
+        }
+        $return_query['lang'] = $current_lang;
+        $_SESSION['lender_booking_details_return'] =
+            $return_path . '?' . http_build_query($return_query);
+    }
+}
 
 
 /* =========================================================
@@ -94,6 +188,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_status = 'Returned';
         } elseif ($action === 'save_delivery_date') {
             $new_status = 'SaveDeliveryDate';
+        } elseif ($action === 'collect_overdue') {
+            $new_status = 'CollectOverduePenalty';
         }
 
         $delivery_date = trim($_POST['delivery_date'] ?? '');
@@ -196,6 +292,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = __('lbd_database_error');
             }
 
+        } elseif ($new_status === 'CollectOverduePenalty') {
+
+            /*
+             * Record the lender's confirmation that the overdue penalty
+             * was collected. Keep late_charge unchanged as the historical
+             * assessed amount.
+             */
+            $collect_stmt = $conn->prepare("
+                UPDATE bookings b
+                INNER JOIN equipment e
+                    ON b.equipment_id = e.equipment_id
+                SET
+                    b.late_charge_collected = 1,
+                    b.late_charge_collected_amount = b.late_charge,
+                    b.late_charge_collected_at = NOW()
+                WHERE b.booking_id = ?
+                  AND e.lender_id = ?
+                  AND b.status IN ('Returned', 'Completed')
+                  AND b.return_confirmed = 1
+                  AND b.late_charge > 0
+                  AND b.late_charge_collected = 0
+            ");
+
+            if ($collect_stmt) {
+                $collect_stmt->bind_param('ii', $booking_id, $lender_id);
+
+                if ($collect_stmt->execute() && $collect_stmt->affected_rows === 1) {
+                    $message = $overdue_lang['success'];
+                } else {
+                    $error = $overdue_lang['error'];
+                }
+
+                $collect_stmt->close();
+            } else {
+                $error = __('lbd_database_error');
+            }
+
         } else {
 
             /*
@@ -216,6 +349,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     b.return_confirmed_at = CASE WHEN ? = 'Returned' THEN NULL ELSE b.return_confirmed_at END
                 WHERE b.booking_id = ?
                   AND e.lender_id = ?
+                  AND (
+                    (? = 'Delivered' AND b.status = 'Accepted') OR
+                    (? = 'Returned' AND b.status IN ('Delivered', 'Overdue') AND b.delivery_confirmed = 1) OR
+                    (? NOT IN ('Delivered', 'Returned'))
+                  )
             ";
 
             $update_stmt = $conn->prepare($update_sql);
@@ -223,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($update_stmt) {
 
                 $update_stmt->bind_param(
-                    "sssssssii",
+                    "sssssssiisss",
                     $new_status,
                     $new_status,
                     $delivery_date,
@@ -232,7 +370,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $new_status,
                     $new_status,
                     $booking_id,
-                    $lender_id
+                    $lender_id,
+                    $new_status,
+                    $new_status,
+                    $new_status
                 );
 
                 if ($update_stmt->execute()) {
@@ -286,57 +427,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
 
-                        /*
-                         * Update equipment availability
-                         * when rental starts/ends.
-                         */
-
-                        if ($new_status === 'Accepted') {
-
-                            $eq_stmt = $conn->prepare("
-                                UPDATE equipment
-                                SET status = 'Rented Out'
-                                WHERE equipment_id = (
-                                    SELECT equipment_id
-                                    FROM bookings
-                                    WHERE booking_id = ?
-                                )
-                                AND lender_id = ?
-                            ");
-
-                            if ($eq_stmt) {
-                                $eq_stmt->bind_param(
-                                    "ii",
-                                    $booking_id,
-                                    $lender_id
-                                );
-                                $eq_stmt->execute();
-                                $eq_stmt->close();
-                            }
-
-                        } elseif ($new_status === 'Returned') {
-
-                            $eq_stmt = $conn->prepare("
-                                UPDATE equipment
-                                SET status = 'Available'
-                                WHERE equipment_id = (
-                                    SELECT equipment_id
-                                    FROM bookings
-                                    WHERE booking_id = ?
-                                )
-                                AND lender_id = ?
-                            ");
-
-                            if ($eq_stmt) {
-                                $eq_stmt->bind_param(
-                                    "ii",
-                                    $booking_id,
-                                    $lender_id
-                                );
-                                $eq_stmt->execute();
-                                $eq_stmt->close();
-                            }
-                        }
+                        // Do not make equipment available here. The renter must confirm
+                        // the return first; the renter confirmation handler should then
+                        // set booking status to Completed and equipment to Available.
 
                         $message = __('lbd_status_updated');
 
@@ -478,6 +571,10 @@ $stmt->close();
    ========================================================= */
 
 $status = $booking['status'] ?? 'Pending';
+$delivery_confirmed = (int)($booking['delivery_confirmed'] ?? 0) === 1;
+$return_confirmed = (int)($booking['return_confirmed'] ?? 0) === 1;
+$waiting_delivery_confirmation = ($status === 'Delivered' && !$delivery_confirmed);
+$waiting_return_confirmation = ($status === 'Returned' && !$return_confirmed);
 
 $quantity = isset($booking['quantity'])
     ? intval($booking['quantity'])
@@ -529,7 +626,7 @@ if ($status === 'Accepted') {
 } elseif ($status === 'Returned') {
 
     $status_class = 'status-returned';
-    $status_icon = 'fa-circle-check';
+    $status_icon = 'fa-hourglass-half';
 
 } elseif ($status === 'Completed') {
 
@@ -584,7 +681,10 @@ if (!empty($booking['equipment_image'])) {
    BACK PAGE
    ========================================================= */
 
-$back_page = 'lender_rental_history.php';
+$back_url = $_SESSION['lender_booking_details_return'] ?? '';
+if ($back_url === '') {
+    $back_url = 'rental_history.php' . $lang_param;
+}
 
 ?>
 <!DOCTYPE html>
@@ -1026,6 +1126,30 @@ $back_page = 'lender_rental_history.php';
             color: #fff;
         }
 
+        /* Make the renter-details link clearly readable as a primary action. */
+        .renter-details-btn,
+        .renter-details-btn:link,
+        .renter-details-btn:visited {
+            background: linear-gradient(135deg, #1455a6, #092d68) !important;
+            color: #ffffff !important;
+            border: 1px solid #0b397a !important;
+            font-weight: 800 !important;
+            min-height: 46px;
+            text-align: center;
+            box-shadow: 0 5px 14px rgba(9, 45, 104, .22);
+        }
+
+        .renter-details-btn i {
+            color: #ffffff !important;
+        }
+
+        .renter-details-btn:hover,
+        .renter-details-btn:focus {
+            background: linear-gradient(135deg, #0b4699, #061f50) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+
         .btn-reject {
             background: #f1f5f9;
             color: #0f4c5c;
@@ -1393,7 +1517,7 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
         <i class="fa-solid fa-chevron-right"></i>
 
         <a
-            href="<?php echo $back_page . $lang_param; ?>"
+            href="<?php echo htmlspecialchars($back_url, ENT_QUOTES, 'UTF-8'); ?>"
         >
             <?php echo __('lbd_rentals'); ?>
         </a>
@@ -1429,7 +1553,7 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
 
 
         <a
-            href="<?php echo $back_page . $lang_param; ?>"
+            href="<?php echo htmlspecialchars($back_url, ENT_QUOTES, 'UTF-8'); ?>"
             class="btn btn-outline-success fw-bold"
         >
 
@@ -1700,7 +1824,7 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
 
                                 <?php
                                 echo htmlspecialchars(
-                                    $status
+                                    $waiting_delivery_confirmation ? 'Delivered - Waiting for Renter Confirmation' : ($waiting_return_confirmation ? 'Returned - Waiting for Renter Confirmation' : (($status === 'Delivered' && $delivery_confirmed) ? 'In Use' : $status))
                                 );
                                 ?>
 
@@ -1915,29 +2039,47 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                             class="fa-solid <?php echo $status_icon; ?>"
                         ></i>
 
-                        <?php echo htmlspecialchars($status); ?>
+                        <?php echo htmlspecialchars($waiting_delivery_confirmation ? 'Delivered - Waiting for Renter Confirmation' : ($waiting_return_confirmation ? 'Returned - Waiting for Renter Confirmation' : (($status === 'Delivered' && $delivery_confirmed) ? 'In Use' : $status))); ?>
 
                     </span>
 
                 </div>
 
+                <?php if ($waiting_delivery_confirmation): ?>
+                    <div class="alert alert-warning mt-3 mb-0" role="status">
+                        <i class="fa-solid fa-hourglass-half me-2"></i>
+                        The lender has marked this equipment as delivered. Waiting for the renter to confirm delivery. The rental will become In Use only after confirmation.
+                    </div>
+                <?php elseif ($waiting_return_confirmation): ?>
+                    <div class="alert alert-warning mt-3 mb-0" role="status">
+                        <i class="fa-solid fa-hourglass-half me-2"></i>
+                        The lender has marked this equipment as returned. Waiting for the renter to confirm the return. The booking will be Completed after confirmation.
+                    </div>
+                <?php elseif ($status === 'Delivered' && $delivery_confirmed): ?>
+                    <div class="alert alert-success mt-3 mb-0" role="status">
+                        <i class="fa-solid fa-circle-check me-2"></i>Delivery confirmed by the renter. Equipment is In Use.
+                    </div>
+                <?php endif; ?>
 
                 <?php
 
-                $pending =
-                    ($status === 'Pending');
+                $pending = ($status === 'Pending');
+                $accepted = ($status === 'Accepted');
 
-                $accepted =
-                    ($status === 'Accepted');
+                // A lender marking delivery advances the timeline to Delivered,
+                // but the rental is not In Use until the renter confirms it.
+                $delivery_marked = in_array(
+                    $status,
+                    ['Delivered', 'Overdue', 'Returned', 'Completed'],
+                    true
+                );
+                $delivered = $delivery_marked && $delivery_confirmed;
 
-                $delivered =
-                    in_array($status, ['Delivered', 'Overdue'], true);
-
-                $returned =
-                    ($status === 'Returned');
-
-                $completed =
-                    ($status === 'Completed');
+                // A lender marking return advances the timeline to Returned,
+                // but completion waits for the renter's return confirmation.
+                $return_marked = in_array($status, ['Returned', 'Completed'], true);
+                $returned = $return_marked && $return_confirmed;
+                $completed = ($status === 'Completed' && $return_confirmed);
 
                 ?>
 
@@ -1999,26 +2141,16 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                     <div
                         class="timeline-step
                         <?php
-                        echo (
-                            $delivered ||
-                            $returned
-                        )
+                        echo $delivery_marked
                             ? 'completed'
-                            : (
-                                $accepted
-                                    ? 'current'
-                                    : ''
-                            );
+                            : ($accepted ? 'current' : '');
                         ?>"
                     >
 
                         <div class="step-icon">
 
                             <?php
-                            if (
-                                $delivered ||
-                                $returned
-                            ):
+                            if ($delivery_marked):
                             ?>
 
                                 <i class="fa-solid fa-check"></i>
@@ -2043,19 +2175,15 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                     <div
                         class="timeline-step
                         <?php
-                        echo ($returned || $completed)
+                        echo $delivered
                             ? 'completed'
-                            : (
-                                $delivered
-                                    ? 'current'
-                                    : ''
-                            );
+                            : ($delivery_marked ? 'current' : '');
                         ?>"
                     >
 
                         <div class="step-icon">
 
-                            <?php if ($returned): ?>
+                            <?php if ($delivered): ?>
 
                                 <i class="fa-solid fa-check"></i>
 
@@ -2079,15 +2207,15 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                     <div
                         class="timeline-step
                         <?php
-                        echo ($returned || $completed)
+                        echo $returned
                             ? 'completed'
-                            : '';
+                            : ($return_marked ? 'current' : '');
                         ?>"
                     >
 
                         <div class="step-icon">
 
-                            <?php if ($returned || $completed): ?>
+                            <?php if ($returned): ?>
 
                                 <i class="fa-solid fa-check"></i>
 
@@ -2276,7 +2404,7 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                 <!-- RENTER DETAILS: only this booking's authorized lender can access it -->
                 <a
                     href="renter_details.php?booking_id=<?php echo (int)$booking_id; ?>&amp;lang=<?php echo urlencode($current_lang); ?>"
-                    class="action-btn btn-accept"
+                    class="action-btn btn-accept btn renter-details-btn"
                     style="text-decoration:none;margin-top:14px;"
                 >
                     <i class="fa-solid fa-id-card"></i>
@@ -2521,7 +2649,7 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
 
                         <!-- DELIVERED -->
 
-                        <?php elseif (in_array($status, ['Delivered', 'Overdue'], true)): ?>
+                        <?php elseif (in_array($status, ['Delivered', 'Overdue'], true) && $delivery_confirmed): ?>
 
 
                             <div
@@ -2577,9 +2705,21 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                             </form>
 
 
+                        <?php elseif ($status === 'Delivered' && !$delivery_confirmed): ?>
+                            <div class="alert alert-warning mb-0" style="font-size:13px;">
+                                <i class="fa-solid fa-hourglass-half me-1"></i>
+                                Waiting for the renter to confirm delivery. The equipment will be considered In Use after confirmation.
+                            </div>
+
                         <!-- RETURNED -->
 
-                        <?php elseif ($status === 'Returned'): ?>
+                        <?php elseif ($status === 'Returned' && !$return_confirmed): ?>
+                            <div class="alert alert-warning mb-0" style="font-size:13px;">
+                                <i class="fa-solid fa-hourglass-half me-1"></i>
+                                Waiting for the renter to confirm the return. This booking is not completed yet.
+                            </div>
+
+                        <?php elseif ($status === 'Returned' && $return_confirmed): ?>
 
 
                             <div class="completed-message">
@@ -2637,6 +2777,71 @@ hr,.border-top,.border-bottom{border-color:var(--bluefield-line)!important;}
                             </div>
 
 
+                        <?php endif; ?>
+
+                        <?php
+                        $overdue_amount = (float)($booking['late_charge'] ?? 0);
+                        $penalty_is_collected = (int)($booking['late_charge_collected'] ?? 0) === 1;
+                        $show_overdue_panel = $overdue_amount > 0;
+                        $can_collect_penalty = in_array($status, ['Returned', 'Completed'], true)
+                            && $return_confirmed
+                            && $overdue_amount > 0;
+                        ?>
+
+                        <?php if ($show_overdue_panel): ?>
+                            <div class="alert alert-warning mt-3 mb-0">
+                                <h6 class="fw-bold mb-2">
+                                    <i class="fa-solid fa-money-bill-wave me-1"></i>
+                                    <?php echo htmlspecialchars($overdue_lang['title']); ?>
+                                </h6>
+
+                                <p class="mb-2">
+                                    <?php echo htmlspecialchars($overdue_lang['assessed']); ?>
+                                    <strong>₹<?php echo number_format($overdue_amount, 2); ?></strong>
+                                </p>
+
+                                <?php if ($penalty_is_collected): ?>
+                                    <div class="alert alert-success mb-0">
+                                        <i class="fa-solid fa-circle-check me-1"></i>
+                                        <strong><?php echo htmlspecialchars($overdue_lang['collected']); ?></strong><br>
+                                        <?php echo htmlspecialchars($overdue_lang['amount_collected']); ?>
+                                        ₹<?php echo number_format((float)($booking['late_charge_collected_amount'] ?? 0), 2); ?><br>
+                                        <?php echo htmlspecialchars($overdue_lang['collection_date']); ?>
+                                        <?php
+                                        echo !empty($booking['late_charge_collected_at'])
+                                            ? htmlspecialchars(date('d M Y, h:i A', strtotime($booking['late_charge_collected_at'])))
+                                            : htmlspecialchars($overdue_lang['recorded']);
+                                        ?>
+                                    </div>
+                                <?php elseif ($can_collect_penalty): ?>
+                                    <p class="small mb-2">
+                                        <?php echo htmlspecialchars($overdue_lang['return_confirmed']); ?>
+                                        <?php echo htmlspecialchars($overdue_lang['collect_instruction']); ?>
+                                    </p>
+
+                                    <?php
+                                    $confirm_message = str_replace(
+                                        '{amount}',
+                                        '₹' . number_format($overdue_amount, 2),
+                                        $overdue_lang['confirm']
+                                    );
+                                    ?>
+                                    <form method="POST"
+                                          onsubmit="return confirm(<?php echo htmlspecialchars(json_encode($confirm_message), ENT_QUOTES, 'UTF-8'); ?>);">
+                                        <input type="hidden" name="csrf_token"
+                                               value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                        <input type="hidden" name="action" value="collect_overdue">
+                                        <button type="submit" class="btn btn-success w-100">
+                                            <i class="fa-solid fa-check-circle me-1"></i>
+                                            <?php echo htmlspecialchars($overdue_lang['button']); ?>
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <p class="small mb-0">
+                                        <?php echo htmlspecialchars($overdue_lang['waiting']); ?>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
                         <?php endif; ?>
 
 

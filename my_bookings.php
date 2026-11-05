@@ -96,6 +96,43 @@ if ($sort_by === 'oldest') {
 
 /*
 |--------------------------------------------------------------------------
+| Location Translation Helper
+|--------------------------------------------------------------------------
+*/
+function translate_location($location_string) {
+    if (empty($location_string)) {
+        return '';
+    }
+    
+    // Split multiple locations separated by commas
+    $parts = explode(',', $location_string);
+    $translated_parts = [];
+
+    foreach ($parts as $part) {
+        $clean = trim($part);
+        $slug = strtolower(str_replace(' ', '_', $clean));
+        
+        // Check district key first (e.g. district_bengaluru_rural)
+        $key = 'district_' . $slug;
+        $translated = __($key);
+
+        if ($translated === $key) {
+            // Check city key (e.g. city_mysuru)
+            $city_key = 'city_' . $slug;
+            $translated = __($city_key);
+            
+            if ($translated === $city_key) {
+                $translated = $clean;
+            }
+        }
+        $translated_parts[] = $translated;
+    }
+
+    return implode(', ', $translated_parts);
+}
+
+/*
+|--------------------------------------------------------------------------
 | Fetch Bookings
 |--------------------------------------------------------------------------
 */
@@ -903,12 +940,29 @@ if ($stmt) {
                 $status_icon = 'fa-circle-xmark';
             }
 
+            // Translate Status properly across variations/keys
             $status_key = strtolower($st);
             $translated_status = __($status_key);
-
             if ($translated_status === $status_key) {
-                $translated_status = $st;
+                $translated_status = __('status_' . $status_key);
+                if ($translated_status === 'status_' . $status_key) {
+                    $translated_status = $st;
+                }
             }
+
+            // Translate Category properly across variations/keys
+            $raw_cat = trim($b['equipment_category']);
+            $cat_key = 'category_' . strtolower($raw_cat);
+            $translated_category = __($cat_key);
+            if ($translated_category === $cat_key) {
+                $translated_category = __(strtolower($raw_cat));
+                if ($translated_category === strtolower($raw_cat)) {
+                    $translated_category = $raw_cat;
+                }
+            }
+
+            // Translate Service Locations / Districts
+            $translated_location = translate_location($b['service_location']);
             ?>
 
             <div class="booking-card">
@@ -943,13 +997,13 @@ if ($stmt) {
                     <p class="text-muted mb-1">
                         <?php echo htmlspecialchars(__('category')); ?>:
                         <strong>
-                            <?php echo htmlspecialchars($b['equipment_category']); ?>
+                            <?php echo htmlspecialchars($translated_category); ?>
                         </strong>
                     </p>
 
                     <p class="mb-1">
                         <i class="fa-solid fa-location-dot text-danger me-1"></i>
-                        <?php echo htmlspecialchars($b['service_location']); ?>
+                        <?php echo htmlspecialchars($translated_location); ?>
                     </p>
 
                     <p class="mb-0">

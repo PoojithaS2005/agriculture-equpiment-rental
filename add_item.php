@@ -228,7 +228,7 @@ if (
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        <?php echo __('page_title'); ?> - Agriculture Rental System
+        <?php echo __('add_equipment'); ?> - Agriculture Rental System
     </title>
 
     <link
@@ -292,6 +292,36 @@ if (
 
         .top-navbar .text-muted {
             color: #D4E5FF !important;
+        }
+
+        /* Lender profile avatar: initials derived from the signed-in user's name */
+        .lender-avatar {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFFFF;
+            color: var(--navy-primary);
+            border: 1px solid #D7E6FA;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+
+        .lender-profile-name,
+        .lender-profile-role {
+            color: #FFFFFF !important;
+        }
+
+        .lender-profile-role {
+            display: inline-block;
+            margin-top: 3px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            opacity: 0.9;
         }
 
         .top-navbar .form-select {
@@ -537,20 +567,29 @@ if (
             </select>
         </form>
 
-        <div class="d-flex align-items-center gap-2">
-            <div
-                class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 32px; height: 32px; font-size: 0.8rem;"
-            >
-                <i class="fa-solid fa-user"></i>
+        <?php
+            // Build profile initials from the logged-in lender's actual name.
+            $profileName = trim((string)($_SESSION['full_name'] ?? 'Lender'));
+            $nameParts = preg_split('/\s+/u', $profileName, -1, PREG_SPLIT_NO_EMPTY);
+            $profileInitials = '';
+            if (!empty($nameParts)) {
+                $profileInitials = mb_strtoupper(mb_substr($nameParts[0], 0, 1, 'UTF-8'), 'UTF-8');
+                if (count($nameParts) > 1) {
+                    $profileInitials .= mb_strtoupper(mb_substr($nameParts[count($nameParts) - 1], 0, 1, 'UTF-8'), 'UTF-8');
+                }
+            }
+        ?>
+        <div class="d-flex align-items-center gap-2 lender-profile">
+            <div class="lender-avatar" aria-label="<?= htmlspecialchars($profileInitials); ?>">
+                <?= htmlspecialchars($profileInitials); ?>
             </div>
 
-            <div class="lh-1">
-                <div class="fw-bold small">
-                    <?= htmlspecialchars($_SESSION['full_name'] ?? 'Tejomurthy'); ?>
+            <div class="lh-1 lender-profile-info">
+                <div class="fw-bold small lender-profile-name">
+                    <?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
 
-                <span style="font-size: 0.65rem; color: #D4E5FF;">
+                <span class="lender-profile-role">
                     <?php echo __('lender'); ?>
                 </span>
             </div>
@@ -566,7 +605,7 @@ if (
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <h4 class="fw-bold mb-0">
-                    <?php echo __('page_title'); ?>
+                    <?php echo __('add_equipment'); ?>
                 </h4>
 
                 <div class="text-muted small">

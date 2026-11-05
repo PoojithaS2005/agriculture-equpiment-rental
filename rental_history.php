@@ -315,7 +315,9 @@ function getStatusClass($status)
 
     if (
         $status === 'ongoing' ||
-        $status === 'active'
+        $status === 'active' ||
+        $status === 'delivered' ||
+        $status === 'overdue'
     ) {
         return 'status-ongoing';
     }
@@ -1134,6 +1136,14 @@ body {
                             'Agricultural Equipment'
                         );
 
+                        // Translate category safely
+                        $raw_cat = trim($equipment_category);
+                        $cat_key = 'category_' . strtolower($raw_cat);
+                        $translated_category = tr($cat_key, '');
+                        if ($translated_category === $cat_key || $translated_category === '') {
+                            $translated_category = tr(strtolower($raw_cat), $raw_cat);
+                        }
+
                         $equipment_image = getEquipmentImage(
                             getBookingValue(
                                 $row,
@@ -1193,6 +1203,13 @@ body {
                             'Pending'
                         );
 
+                        // Translate status safely
+                        $status_key = strtolower(trim($status));
+                        $translated_status = tr($status_key, '');
+                        if ($translated_status === $status_key || $translated_status === '') {
+                            $translated_status = tr('status_' . $status_key, ucfirst($status));
+                        }
+
                         $booked_on = getBookingValue(
                             $row,
                             [
@@ -1250,7 +1267,7 @@ body {
                                                 tr('category', 'Category')
                                             ) ?>:
 
-                                            <?= htmlspecialchars($equipment_category) ?>
+                                            <?= htmlspecialchars($translated_category) ?>
 
                                         </div>
 
@@ -1359,9 +1376,7 @@ body {
 
                                 <span class="status <?= htmlspecialchars($status_class) ?>">
 
-                                    <?= htmlspecialchars(
-                                        ucfirst($status)
-                                    ) ?>
+                                    <?= htmlspecialchars($translated_status) ?>
 
                                 </span>
 

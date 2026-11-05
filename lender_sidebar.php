@@ -117,7 +117,7 @@ $is_my_profile =
 <style> 
  
 :root { 
-    --lender-teal-primary: #103B7A; 
+    --lender-teal-primary: #092858; 
     --lender-teal-hover: #164C9A; 
     --lender-sidebar-bg: #C7DDF7; 
     --lender-text-muted: #10194A; 
@@ -152,7 +152,7 @@ $is_my_profile =
 .lender-tractor-avatar { 
     width: 32px; 
     height: 32px; 
-    background: #A6C8F5; 
+    background: #5a8bcb; 
     color: var(--lender-teal-primary); 
     border-radius: 50%; 
     display: flex; 

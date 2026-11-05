@@ -4,6 +4,80 @@ session_start();
 require_once 'includes/lang.php';
 require_once 'includes/config.php';
 
+// Translate common equipment values stored in the database.
+// Unknown/user-entered values are displayed unchanged.
+function translate_equipment_value($value, $type = 'general') {
+    $value = trim((string)$value);
+    if ($value === '') return '';
+    $normalized = strtolower($value);
+    $maps = [
+        'status' => ['available' => 'equipment_available', 'rented' => 'equipment_rented'],
+        'condition' => ['good' => 'condition_good', 'excellent' => 'condition_excellent', 'fair' => 'condition_fair', 'poor' => 'condition_poor'],
+        'location' => [
+            'bagalkot' => 'district_bagalkot',
+            'bagalkote' => 'district_bagalkot',
+            'ballari' => 'district_ballari',
+            'bellary' => 'district_ballari',
+            'belagavi' => 'district_belagavi',
+            'belgaum' => 'district_belagavi',
+            'bengaluru rural' => 'district_bengaluru_rural',
+            'bangalore rural' => 'district_bengaluru_rural',
+            'bengaluru urban' => 'district_bengaluru_urban',
+            'bangalore urban' => 'district_bengaluru_urban',
+            'bengaluru' => 'district_bengaluru_urban',
+            'bangalore' => 'district_bengaluru_urban',
+            'bidar' => 'district_bidar',
+            'chamarajanagar' => 'district_chamarajanagar',
+            'chamrajnagar' => 'district_chamarajanagar',
+            'chikkaballapur' => 'district_chikkaballapur',
+            'chikballapur' => 'district_chikkaballapur',
+            'chikkamagaluru' => 'district_chikkamagaluru',
+            'chikmagalur' => 'district_chikkamagaluru',
+            'chitradurga' => 'district_chitradurga',
+            'dakshina kannada' => 'district_dakshina_kannada',
+            'south kanara' => 'district_dakshina_kannada',
+            'davanagere' => 'district_davanagere',
+            'davangere' => 'district_davanagere',
+            'dharwad' => 'district_dharwad',
+            'gadag' => 'district_gadag',
+            'hassan' => 'district_hassan',
+            'haveri' => 'district_haveri',
+            'kalaburagi' => 'district_kalaburagi',
+            'gulbarga' => 'district_kalaburagi',
+            'kodagu' => 'district_kodagu',
+            'coorg' => 'district_kodagu',
+            'kolar' => 'district_kolar',
+            'koppal' => 'district_koppal',
+            'mandya' => 'district_mandya',
+            'mysuru' => 'district_mysuru',
+            'mysore' => 'district_mysuru',
+            'raichur' => 'district_raichur',
+            'ramanagara' => 'district_ramanagara',
+            'ramnagaram' => 'district_ramanagara',
+            'shivamogga' => 'district_shivamogga',
+            'shimoga' => 'district_shivamogga',
+            'tumakuru' => 'district_tumakuru',
+            'tumkur' => 'district_tumakuru',
+            'udupi' => 'district_udupi',
+            'uttara kannada' => 'district_uttara_kannada',
+            'north kanara' => 'district_uttara_kannada',
+            'vijayapura' => 'district_vijayapura',
+            'bijapur' => 'district_vijayapura',
+            'yadgir' => 'district_yadgir',
+            'yadagiri' => 'district_yadgir',
+            'vijayanagara' => 'district_vijayanagara',
+            'vijayanagaram' => 'district_vijayanagara',
+        ]
+    ];
+    if (isset($maps[$type][$normalized])) return __($maps[$type][$normalized]);
+    if ($type === 'category') {
+        $key = trim(preg_replace('/[^a-z0-9]+/i', '_', $normalized), '_');
+        if (in_array($key, ['tractor','harvesting','irrigation','tillage','seeding','spraying'], true)) return __($key);
+    }
+    return $value;
+}
+
+
 // Protect Page: Ensure user is logged in as Lender
 if (!isset($_SESSION['user_id']) || strtolower($_SESSION['role']) !== 'lender') {
     header("Location: login.php");
@@ -402,10 +476,11 @@ $equip_result = $equip_stmt->get_result();
                                 >
 
                                     <?php
+                                    $status_value = $row['status'] ?? 'Available';
                                     echo htmlspecialchars(
-                                        ucfirst(
-                                            $row['status'] ?? 'Available'
-                                        )
+                                        translate_equipment_value($status_value, 'status'),
+                                        ENT_QUOTES,
+                                        'UTF-8'
                                     );
                                     ?>
 
@@ -422,7 +497,12 @@ $equip_result = $equip_stmt->get_result();
 
                                 <?php
                                 echo htmlspecialchars(
-                                    $row['category'] ?? __('uncategorized')
+                                    translate_equipment_value(
+                                        $row['category'] ?? __('uncategorized'),
+                                        'category'
+                                    ),
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
 
@@ -442,9 +522,19 @@ $equip_result = $equip_stmt->get_result();
                                 <i class="fa-solid fa-location-dot me-1"></i>
 
                                 <?php
+                                $location_value = $row['service_location']
+                                    ?? __('location_not_specified');
+                                $location_parts = preg_split('/\s*,\s*/u', (string)$location_value);
+                                $translated_locations = array_map(
+                                    function ($place) {
+                                        return translate_equipment_value($place, 'location');
+                                    },
+                                    $location_parts
+                                );
                                 echo htmlspecialchars(
-                                    $row['service_location']
-                                    ?? __('location_not_specified')
+                                    implode(', ', $translated_locations),
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
 
@@ -461,7 +551,12 @@ $equip_result = $equip_stmt->get_result();
 
                                 <?php
                                 echo htmlspecialchars(
-                                    $row['equipment_condition'] ?? 'N/A'
+                                    translate_equipment_value(
+                                        $row['equipment_condition'] ?? 'N/A',
+                                        'condition'
+                                    ),
+                                    ENT_QUOTES,
+                                    'UTF-8'
                                 );
                                 ?>
 
@@ -492,17 +587,16 @@ $equip_result = $equip_stmt->get_result();
 
                             <div class="meta-text">
 
-                                Quantity:
+                                <?php echo __('quantity_label'); ?>:
 
                                 <strong>
                                     <?php
-                                    echo (int)(
-                                        $row['total_quantity'] ?? 1
-                                    );
+                                    $quantity = (int)($row['total_quantity'] ?? 1);
+                                    echo $quantity;
                                     ?>
                                 </strong>
 
-                                unit(s)
+                                <?php echo ($quantity === 1) ? __('unit_label') : __('units_label'); ?>
 
                             </div>
 

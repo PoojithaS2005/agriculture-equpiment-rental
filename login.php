@@ -15,6 +15,24 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
 // Include language translation system
 require_once 'includes/lang.php';
 
+// Localized branding for the header
+$brand_translations = [
+    'en' => [
+        'title' => 'AGRICULTURE',
+        'subtitle' => 'EQUIPMENT RENTAL SYSTEM'
+    ],
+    'kn' => [
+        'title' => 'ಕೃಷಿ',
+        'subtitle' => 'ಕೃಷಿ ಉಪಕರಣ ಬಾಡಿಗೆ ವ್ಯವಸ್ಥೆ'
+    ],
+    'hi' => [
+        'title' => 'कृषि',
+        'subtitle' => 'कृषि उपकरण किराया प्रणाली'
+    ]
+];
+
+$brand_text = $brand_translations[$current_lang] ?? $brand_translations['en'];
+
 // Include database connection
 if (file_exists('includes/config.php')) {
     include('includes/config.php');
@@ -147,7 +165,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= __('login'); ?> - <?= __('title'); ?></title>
+    <!-- Meta tag to block Chrome Translate on specified parts -->
+    <meta name="google" content="notranslate">
+
+    <title><?= __('login'); ?> - Agriculture Equipment Rental System</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -344,13 +365,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- NAVBAR HEADER -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 border-bottom">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
+            <a class="navbar-brand d-flex align-items-center gap-3 notranslate" href="index.php" translate="no">
                 <div class="brand-logo-icon">
                     <i class="fa-solid fa-tractor"></i>
                 </div>
                 <div>
-                    <div class="brand-text-main">AGRICULTURE</div>
-                    <div class="brand-text-sub">EQUIPMENT RENTAL SYSTEM</div>
+                    <div class="brand-text-main"><?= htmlspecialchars($brand_text['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div class="brand-text-sub"><?= htmlspecialchars($brand_text['subtitle'], ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
             </a>
 
@@ -643,9 +664,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="footer-bottom">
-            <div class="container">
-                © 2026 <?= __('title'); ?>.
-                <?= __('all_rights_reserved'); ?>
+            <div class="container notranslate" translate="no">
+                © 2026 Agriculture Equipment Rental System.
+                <span translate="yes"><?= __('all_rights_reserved'); ?></span>
             </div>
         </div>
     </footer>

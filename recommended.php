@@ -34,81 +34,6 @@ if (!in_array($current_lang, $allowed_languages, true)) {
 }
 
 /*
- * Wishlist action
- */
-if (
-    isset($_POST['wishlist_action']) &&
-    isset($_POST['equipment_id'])
-) {
-    $equipment_id = (int) $_POST['equipment_id'];
-    $wishlist_action = $_POST['wishlist_action'];
-
-    if ($equipment_id > 0) {
-
-        if ($wishlist_action === 'add') {
-
-            $wishlist_sql = "
-                INSERT IGNORE INTO wishlist
-                (
-                    user_id,
-                    equipment_id
-                )
-                VALUES
-                (
-                    ?,
-                    ?
-                )
-            ";
-
-            $wishlist_stmt = mysqli_prepare(
-                $conn,
-                $wishlist_sql
-            );
-
-            if ($wishlist_stmt) {
-                mysqli_stmt_bind_param(
-                    $wishlist_stmt,
-                    "ii",
-                    $user_id,
-                    $equipment_id
-                );
-
-                mysqli_stmt_execute($wishlist_stmt);
-                mysqli_stmt_close($wishlist_stmt);
-            }
-
-        } elseif ($wishlist_action === 'remove') {
-
-            $wishlist_sql = "
-                DELETE FROM wishlist
-                WHERE user_id = ?
-                AND equipment_id = ?
-            ";
-
-            $wishlist_stmt = mysqli_prepare(
-                $conn,
-                $wishlist_sql
-            );
-
-            if ($wishlist_stmt) {
-                mysqli_stmt_bind_param(
-                    $wishlist_stmt,
-                    "ii",
-                    $user_id,
-                    $equipment_id
-                );
-
-                mysqli_stmt_execute($wishlist_stmt);
-                mysqli_stmt_close($wishlist_stmt);
-            }
-        }
-    }
-
-    header("Location: recommended.php");
-    exit;
-}
-
-/*
  * Logged-in user information
  */
 $user_name = $_SESSION['name']
@@ -175,47 +100,6 @@ if (!empty($user_name)) {
         ),
         'UTF-8'
     );
-}
-
-/*
- * Wishlist IDs
- */
-$wishlist_ids = [];
-
-$wishlist_check_sql = "
-    SELECT equipment_id
-    FROM wishlist
-    WHERE user_id = ?
-";
-
-$wishlist_check_stmt = mysqli_prepare(
-    $conn,
-    $wishlist_check_sql
-);
-
-if ($wishlist_check_stmt) {
-
-    mysqli_stmt_bind_param(
-        $wishlist_check_stmt,
-        "i",
-        $user_id
-    );
-
-    mysqli_stmt_execute($wishlist_check_stmt);
-
-    $wishlist_result = mysqli_stmt_get_result(
-        $wishlist_check_stmt
-    );
-
-    while (
-        $wishlist_row = mysqli_fetch_assoc(
-            $wishlist_result
-        )
-    ) {
-        $wishlist_ids[] = (int) $wishlist_row['equipment_id'];
-    }
-
-    mysqli_stmt_close($wishlist_check_stmt);
 }
 
 /*
@@ -702,41 +586,6 @@ function getImagePath($image)
             display: block;
         }
 
-        .favorite {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            width: 42px;
-            height: 42px;
-            background: rgba(255, 255, 255, .85);
-            border: 1px solid rgba(255, 255, 255, .95);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 25px;
-            color: #7a8576;
-            cursor: pointer;
-            box-shadow: 0 5px 18px rgba(50, 70, 45, .14);
-            z-index: 10;
-            transition: .2s;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
-        .favorite:hover {
-            transform: scale(1.08);
-        }
-
-        .favorite.active {
-            color: #e53955;
-        }
-
-        .wishlist-form {
-            margin: 0;
-            padding: 0;
-        }
-
         .card-body {
             padding: 20px;
         }
@@ -892,8 +741,7 @@ function getImagePath($image)
         @media (prefers-reduced-motion: reduce) {
             .card,
             .browse,
-            .view-btn,
-            .favorite {
+            .view-btn {
                 transition: none !important;
             }
         }
@@ -1104,15 +952,7 @@ function getImagePath($image)
 
                         $equipment_id =
                             (int) ($row['equipment_id'] ?? 0);
-
-                        $is_wishlisted =
-                            in_array(
-                                $equipment_id,
-                                $wishlist_ids,
-                                true
-                            );
-
-                        ?>
+?>
 
                         <div class="card">
 
@@ -1151,40 +991,6 @@ function getImagePath($image)
                                     ) ?>
 
                                 </div>
-
-                            <?php endif; ?>
-
-                            <?php if ($equipment_id > 0): ?>
-
-                                <form
-                                    method="POST"
-                                    action="recommended.php"
-                                    class="wishlist-form"
-                                >
-
-                                    <input
-                                        type="hidden"
-                                        name="equipment_id"
-                                        value="<?= $equipment_id ?>"
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        name="wishlist_action"
-                                        value="<?= $is_wishlisted ? 'remove' : 'add' ?>"
-                                    >
-
-                                    <button
-                                        type="submit"
-                                        class="favorite <?= $is_wishlisted ? 'active' : '' ?>"
-                                        title="<?= $is_wishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' ?>"
-                                    >
-
-                                        <?= $is_wishlisted ? '♥' : '♡' ?>
-
-                                    </button>
-
-                                </form>
 
                             <?php endif; ?>
 
