@@ -228,7 +228,7 @@ if (
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        <?php echo __('page_title'); ?> - Agriculture Rental System
+        <?php echo __('add_equipment'); ?> - Agriculture Rental System
     </title>
 
     <link
@@ -605,7 +605,7 @@ if (
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <h4 class="fw-bold mb-0">
-                    <?php echo __('page_title'); ?>
+                    <?php echo __('add_equipment'); ?>
                 </h4>
 
                 <div class="text-muted small">
