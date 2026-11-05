@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -497,15 +498,52 @@ if ($from === 'rent_now') {
     --light: #f4f9f5;
 }
 
+html {
+    min-height: 100%;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #f8faf9;
     color: #333;
+    min-height: 100vh;
+    position: relative;
+    isolation: isolate;
 }
 
+/* ===== COUNTRYSIDE BACKGROUND WITH BLUR ===== */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: -8px;
+    z-index: -2;
+    background-image: url('images/countryside-background.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: blur(4px);
+    transform: scale(1.02);
+}
+
+/* Light overlay for better readability */
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+}
+
+/* ===== NAVBAR ===== */
+
 .navbar {
-    background: #fff;
-    border-bottom: 1px solid #edf2ef;
+    background: rgba(255, 255, 255, 0.30);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
 }
 
 .brand-logo-icon {
@@ -536,7 +574,7 @@ body {
 
 .nav-link {
     font-weight: 500;
-    color: #444 !important;
+    color: #1b4332 !important;
     margin: 0 8px;
 }
 
@@ -560,14 +598,27 @@ body {
     font-weight: 600;
 }
 
+/* ===== MAIN FROSTED GLASS CARD ===== */
+
 .page-card {
     max-width: 1000px;
     margin: 35px auto 50px;
-    background: #fff;
+
+    background: rgba(255, 255, 255, 0.25);
+
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
+
     border-radius: 18px;
+
     padding: 35px 42px;
-    box-shadow: 0 8px 28px rgba(0,0,0,.06);
+
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
+
+/* ===== HEADINGS ===== */
 
 h1 {
     color: var(--dark);
@@ -591,33 +642,54 @@ h3 {
 li {
     margin-bottom: 9px;
     line-height: 1.55;
+    color: #253b32;
 }
 
 .intro {
-    color: #5b6673;
+    color: #334b43;
 }
 
+/* ===== IMPORTANT NOTE GLASS BOX ===== */
+
 .notice {
-    background: var(--light);
+    background: rgba(244, 249, 245, 0.55);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-left: 4px solid var(--green);
+
     padding: 16px 18px;
+
     border-radius: 8px;
+
     margin-top: 28px;
 }
 
+/* ===== AGREEMENT GLASS BOX ===== */
+
 .agreement-box {
-    background: var(--light);
-    border: 1px solid #d9e8df;
+    background: rgba(244, 249, 245, 0.60);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.70);
+
     border-radius: 12px;
+
     padding: 14px 16px;
 }
 
 .agreement-box label {
     cursor: pointer;
-    color: #334155;
+    color: #253b32;
     font-weight: 600;
     font-size: 14px;
 }
+
+/* ===== BACK BUTTON ===== */
 
 .back {
     display: inline-flex;
@@ -633,6 +705,25 @@ li {
 .back:hover {
     background: var(--dark);
     color: #fff;
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+
+@media (max-width: 768px) {
+
+    .page-card {
+        margin: 20px 10px 30px;
+        padding: 22px 18px;
+    }
+
+    .navbar .container {
+        flex-wrap: wrap;
+    }
+
+    .page-card h1 {
+        font-size: 1.6rem;
+    }
+
 }
 
 </style>

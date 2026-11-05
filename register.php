@@ -602,8 +602,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8faf9;
             color: #333;
+            min-height: 100vh;
+            position: relative;
+            isolation: isolate;
+            overflow-x: hidden;
+            background: transparent;
+        }
+
+        /* Same softly blurred countryside background used on login.php */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -5px;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(220, 241, 255, .08) 0%,
+                    rgba(235, 247, 220, .08) 100%
+                ),
+                url('images/countryside-background.png')
+                center center / cover no-repeat;
+            filter: blur(1px);
+            transform: scale(1.01);
         }
 
 
@@ -716,17 +739,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
            ===================================================== */
 
         .register-outer-card {
-            background: #ffffff;
-
-            border-radius: 20px;
-
+            /* Glass effect matching the login page card */
+            background: rgba(255, 255, 255, .38);
+            border-radius: 30px;
             box-shadow:
-                0 10px 30px rgba(0, 0, 0, 0.06);
-
+                0 18px 45px rgba(16, 66, 66, .16),
+                inset 0 1px 0 rgba(255, 255, 255, .65);
             overflow: hidden;
-
-            border: 1px solid #eef2f0;
-
+            border: 1px solid rgba(255, 255, 255, .62);
+            -webkit-backdrop-filter: blur(22px);
+            backdrop-filter: blur(22px);
             margin-top: 20px;
             margin-bottom: 40px;
         }
@@ -737,8 +759,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
            ===================================================== */
 
         .left-banner-panel {
-            background-color: var(--brand-light-bg);
-
+            /* Semi-transparent glass instead of a solid white/green panel */
+            background: rgba(255, 255, 255, .30);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
             padding: 40px 30px 20px 30px;
 
             display: flex;
@@ -814,6 +838,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
            ===================================================== */
 
         .right-form-panel {
+            /* Translucent form side to match the login glass card */
+            background: rgba(255, 255, 255, .30);
+            -webkit-backdrop-filter: blur(22px);
+            backdrop-filter: blur(22px);
             padding: 40px;
         }
 

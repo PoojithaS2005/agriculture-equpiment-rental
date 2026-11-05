@@ -157,259 +157,185 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <style>
         :root {
-            --brand-green: #2d6a4f;
-            --brand-green-hover: #1b4332;
+            --brand-green: #08785f;
+            --brand-green-hover: #075b49;
             --brand-light-bg: #f4f9f5;
+            --glass-border: rgba(255, 255, 255, 0.62);
+            --glass-fill: rgba(255, 255, 255, 0.28);
+            --glass-shadow: 0 18px 45px rgba(16, 66, 66, 0.16);
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff;
-            color: #333;
-        }
-
-        /* --- Header Brand Logo --- */
-        .brand-logo-icon {
-            width: 46px;
-            height: 46px;
-            background-color: var(--brand-green);
-            color: #ffffff;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            box-shadow: 0 4px 10px rgba(45, 106, 79, 0.25);
-        }
-
-        .brand-text-main {
-            font-weight: 800;
-            color: var(--brand-green);
-            font-size: 1.25rem;
-            line-height: 1.1;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-text-sub {
-            font-size: 0.68rem;
-            font-weight: 700;
-            color: #555;
-            letter-spacing: 1px;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: #444 !important;
-            margin: 0 10px;
-        }
-
-        .nav-link:hover {
-            color: var(--brand-green) !important;
-        }
-
-        .lang-dropdown {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 6px 16px;
-            font-size: 0.9rem;
-            background: #fff;
-            color: #333;
-            cursor: pointer;
-        }
-
-        /* --- Welcome & Tractor Image Styling --- */
-        .welcome-title {
-            color: var(--brand-green);
-            font-weight: 800;
-            font-size: 2.3rem;
-        }
-
-        .welcome-sub {
-            color: #555;
-            font-size: 1.05rem;
-        }
-
-        .tractor-hero-card {
-            background: transparent;
-            border-radius: 0;
-            padding: 0;
-            overflow: visible;
-            box-shadow: none;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .tractor-hero-card img {
-            width: 100%;
-            height: auto;
-            max-height: 340px;
-            object-fit: contain;
-            display: block;
-        }
-
-        /* Feature Highlights */
-        .feature-icon-box {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: 2.5px solid var(--brand-green);
-            color: var(--brand-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            background-color: #fff;
-        }
-
-        .feature-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #111;
-            margin-bottom: 2px;
-        }
-
-        .feature-sub {
-            font-size: 0.8rem;
-            color: #666;
-            line-height: 1.2;
-        }
-
-        /* --- Login Card Styling --- */
-        .login-card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            padding: 35px 30px;
-            background: #ffffff;
-        }
-
-        .avatar-circle {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            border: 2px solid var(--brand-green);
-            color: var(--brand-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin: 0 auto 10px auto;
-        }
-
-        .login-heading {
-            font-weight: 800;
-            color: #111;
-            margin-bottom: 25px;
-        }
-
-        .form-control {
-            border-radius: 10px;
-            padding: 12px 15px 12px 42px;
-            font-size: 0.95rem;
-            border: 1px solid #dce1e5;
-        }
-
-        .form-control:focus {
-            border-color: var(--brand-green);
-            box-shadow: 0 0 0 0.2rem rgba(45, 106, 79, 0.15);
-        }
-
-        .input-icon-wrapper {
+            color: #173b3b;
+            min-height: 100vh;
             position: relative;
+            isolation: isolate;
+            overflow-x: hidden;
+            background: transparent;
         }
 
-        .input-icon-left {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #777;
+        /* Softly blurred countryside background behind the existing glass panels. */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -5px;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(220, 241, 255, .08) 0%,
+                    rgba(235, 247, 220, .08) 100%
+                ),
+                url('images/countryside-background.png')
+                center center / cover no-repeat;
+            /* The image is already softly blurred, so keep the blur very light. */
+            filter: blur(1px);
+            transform: scale(1.01);
         }
 
-        .input-icon-right {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #777;
-            cursor: pointer;
+        /* Header Brand Logo */
+        .navbar {
+            background: rgba(232, 246, 252, .48) !important;
+            border-bottom: 1px solid rgba(255,255,255,.38) !important;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+        .brand-logo-icon {
+            width: 46px; height: 46px;
+            background: linear-gradient(145deg, #0b8a6d, #075b49);
+            color: #fff; border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 7px 18px rgba(7, 91, 73, .25);
+        }
+        .brand-text-main { font-weight: 800; color: #075b49; font-size: 1.25rem; line-height: 1.1; letter-spacing: .5px; }
+        .brand-text-sub { font-size: .68rem; font-weight: 700; color: #355c58; letter-spacing: 1px; }
+        .nav-link { font-weight: 600; color: #244b4b !important; margin: 0 10px; }
+        .nav-link:hover { color: var(--brand-green) !important; }
+        .lang-dropdown {
+            border: 1px solid rgba(255,255,255,.8); border-radius: 12px;
+            padding: 8px 16px; font-size: .9rem;
+            background: rgba(255,255,255,.58); color: #075b49;
+            cursor: pointer; backdrop-filter: blur(12px);
         }
 
+        /* Left welcome glass panel */
+        .welcome-glass-card {
+            height: 100%;
+            padding: 34px 30px 28px;
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            background: rgba(255,255,255,.30);
+            box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .welcome-title { color: #086b5b; font-weight: 800; font-size: clamp(2rem, 3vw, 2.7rem); }
+        .welcome-sub { color: #294b4b; font-size: 1.02rem; line-height: 1.55; }
+        .tractor-hero-card {
+            width: 100%; margin: 10px 0 14px;
+            padding: 0; background: transparent; border-radius: 18px;
+            overflow: hidden; box-shadow: none;
+        }
+        .tractor-hero-card img {
+            display: block; width: 100%; height: 255px;
+            max-height: 34vh; object-fit: contain; object-position: center;
+        }
+        .feature-icon-box {
+            width: 58px; height: 58px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.9); color: #078267;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem; margin-bottom: 8px;
+            background: rgba(255,255,255,.68);
+            box-shadow: 0 7px 18px rgba(18,76,67,.10);
+        }
+        .feature-title { font-size: .95rem; font-weight: 800; color: #173b36; margin-bottom: 3px; }
+        .feature-sub { font-size: .8rem; color: #365b53; line-height: 1.35; }
+
+        /* Login glass panel */
+        .login-card {
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,.65);
+            padding: 35px 30px;
+            background: rgba(255,255,255,.38);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+        .avatar-circle {
+            width: 68px; height: 68px; border-radius: 50%;
+            border: 2px solid #078267; color: #078267;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 10px;
+            background: rgba(255,255,255,.42);
+        }
+        .login-heading { font-weight: 800; color: #102f2d; margin-bottom: 25px; }
+        .form-control {
+            border-radius: 12px; padding: 12px 15px 12px 42px;
+            font-size: .95rem; border: 1px solid rgba(255,255,255,.9);
+            background: rgba(255,255,255,.52); color: #183b38;
+            box-shadow: inset 0 1px 3px rgba(30,70,65,.04);
+        }
+        .form-control::placeholder { color: #58736e; }
+        .form-control:focus {
+            border-color: #078267;
+            background: rgba(255,255,255,.76);
+            box-shadow: 0 0 0 .2rem rgba(7,130,103,.14);
+        }
+        .input-icon-wrapper { position: relative; }
+        .input-icon-left { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #55716b; }
+        .input-icon-right { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #55716b; cursor: pointer; }
         .btn-brand-green {
-            background-color: var(--brand-green);
-            color: #fff;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 600;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            background: linear-gradient(100deg, #087e65, #075b50);
+            color: #fff; border-radius: 12px; padding: 13px;
+            font-weight: 700; border: 1px solid rgba(255,255,255,.25);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 8px 18px rgba(7,91,73,.18);
         }
-
-        .btn-brand-green:hover {
-            background-color: var(--brand-green-hover);
-            color: #fff;
-        }
-
+        .btn-brand-green:hover { background: linear-gradient(100deg, #076b56, #064b42); color: #fff; }
         .btn-brand-green .arrow-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 1px solid #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
+            width: 24px; height: 24px; border-radius: 50%; border: 1px solid #fff;
+            display: flex; align-items: center; justify-content: center; font-size: .75rem;
         }
-
         .btn-outline-register {
-            border: 1px solid #dce1e5;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: 600;
-            color: #333;
-            text-decoration: none;
-            display: block;
-            text-align: center;
-            background: #fff;
+            border: 1px solid rgba(255,255,255,.85); border-radius: 12px;
+            padding: 12px; font-weight: 600; color: #244b45;
+            text-decoration: none; display: block; text-align: center;
+            background: rgba(255,255,255,.48);
         }
-
-        .btn-outline-register:hover {
-            background-color: #f8f9fa;
-            color: var(--brand-green);
-        }
-
+        .btn-outline-register:hover { background: rgba(255,255,255,.75); color: var(--brand-green); }
         .terms-box {
-            background-color: #f4f9f5;
-            border-radius: 12px;
-            padding: 12px 15px;
-            font-size: 0.85rem;
-            color: #444;
+            background: rgba(255,255,255,.38); border: 1px solid rgba(255,255,255,.55);
+            border-radius: 14px; padding: 12px 15px; font-size: .85rem; color: #294b45;
         }
-
-        /* Terms & Privacy links */
-        .terms-box a {
-            color: var(--brand-green);
-            font-weight: 600;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-
-        .terms-box a:hover {
-            color: var(--brand-green-hover);
-        }
+        .terms-box a { color: #08745d; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+        .terms-box a:hover { color: var(--brand-green-hover); }
 
         /* Footer */
+        footer > .container { padding-bottom: 18px; }
+        footer .container.pt-3 { background: rgba(238, 248, 226, .62); border: 1px solid rgba(255,255,255,.60); border-radius: 20px 20px 0 0; backdrop-filter: blur(14px); }
         .footer-bottom {
-            background-color: var(--brand-green);
-            color: #ffffff;
-            padding: 15px 0;
-            text-align: center;
-            font-size: 0.9rem;
-            margin-top: 40px;
+            background: rgba(5, 91, 70, .88); color: #fff;
+            padding: 15px 0; text-align: center; font-size: .9rem; margin-top: 20px;
+            backdrop-filter: blur(12px);
+        }
+
+        @media (max-width: 991.98px) {
+            .welcome-glass-card { padding: 28px 24px; }
+            .tractor-hero-card img { height: 230px; max-height: none; }
+            .login-card { padding: 30px 24px; }
+        }
+        @media (max-width: 575.98px) {
+            .welcome-glass-card, .login-card { border-radius: 22px; padding: 25px 20px; }
+            .welcome-title { font-size: 2rem; }
+            .tractor-hero-card img { height: 190px; }
+            .feature-icon-box { width: 48px; height: 48px; font-size: 1.1rem; }
+            .feature-title { font-size: .82rem; }
+            .feature-sub { font-size: .7rem; }
         }
     </style>
 </head>
@@ -475,6 +401,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <!-- LEFT COLUMN: Image & Text -->
             <div class="col-lg-6">
+                <div class="welcome-glass-card">
                 <h1 class="welcome-title mb-2"><?= __('welcome_back'); ?></h1>
                 <p class="welcome-sub mb-3"><?= __('login_sub'); ?></p>
 
@@ -514,6 +441,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <span class="feature-sub"><?= __('near_desc'); ?></span>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
 
