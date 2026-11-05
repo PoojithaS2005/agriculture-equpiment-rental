@@ -211,8 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     rgba(220, 241, 255, .08) 0%,
                     rgba(235, 247, 220, .08) 100%
                 ),
-                url('images/countryside-background.png')
-                center center / cover no-repeat;
+                url('images/home-farm-background.jpeg') center center / cover no-repeat;
             /* The image is already softly blurred, so keep the blur very light. */
             filter: blur(1px);
             transform: scale(1.01);

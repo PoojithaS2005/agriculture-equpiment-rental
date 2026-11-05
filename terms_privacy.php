@@ -518,7 +518,7 @@ body::before {
     position: fixed;
     inset: -8px;
     z-index: -2;
-    background-image: url('images/countryside-background.png');
+    background-image: url('images/home-farm-background.jpeg');
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -533,7 +533,7 @@ body::after {
     position: fixed;
     inset: 0;
     z-index: -1;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.14);
     pointer-events: none;
 }
 
@@ -568,7 +568,7 @@ body::after {
 .brand-text-sub {
     font-size: .62rem;
     font-weight: 700;
-    color: #555;
+    color: #262525a0;
     letter-spacing: .4px;
 }
 

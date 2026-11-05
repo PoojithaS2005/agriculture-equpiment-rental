@@ -23,8 +23,32 @@ if (file_exists('includes/config.php')) {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff;
-            color: #333;
+            color: #20352b;
+            min-height: 100vh;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.10)),
+                url('images/home-farm-background.jpeg') center center / cover fixed no-repeat;
+        }
+
+        /* Frosted-glass surfaces over the farm background */
+        .glass-navbar {
+            background: rgba(255, 255, 255, 0.78) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.45) !important;
+            box-shadow: 0 4px 24px rgba(20, 55, 35, 0.08);
+        }
+
+        .glass-hero-header {
+            background: rgba(255, 255, 255, 0.76) !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.42) !important;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 1;
         }
 
         .brand-logo-icon {
@@ -77,25 +101,30 @@ if (file_exists('includes/config.php')) {
 
         /* Step Cards */
         .step-card {
-            border: 1px solid #e9ecef;
+            border: 1px solid rgba(255, 255, 255, 0.58);
             border-radius: 16px;
             padding: 30px 20px;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             height: 100%;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 8px 28px rgba(25, 60, 40, 0.10),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.45);
         }
 
         .step-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16);
+            background: rgba(255, 255, 255, 0.88);
         }
 
         .step-badge {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #f4f9f5;
+            background-color: rgba(244, 249, 245, 0.78);
             color: var(--brand-green);
             font-weight: 700;
             display: flex;
@@ -104,10 +133,44 @@ if (file_exists('includes/config.php')) {
             margin: 0 auto 15px auto;
         }
 
+        .step-card h5 {
+            color: #1b4332;
+        }
+
+        .step-card p {
+            color: #344e41 !important;
+        }
+
         .step-icon {
             font-size: 2.5rem;
             color: var(--brand-green);
             margin-bottom: 15px;
+        }
+
+        /* Popular categories panel */
+        .popular-categories-box {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 18px;
+            padding: 24px 28px;
+            margin: 0 auto 28px;
+            max-width: 980px;
+            box-shadow: 0 8px 24px rgba(24, 55, 43, 0.12);
+        }
+
+        .popular-categories-box h6 {
+            color: #176344;
+            letter-spacing: 0.2px;
+        }
+
+        .popular-category-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #405448;
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: rgba(235, 245, 237, 0.85);
         }
 
         .footer-bottom {
@@ -123,7 +186,7 @@ if (file_exists('includes/config.php')) {
 <body>
 
     <!-- NAVBAR HEADER -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-light glass-navbar py-3 border-bottom">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-3" href="index.php">
                 <div class="brand-logo-icon">
@@ -165,7 +228,7 @@ if (file_exists('includes/config.php')) {
     </nav>
 
     <!-- HERO HEADER -->
-    <div class="bg-light py-5 text-center border-bottom">
+    <div class="glass-hero-header py-5 text-center border-bottom">
         <div class="container">
             <h1 class="fw-bold text-success mb-2"><?= __('how_it_works'); ?></h1>
             <p class="text-secondary mb-0"><?= __('how_it_works_sub'); ?></p>
@@ -173,7 +236,7 @@ if (file_exists('includes/config.php')) {
     </div>
 
     <!-- STEPS FOR RENTERS & LENDERS -->
-    <div class="container my-5">
+    <div class="container my-5 page-content">
 
         <!-- FOR FARMERS / RENTERS -->
         <h3 class="fw-bold mb-4 text-center text-dark">
@@ -250,17 +313,16 @@ if (file_exists('includes/config.php')) {
     <!-- FOOTER -->
     <footer>
         <div class="container pt-3">
-            <hr class="my-4 text-muted opacity-25">
-            <div class="row g-4 justify-content-center">
-                <div class="col-md-8 text-center">
-                    <h6 class="fw-bold mb-3 text-success"><?= __('popular_categories'); ?></h6>
-                    <div class="d-flex flex-wrap justify-content-center gap-4 small text-secondary">
-                        <span><i class="fa-solid fa-tractor me-1 text-success"></i> <?= __('tractor'); ?></span>
-                        <span><i class="fa-solid fa-wheat-awn me-1 text-success"></i> <?= __('harvesting'); ?></span>
-                        <span><i class="fa-solid fa-droplet me-1 text-success"></i> <?= __('irrigation'); ?></span>
-                        <span><i class="fa-solid fa-gears me-1 text-success"></i> <?= __('tillage'); ?></span>
-                        <span><i class="fa-solid fa-seedling me-1 text-success"></i> <?= __('seeding'); ?></span>
-                        <span><i class="fa-solid fa-spray-can me-1 text-success"></i> <?= __('spraying'); ?></span>
+            <div class="popular-categories-box">
+                <div class="text-center">
+                    <h6 class="fw-bold mb-3"><?= __('popular_categories'); ?></h6>
+                    <div class="d-flex flex-wrap justify-content-center gap-2 gap-md-3 small">
+                        <span class="popular-category-item"><i class="fa-solid fa-tractor text-success"></i> <?= __('tractor'); ?></span>
+                        <span class="popular-category-item"><i class="fa-solid fa-wheat-awn text-success"></i> <?= __('harvesting'); ?></span>
+                        <span class="popular-category-item"><i class="fa-solid fa-droplet text-success"></i> <?= __('irrigation'); ?></span>
+                        <span class="popular-category-item"><i class="fa-solid fa-gears text-success"></i> <?= __('tillage'); ?></span>
+                        <span class="popular-category-item"><i class="fa-solid fa-seedling text-success"></i> <?= __('seeding'); ?></span>
+                        <span class="popular-category-item"><i class="fa-solid fa-spray-can text-success"></i> <?= __('spraying'); ?></span>
                     </div>
                 </div>
             </div>

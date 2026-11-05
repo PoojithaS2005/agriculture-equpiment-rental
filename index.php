@@ -55,6 +55,7 @@ if (isset($_SESSION['user_id'])) {
         :root {
             --brand-green: #2d6a4f;
             --brand-green-hover: #1b4332;
+             --glass-shadow: 0 18px 45px rgba(16, 66, 66, 0.16);
         }
 
         body, html {
@@ -84,7 +85,7 @@ if (isset($_SESSION['user_id'])) {
             height: 100%;
             object-fit: cover;
             z-index: 1;
-            filter: brightness(0.95);
+            filter: brightness(1.15) contrast(1.08) saturate(1.10);
         }
 
         /* Overlay to keep text readable */
@@ -94,7 +95,7 @@ if (isset($_SESSION['user_id'])) {
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 100%);
+            background: linear-gradient(139deg, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.05) 100%);
             z-index: 2;
         }
 
@@ -103,7 +104,10 @@ if (isset($_SESSION['user_id'])) {
             position: absolute;
             top: 25px;
             left: 30px;
-            background: #ffffff;
+           background:(255, 255, 255, 0.25);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 10px 22px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
@@ -171,6 +175,21 @@ if (isset($_SESSION['user_id'])) {
             padding-left: 80px;
             max-width: 650px;
             z-index: 10;
+        }
+
+        /* Glassmorphism panel around the existing hero content.
+           Positioning, links, language handling, and other functionality remain unchanged. */
+        .glass-hero-card {
+            display: inline-block;
+            width: min(570px, 100%);
+            padding: 28px 30px;
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow),
+                        inset 0 1px 0 rgb(248, 248, 248);
         }
 
         .hero-heading {
@@ -310,6 +329,10 @@ if (isset($_SESSION['user_id'])) {
             .hero-heading {
                 font-size: 2.2rem;
             }
+            .glass-hero-card {
+                padding: 22px 20px;
+                border-radius: 20px;
+            }
             .feature-divider {
                 border-right: none;
                 border-bottom: 1px solid #e2e8f0;
@@ -347,6 +370,7 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- HERO CONTENT -->
         <div class="hero-content">
+            <div class="glass-hero-card">
             <h1 class="hero-heading"><?= $home_hero_title; ?></h1>
             <p class="hero-subtitle">
                 <?= __('hero_sub'); ?>
@@ -361,6 +385,7 @@ if (isset($_SESSION['user_id'])) {
                 <a href="register.php" class="btn-register-custom">
                     <i class="fa-solid fa-user-plus"></i> <?= __('register'); ?>
                 </a>
+            </div>
             </div>
         </div>
 
